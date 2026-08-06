@@ -3,11 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SYNTACK — Cyberpunk Deckbuilder</title>
+    <title>SYNTACK — Cyber Deckbuilder</title>
+    <meta name="description" content="SYNTACK — A cyberpunk coding deckbuilder where you hack the mainframe using programming logic cards." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Orbitron:wght@700;900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Orbitron:wght@700;900&family=Press+Start+2P&display=swap"
       rel="stylesheet"
     />
     <script src="https://cdn.tailwindcss.com"></script>
@@ -16,498 +17,224 @@
         theme: {
           extend: {
             colors: {
-              bg: '#07080c',
-              surface: '#0d0f1a',
-              card: '#111326',
-              'card-hover': '#1a1f3a',
-              muted: '#181c30',
-              'neon-green': '#00ff66',
-              'neon-cyan': '#00e5ff',
-              'neon-pink': '#ff0055',
-              'neon-purple': '#aa44ff',
-              'neon-yellow': '#ffaa00',
-              'neon-blue': '#2563eb',
-              'neon-orange': '#ff6600',
-              'player': '#00ff66',
-              'energy': '#00e5ff',
-              'enemy': '#ff0055',
-              'block': '#70a1ff',
-              'variable': '#ffaa00',
-              'loop': '#aa44ff',
+              'felt-dark': '#0b3d2e',
+              'felt-med': '#14553d',
+              'felt-light': '#1a6b4e',
+              'b-red': '#fe5f55',
+              'b-blue': '#009ddc',
+              'b-gold': '#f5c542',
+              'b-purple': '#8957e5',
+              'b-green': '#59d67a',
+              'b-orange': '#e88d39',
+              'card-bg': '#262a3a',
+              'card-face': '#2f3448',
+              'card-border': '#454d6d',
             },
             fontFamily: {
               display: ['Orbitron', 'sans-serif'],
               mono: ['"JetBrains Mono"', 'monospace'],
+              pixel: ['"Press Start 2P"', 'monospace'],
             },
-            spacing: {
-              xs: '4px',
-              sm: '8px',
-              md: '12px',
-              lg: '16px',
-              xl: '24px',
-            },
-            boxShadow: {
-              'glow-green': '0 0 12px rgba(0, 255, 102, 0.35)',
-              'glow-cyan': '0 0 12px rgba(0, 229, 255, 0.35)',
-              'glow-pink': '0 0 12px rgba(255, 0, 85, 0.4)',
-              'glow-purple': '0 0 12px rgba(170, 68, 255, 0.35)',
-              'glow-yellow': '0 0 12px rgba(255, 170, 0, 0.35)',
-              'cyan-inner': '0 0 12px rgba(0, 229, 255, 0.35), inset 0 0 60px rgba(0, 229, 255, 0.03)',
-            },
-            transitionDuration: {
-              fast: '150ms',
-              normal: '250ms',
-              slow: '400ms',
-            },
-            scale: {
-              '102': '1.02',
-            }
           }
         }
       }
     </script>
-    <style type="text/tailwindcss">
-      @layer utilities {
-        .text-shadow-title {
-          text-shadow: 0 0 10px rgba(0, 229, 255, 0.5), 0 0 30px rgba(0, 229, 255, 0.2), 2px 0 var(--neon-pink), -2px 0 var(--neon-green);
-        }
-        .text-shadow-glow-pink {
-          text-shadow: 0 0 12px rgba(255, 0, 85, 0.4);
-        }
-        .text-shadow-glow-green {
-          text-shadow: 0 0 12px rgba(0, 255, 102, 0.35);
-        }
-        .text-shadow-glow-yellow {
-          text-shadow: 0 0 12px rgba(255, 170, 0, 0.35);
-        }
-        .text-shadow-block {
-          text-shadow: 0 0 8px rgba(112, 161, 255, 0.5);
-        }
-        .text-shadow-enemy-name {
-          text-shadow: 0 0 8px rgba(255, 0, 85, 0.3);
-        }
-        
-        .border-glow-green { border-color: rgba(0, 255, 102, 0.3); }
-        .border-glow-cyan { border-color: rgba(0, 229, 255, 0.3); }
-        .border-glow-pink { border-color: rgba(255, 0, 85, 0.3); }
-
-        .bg-enemy-gradient { background: linear-gradient(135deg, rgba(255, 0, 85, 0.06), rgba(20, 0, 30, 0.4)); }
-        .bg-card-gradient { background: linear-gradient(145deg, #111326, #0d0f1e); }
-        .bg-hp-gradient { background: linear-gradient(90deg, #00ff66, #00cc55); }
-        .bg-hp-gradient-low { background: linear-gradient(90deg, #ff0055, #ff4444); }
-        .bg-hp-gradient-medium { background: linear-gradient(90deg, #ffaa00, #ff8800); }
-        .bg-ram-gradient { background: linear-gradient(90deg, #00e5ff, #0088ff); }
-        .bg-enemy-hp-gradient { background: linear-gradient(90deg, #ff0055, #ff3377); }
-        .bg-btn-gradient { background: linear-gradient(135deg, #ff0055, #cc0044); }
-      }
-
-      body::before {
-        content: ""; position: fixed; inset: 0; z-index: 0;
-        background-image: linear-gradient(rgba(0, 229, 255, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 229, 255, 0.04) 1px, transparent 1px);
-        background-size: 48px 48px; animation: gridShift 8s linear infinite; pointer-events: none;
-      }
-      @keyframes gridShift { 0% { transform: translate(0, 0); } 100% { transform: translate(48px, 48px); } }
-      body::after {
-        content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
-        background: radial-gradient(ellipse 80% 1px at 20% 10%, rgba(0, 255, 102, 0.08) 0%, transparent 100%),
-                    radial-gradient(ellipse 60% 1px at 80% 30%, rgba(0, 229, 255, 0.06) 0%, transparent 100%),
-                    radial-gradient(ellipse 100% 1px at 50% 70%, rgba(255, 0, 85, 0.06) 0%, transparent 100%);
-      }
-      .scanlines {
-        position: fixed; inset: 0; z-index: 1; pointer-events: none;
-        background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.06) 2px, rgba(0, 0, 0, 0.06) 4px);
-      }
-      @keyframes crtFlicker {
-        0%, 100% { opacity: 1; } 3% { opacity: 0.92; } 6% { opacity: 1; } 76% { opacity: 0.96; } 78% { opacity: 1; }
-      }
-      .crt-flicker { animation: crtFlicker 8s infinite; }
-
-      .hud-bracket::before, .hud-bracket::after {
-        content: ""; position: absolute; width: 12px; height: 12px; border-color: #00e5ff; border-style: solid; opacity: 0.5; transition: opacity 250ms ease;
-      }
-      .hud-bracket:hover::before, .hud-bracket:hover::after { opacity: 1; }
-      .hud-bracket::before { top: -4px; left: -4px; border-width: 2px 0 0 2px; }
-      .hud-bracket::after { bottom: -4px; right: -4px; border-width: 0 2px 2px 0; }
-
-      @keyframes glitch {
-        0%, 90%, 100% { transform: translate(0); }
-        92% { transform: translate(-2px, 1px); }
-        94% { transform: translate(2px, -1px); }
-        96% { transform: translate(-1px, 2px); }
-        98% { transform: translate(1px, -2px); }
-      }
-      .glitch-trigger { animation: glitch 3s infinite; }
-
-      .terminal::-webkit-scrollbar { width: 4px; }
-      .terminal::-webkit-scrollbar-track { background: transparent; }
-      .terminal::-webkit-scrollbar-thumb { background: #00e5ff; border-radius: 2px; }
-      .terminal-log { animation: typeIn 0.3s ease forwards; }
-      @keyframes typeIn { to { opacity: 1; } }
-      .terminal::before {
-        content: "┌─[TERMINAL]──────────────────────────┐"; position: sticky; top: -12px; left: 0; color: rgba(0, 229, 255, 0.2);
-        font-size: 0.55rem; letter-spacing: 1px; pointer-events: none; display: block; margin-bottom: 4px;
-      }
-
-      @keyframes enemyShake {
-        0%, 100% { transform: translateX(0); }
-        20% { transform: translateX(-6px); }
-        40% { transform: translateX(6px); }
-        60% { transform: translateX(-4px); }
-        80% { transform: translateX(4px); }
-      }
-      .enemy-box.attacking { animation: enemyShake 0.4s ease; }
-      @keyframes hpFlash {
-        0%, 100% { color: #ff0055; }
-        50% { color: #fff; text-shadow: 0 0 20px rgba(255, 255, 255, 0.6); }
-      }
-      .enemy-hp.damaged { animation: hpFlash 0.3s ease; }
-
-      .hand-container::-webkit-scrollbar { height: 4px; }
-      .hand-container::-webkit-scrollbar-track { background: transparent; }
-      .hand-container::-webkit-scrollbar-thumb { background: #00e5ff; border-radius: 2px; }
-
-      .card::after { content: ""; position: absolute; top: 0; left: 0; width: 3px; height: 100%; transition: background 250ms ease; }
-      .card.type-attack::after { background: #ff0055; }
-      .card.type-defense::after { background: #70a1ff; }
-      .card.type-variable::after { background: #ffaa00; }
-      .card.type-loop::after { background: #aa44ff; }
-
-      .card:hover::before {
-        content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
-        background: linear-gradient(105deg, transparent 40%, rgba(0, 229, 255, 0.05) 45%, rgba(170, 68, 255, 0.05) 50%, rgba(0, 229, 255, 0.05) 55%, transparent 60%);
-        background-size: 200% 100%; animation: shimmer 1.5s ease infinite;
-      }
-      @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-
-      @keyframes cardPlay {
-        0% { transform: translateY(0) scale(1); opacity: 1; }
-        50% { transform: translateY(-20px) scale(1.1); opacity: 0.8; }
-        100% { transform: translateY(20px) scale(0.8); opacity: 0; }
-      }
-      .card.played { animation: cardPlay 0.4s ease forwards; pointer-events: none; }
-
-      @keyframes ramShake {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-4px); }
-        50% { transform: translateX(4px); }
-        75% { transform: translateX(-2px); }
-      }
-      .card.insufficient-ram { animation: ramShake 0.3s ease; border-color: #ff0055 !important; }
-
-      @keyframes floatUp {
-        0% { opacity: 1; transform: translateY(0) scale(0.5); }
-        30% { opacity: 1; transform: translateY(-20px) scale(1.2); }
-        100% { opacity: 0; transform: translateY(-80px) scale(1); }
-      }
-      .float-dmg { animation: floatUp 1.2s ease-out forwards; }
-
-      @keyframes pulseGlow {
-        0%, 100% { box-shadow: 0 0 12px rgba(0, 229, 255, 0.35); }
-        50% { box-shadow: 0 0 20px rgba(0, 229, 255, 0.5); }
-      }
-      .pulse-glow { animation: pulseGlow 2s ease-in-out infinite; }
-
-      @media (prefers-reduced-motion: reduce) {
-        *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
-      }
-    </style>
+    <link rel="stylesheet" href="css/styles.css" />
   </head>
-  <body class="bg-bg text-[#c0c8e0] font-mono flex justify-center items-center min-h-screen p-sm sm:p-lg relative overflow-x-hidden">
+  <body class="text-[#eef0f2] font-mono min-h-screen flex flex-col justify-center items-center relative overflow-x-hidden">
     <div class="scanlines"></div>
     <div class="float-dmg-container fixed inset-0 z-[100] pointer-events-none" id="floatDmgContainer"></div>
 
-    <div class="cyber-container crt-flicker relative z-[2] bg-surface border border-solid border-glow-cyan rounded p-md sm:p-xl w-full max-w-[820px] shadow-cyan-inner">
-      <h1 class="game-title glitch-trigger font-display font-black text-[1.1rem] sm:text-[1.6rem] tracking-[2px] sm:tracking-[4px] uppercase text-neon-cyan text-shadow-title mb-lg text-center relative">
-        ⚡ SYNTACK
-        <span class="sub block font-mono font-normal text-[0.5rem] sm:text-[0.65rem] tracking-[3px] sm:tracking-[6px] text-neon-cyan/40 mt-1" style="text-shadow: none;">// HACK THE MAINFRAME //</span>
-      </h1>
+    <!-- ════════════════════ SPLASH SCREEN ════════════════════ -->
+    <div id="splash-screen" class="relative z-[10] flex flex-col items-center justify-center w-full max-w-[750px] text-center p-8 min-h-[90vh]">
 
-      <div class="status-bar grid grid-cols-2 sm:grid-cols-4 gap-[6px] sm:gap-sm mb-lg">
-        <div class="stat-box stat-hp hud-bracket bg-black/40 border border-white/5 rounded-sm p-sm sm:px-md py-sm text-center relative overflow-hidden transition-colors duration-normal border-l-2 border-l-neon-green">
-          <div class="label text-[0.6rem] uppercase tracking-[2px] text-white/35 mb-[2px]">Integrity</div>
-          <div class="stat-val font-display font-bold text-[1rem] sm:text-[1.3rem] tracking-[1px] relative z-[1] text-neon-green" id="player-hp">50/50</div>
-          <div class="stat-bar-track absolute bottom-0 left-0 right-0 h-[3px] bg-white/5">
-            <div class="stat-bar-fill h-full transition-[width] duration-slow rounded-r-sm bg-hp-gradient" id="hpBarFill" style="width: 100%"></div>
-          </div>
-        </div>
-        <div class="stat-box stat-ram hud-bracket bg-black/40 border border-white/5 rounded-sm p-sm sm:px-md py-sm text-center relative overflow-hidden transition-colors duration-normal border-l-2 border-l-neon-cyan">
-          <div class="label text-[0.6rem] uppercase tracking-[2px] text-white/35 mb-[2px]">RAM</div>
-          <div class="stat-val font-display font-bold text-[1rem] sm:text-[1.3rem] tracking-[1px] relative z-[1] text-neon-cyan" id="player-ram">3/3</div>
-          <div class="stat-bar-track absolute bottom-0 left-0 right-0 h-[3px] bg-white/5">
-            <div class="stat-bar-fill h-full transition-[width] duration-slow rounded-r-sm bg-ram-gradient" id="ramBarFill" style="width: 100%"></div>
-          </div>
-        </div>
-        <div class="stat-box stat-var hud-bracket bg-black/40 border border-white/5 rounded-sm p-sm sm:px-md py-sm text-center relative overflow-hidden transition-colors duration-normal border-l-2 border-l-neon-yellow">
-          <div class="label text-[0.6rem] uppercase tracking-[2px] text-white/35 mb-[2px]">Variable X</div>
-          <div class="stat-val font-display font-bold text-[1rem] sm:text-[1.3rem] tracking-[1px] relative z-[1] text-neon-yellow" id="var-x">0</div>
-        </div>
-        <div class="stat-box stat-block hud-bracket bg-black/40 border border-white/5 rounded-sm p-sm sm:px-md py-sm text-center relative overflow-hidden transition-colors duration-normal border-l-2 border-l-block">
-          <div class="label text-[0.6rem] uppercase tracking-[2px] text-white/35 mb-[2px]">Block</div>
-          <div class="stat-val font-display font-bold text-[1rem] sm:text-[1.3rem] tracking-[1px] relative z-[1] text-block" id="player-block">0</div>
+      <!-- Decorative glow orb -->
+      <div class="absolute w-[300px] h-[300px] rounded-full blur-[120px] opacity-30 bg-b-green top-[10%] left-1/2 -translate-x-1/2 pointer-events-none"></div>
+
+      <div class="mb-6 relative">
+        <div class="text-[0.55rem] font-pixel text-b-blue tracking-[5px] uppercase mb-2 opacity-70">CYBER DECKBUILDER</div>
+        <h1 class="font-display font-black text-[3rem] sm:text-[4.5rem] tracking-[6px] uppercase leading-none relative"
+            style="color: #fe5f55; text-shadow: 0 0 20px rgba(254,95,85,0.5), 4px 4px 0 #000, -3px -3px 0 #009ddc;">
+          SYNTACK
+        </h1>
+        <div class="text-[0.7rem] sm:text-[0.85rem] font-mono tracking-[3px] mt-2"
+             style="color: #f5c542; text-shadow: 0 2px 0 #6b4f00;">
+          HACK THE MAINFRAME. CONTROL THE LOOPS.
         </div>
       </div>
 
-      <div class="battle-zone grid grid-cols-1 sm:grid-cols-2 gap-sm sm:gap-md mb-lg">
-        <div class="terminal bg-black/50 border border-solid border-glow-cyan rounded-[3px] p-md h-[120px] sm:h-[170px] overflow-y-auto text-[0.75rem] leading-[1.6] relative" id="terminal">
-          <div class="terminal-log system opacity-0 mb-[2px] text-neon-pink">[SYSTEM] Initializing terminal...</div>
-          <div class="terminal-log system opacity-0 mb-[2px] text-neon-pink">[SYSTEM] Mainframe Defense Protocol Active.</div>
-          <div class="terminal-log info opacity-0 mb-[2px] text-neon-green">[SYS] Threat Detected: FIREWALL_DAEMON_v1.0</div>
+      <!-- Decorative card fan -->
+      <div class="flex gap-3 justify-center items-end my-8 select-none">
+        <div class="card w-[90px] h-[125px] p-2 flex flex-col justify-between -rotate-12 translate-y-2 opacity-90 hover:opacity-100">
+          <span class="card-sticker rare self-start">RARE</span>
+          <span class="font-mono text-[0.6rem] text-white font-bold text-center">ATTACK(x)</span>
+          <span class="text-[0.5rem] font-pixel text-center" style="color: #fe5f55;">DMG 8</span>
+        </div>
+        <div class="card w-[100px] h-[140px] p-2 flex flex-col justify-between z-10 -translate-y-1">
+          <span class="card-sticker epic self-start">EPIC</span>
+          <span class="font-mono text-[0.7rem] text-white font-bold text-center">for(2x)</span>
+          <span class="text-[0.5rem] font-pixel text-center" style="color: #f5c542;">MULT ×2</span>
+        </div>
+        <div class="card w-[90px] h-[125px] p-2 flex flex-col justify-between rotate-12 translate-y-2 opacity-90 hover:opacity-100">
+          <span class="card-sticker common self-start">COMMON</span>
+          <span class="font-mono text-[0.6rem] text-white font-bold text-center">BLOCK(8)</span>
+          <span class="text-[0.5rem] font-pixel text-center" style="color: #009ddc;">DEF +8</span>
+        </div>
+      </div>
+
+      <button id="btn-splash-start" class="balatro-btn py-4 px-10 text-[0.95rem] sm:text-[1.15rem] mt-4">
+        ▶ PLAY
+      </button>
+
+      <p class="text-[0.55rem] text-white/25 mt-6 tracking-widest uppercase">Click anywhere to enable audio</p>
+    </div>
+
+    <!-- ════════════════════ HOME MENU ════════════════════ -->
+    <div id="home-screen" class="hidden relative z-[10] flex-col items-center justify-center w-full max-w-[600px] p-8 text-center min-h-[80vh]">
+
+      <div class="absolute w-[250px] h-[250px] rounded-full blur-[100px] opacity-20 bg-b-gold top-[5%] left-1/2 -translate-x-1/2 pointer-events-none"></div>
+
+      <h2 class="font-display font-black text-[2rem] sm:text-[3rem] tracking-[4px] uppercase mb-1 relative"
+          style="color: #f5c542; text-shadow: 0 0 16px rgba(245,197,66,0.4), 3px 3px 0 #000;">
+        SYNTACK
+      </h2>
+      <p class="text-[0.7rem] text-white/40 mb-10 tracking-[3px] uppercase font-pixel">Main Menu</p>
+
+      <div class="flex flex-col gap-4 w-full max-w-[360px]">
+        <button id="btn-menu-start" class="balatro-btn py-4 px-8 text-[1rem]">
+          ⚔ RUN HACK
+        </button>
+        <button id="btn-menu-archive" class="balatro-btn balatro-btn-blue py-4 px-8 text-[1rem]">
+          📋 CARD ARCHIVE
+        </button>
+        <button id="btn-menu-rules" class="balatro-btn balatro-btn-gold py-4 px-8 text-[1rem]">
+          📖 HOW TO PLAY
+        </button>
+      </div>
+
+      <!-- Audio Controls -->
+      <div class="flex items-center justify-center gap-4 mt-10 pt-4 border-t border-white/10 w-full text-[0.7rem]">
+        <button id="btnMuteHome" class="audio-control-btn">
+          <span>🔊</span> <span class="btn-label">SFX: ON</span>
+        </button>
+        <div class="flex items-center gap-2 text-white/35">
+          <span class="text-[0.6rem]">VOL</span>
+          <input id="volSliderHome" type="range" min="0" max="1" step="0.05" value="0.6"
+            class="w-20 h-1 rounded cursor-pointer accent-[#009ddc] bg-white/10" />
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════ GAME ARENA ════════════════════ -->
+    <div id="game-screen" class="hidden relative z-[10] w-full max-w-[880px] felt-table p-5 sm:p-7 m-4">
+
+      <!-- Top HUD Bar -->
+      <div class="relative z-10 flex items-center justify-between mb-4 pb-2 border-b border-white/10 text-[0.7rem]">
+        <button id="btn-game-home" class="audio-control-btn" style="border-color: rgba(245,197,66,0.4); color: #f5c542;">
+          <span>◀</span> <span>MENU</span>
+        </button>
+        <div class="flex items-center gap-4">
+          <button id="btnMute" class="audio-control-btn">
+            <span>🔊</span> <span class="btn-label">SFX: ON</span>
+          </button>
+          <div class="flex items-center gap-2 text-white/35">
+            <span class="text-[0.6rem]">VOL</span>
+            <input id="volSlider" type="range" min="0" max="1" step="0.05" value="0.6"
+              class="w-16 h-1 rounded cursor-pointer accent-[#009ddc] bg-white/10" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Chip Score Displays -->
+      <div class="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-5">
+        <div class="chip-display p-3 text-center">
+          <div class="text-[0.5rem] font-pixel uppercase text-white/35 mb-1">HP</div>
+          <div class="chip-val text-[1.1rem] sm:text-[1.3rem]" style="color: #59d67a;" id="player-hp">50/50</div>
+          <div class="chip-bar"><div class="chip-bar-fill" style="width: 100%; background: #59d67a; color: #59d67a;" id="hpBarFill"></div></div>
+        </div>
+        <div class="chip-display p-3 text-center">
+          <div class="text-[0.5rem] font-pixel uppercase text-white/35 mb-1">RAM</div>
+          <div class="chip-val text-[1.1rem] sm:text-[1.3rem]" style="color: #009ddc;" id="player-ram">3/3</div>
+          <div class="chip-bar"><div class="chip-bar-fill" style="width: 100%; background: #009ddc; color: #009ddc;" id="ramBarFill"></div></div>
+        </div>
+        <div class="chip-display p-3 text-center">
+          <div class="text-[0.5rem] font-pixel uppercase text-white/35 mb-1">VAR X</div>
+          <div class="chip-val text-[1.1rem] sm:text-[1.3rem]" style="color: #f5c542;" id="var-x">0</div>
+        </div>
+        <div class="chip-display p-3 text-center">
+          <div class="text-[0.5rem] font-pixel uppercase text-white/35 mb-1">BLOCK</div>
+          <div class="chip-val text-[1.1rem] sm:text-[1.3rem]" style="color: #8957e5;" id="player-block">0</div>
+        </div>
+      </div>
+
+      <!-- Battle Zone: Terminal + Enemy -->
+      <div class="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+        <div class="terminal p-4 h-[130px] sm:h-[160px] overflow-y-auto text-[0.72rem] leading-[1.7]" id="terminal">
+          <div class="terminal-log opacity-0 mb-[2px]" style="color:#fe5f55;">[SYS] Initializing…</div>
+          <div class="terminal-log opacity-0 mb-[2px]" style="color:#59d67a;">[SYS] Firewall detected.</div>
         </div>
 
-        <div class="enemy-box bg-enemy-gradient border border-solid border-glow-pink rounded-[3px] p-lg text-center flex flex-col justify-center relative overflow-hidden transition-shadow duration-normal" id="enemyBox">
-          <div class="enemy-name font-display font-bold text-[0.7rem] tracking-[3px] text-neon-pink text-shadow-enemy-name mb-sm">▸ FIREWALL DAEMON ◂</div>
-          <div class="enemy-hp font-display font-black text-[1.8rem] sm:text-[2.4rem] text-neon-pink text-shadow-glow-pink leading-none mb-sm transition-all duration-normal" id="enemy-hp">60/60</div>
-          <div class="enemy-hp-track h-[4px] bg-neon-pink/15 rounded-[2px] mb-sm overflow-hidden">
-            <div class="enemy-hp-fill bg-enemy-hp-gradient h-full rounded-[2px] transition-[width] duration-slow" id="enemyHpFill" style="width: 100%"></div>
+        <div class="enemy-panel p-4 text-center flex flex-col justify-center" id="enemyBox">
+          <div class="font-pixel text-[0.6rem] mb-1" style="color: #fe5f55;">▸ FIREWALL DAEMON ◂</div>
+          <div class="font-display font-black text-[2rem] sm:text-[2.6rem] leading-none mb-2" id="enemy-hp"
+               style="color: #fe5f55; text-shadow: 0 2px 8px rgba(254,95,85,0.4);">60/60</div>
+          <div class="chip-bar mx-auto w-full max-w-[200px]">
+            <div class="chip-bar-fill" style="width: 100%; background: #fe5f55; color: #fe5f55; height: 6px;" id="enemyHpFill"></div>
           </div>
-          <div class="intent-box text-[0.7rem] px-xs py-sm rounded-sm tracking-[1px] uppercase inline-flex items-center gap-[6px] mt-xs border border-solid border-neon-pink/30 text-neon-pink bg-neon-pink/10" id="enemy-intent">
-            <span class="intent-icon text-base">⚔</span>
+          <div class="intent-box text-[0.6rem] px-3 py-2 rounded-lg tracking-[1px] uppercase inline-flex items-center justify-center gap-2 mt-3 border border-[rgba(254,95,85,0.3)] bg-[rgba(254,95,85,0.08)]" id="enemy-intent"
+               style="color: #fe5f55;">
+            <span class="intent-icon text-sm">⚔</span>
             <span>ATTACK (8 DMG)</span>
           </div>
         </div>
       </div>
 
-      <div class="hand-section mb-lg">
-        <div class="hand-title text-[0.65rem] tracking-[2px] uppercase text-white/25 mb-sm flex items-center gap-sm">
-          <span>// DECK HAND</span>
-          <span class="ram-display font-display text-[0.7rem] text-neon-cyan ml-auto" id="ramDisplay">RAM: 3/3</span>
+      <!-- Hand Section -->
+      <div class="relative z-10 mb-5">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[0.55rem] font-pixel tracking-[2px] uppercase text-white/30">// HAND</span>
+          <span class="text-[0.7rem] font-display font-bold" style="color: #009ddc;" id="ramDisplay">RAM: 3/3</span>
         </div>
-        <div class="hand-container flex gap-sm overflow-x-auto px-xs pt-sm pb-md min-h-[160px]" id="hand-container"></div>
+        <div class="hand-container flex gap-3 overflow-x-auto px-1 pt-2 pb-4 min-h-[175px]" id="hand-container"></div>
       </div>
 
-      <div class="controls flex flex-col sm:flex-row justify-between items-center gap-sm pt-md border-t border-white/5">
-        <span class="hint text-[0.6rem] text-white/20 tracking-[1px]">⟐ Use Variables &amp; Loops to amplify attacks</span>
-        <button class="btn-end w-full sm:w-auto bg-btn-gradient text-white border-none p-md sm:py-sm sm:px-xl rounded-[3px] font-display font-bold text-[0.75rem] tracking-[2px] uppercase cursor-pointer transition-all duration-fast shadow-glow-pink hover:-translate-y-[2px] hover:shadow-glow-pink hover:shadow-[0_4px_16px_rgba(255,0,85,0.3)] active:translate-y-0" onclick="endTurn()">⟫ EXECUTE TURN ⟪</button>
+      <!-- Execute Turn Button -->
+      <div class="relative z-10 flex flex-col sm:flex-row justify-between items-center gap-3 pt-4 border-t border-white/10">
+        <span class="text-[0.6rem] text-white/25 tracking-[1px]">⟐ Combine Variables & Loops for max damage</span>
+        <button class="balatro-btn w-full sm:w-auto py-3 px-8 text-[0.85rem]" onclick="endTurn()">
+          ⟫ EXECUTE TURN ⟪
+        </button>
       </div>
     </div>
 
-    <script>
-      let player = { hp: 50, maxHp: 50, ram: 3, maxRam: 3, block: 0, varX: 0, loopMult: 1 };
-      let enemy = { hp: 60, maxHp: 60, attackDmg: 8, intent: "attack" };
+    <!-- ════════════════════ CARD ARCHIVE MODAL ════════════════════ -->
+    <div id="archive-modal" class="modal-overlay hidden">
+      <div class="modal-content">
+        <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
+          <h3 class="font-display font-black text-[1.2rem]" style="color: #009ddc;">📋 CARD ARCHIVE</h3>
+          <button id="btn-close-archive" class="audio-control-btn" style="color: #fe5f55; border-color: rgba(254,95,85,0.3);">✕</button>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[400px] overflow-y-auto pr-1" id="archive-cards-list"></div>
+      </div>
+    </div>
 
-      const CARD_TYPES = [
-        { id: 1, ram: 1, code: "let x = 8;", desc: "Set Variable x = 8", rarity: "common", type: "variable", action: () => { player.varX = 8; log("Variable 'x' set to 8.", "player"); showFloat("x = 8", "buff", "35%", "60%"); } },
-        { id: 2, ram: 1, code: "ATTACK(x)", desc: "Deal dmg = x (Default: 4)", rarity: "common", type: "attack", action: () => { let base = player.varX > 0 ? player.varX : 4; let total = base * player.loopMult; dealDamageToEnemy(total); log(`EXECUTE ATTACK(${total})!`, "player"); player.loopMult = 1; } },
-        { id: 3, ram: 1, code: "if (x > 5)", desc: "If x > 5: +10 Block, +4 ATK", rarity: "rare", type: "variable", action: () => { if (player.varX > 5) { player.block += 10; player.varX += 4; log("IF (x > 5) → TRUE! Block +10, x +4", "player"); showFloat("+10 Block", "block", "30%", "55%"); showFloat("x +4", "buff", "55%", "55%"); } else { log("IF (x > 5) → FALSE. No effect.", "warning"); } } },
-        { id: 4, ram: 2, code: "for (2x Loop)", desc: "Double next attack damage!", rarity: "epic", type: "loop", action: () => { player.loopMult *= 2; log("FOR LOOP ACTIVE! Next attack 2x dmg!", "player"); showFloat("2x DMG!", "buff", "45%", "50%"); } },
-        { id: 5, ram: 1, code: "DEFENSE(8)", desc: "Gain +8 Block", rarity: "common", type: "defense", action: () => { player.block += 8; log("DEFENSE(8) → Block +8", "player"); showFloat("+8 Block", "block", "40%", "60%"); } },
-        { id: 6, ram: 1, code: "x *= 2", desc: "Double Variable x", rarity: "rare", type: "variable", action: () => { player.varX *= 2; log(`Variable x doubled → x = ${player.varX}`, "player"); showFloat("x ×2", "buff", "35%", "55%"); } },
-        { id: 7, ram: 2, code: "OVERCLOCK()", desc: "Gain +2 RAM (max 5)", rarity: "epic", type: "defense", action: () => { let gained = Math.min(2, 5 - player.maxRam); if (gained > 0) { player.maxRam += gained; player.ram = player.maxRam; log(`OVERCLOCK! Max RAM ↑ ${player.maxRam}`, "player"); showFloat("RAM +2", "heal", "40%", "50%"); } else { log("OVERCLOCK: RAM already at max.", "warning"); } } },
-      ];
+    <!-- ════════════════════ RULES MODAL ════════════════════ -->
+    <div id="rules-modal" class="modal-overlay hidden">
+      <div class="modal-content">
+        <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
+          <h3 class="font-display font-black text-[1.2rem]" style="color: #f5c542;">📖 HOW TO PLAY</h3>
+          <button id="btn-close-rules" class="audio-control-btn" style="color: #fe5f55; border-color: rgba(254,95,85,0.3);">✕</button>
+        </div>
+        <div class="space-y-3 text-[0.78rem] leading-[1.7] text-white/80">
+          <p><strong style="color:#f5c542;">1. RAM Energy:</strong> Each turn your RAM recharges. Playing cards costs RAM.</p>
+          <p><strong style="color:#009ddc;">2. Variable X:</strong> Set <code class="bg-white/10 px-1 rounded text-[0.7rem]">x</code> with cards like <code class="bg-white/10 px-1 rounded text-[0.7rem]">let x = 8</code>. Attack damage scales with x!</p>
+          <p><strong style="color:#8957e5;">3. For Loops:</strong> Use <code class="bg-white/10 px-1 rounded text-[0.7rem]">for(2x Loop)</code> to multiply your next attack damage!</p>
+          <p><strong style="color:#59d67a;">4. Block &amp; Defense:</strong> Accumulate Block to shield your HP from enemy counter-attacks.</p>
+          <p><strong style="color:#e88d39;">5. End Turn:</strong> Click <strong>"EXECUTE TURN"</strong> to end your turn. The enemy strikes back!</p>
+        </div>
+      </div>
+    </div>
 
-      let hand = [];
-      let isAnimating = false;
-
-      const FLOAT_CLASSES = {
-        enemy: "float-dmg absolute font-display font-black text-[1.8rem] pointer-events-none text-neon-pink text-shadow-glow-pink",
-        player: "float-dmg absolute font-display font-black text-[1.8rem] pointer-events-none text-neon-pink text-shadow-glow-pink",
-        block: "float-dmg absolute font-display font-black text-[1.2rem] pointer-events-none text-block text-shadow-block",
-        buff: "float-dmg absolute font-display font-black text-[1.4rem] pointer-events-none text-neon-yellow text-shadow-glow-yellow",
-        heal: "float-dmg absolute font-display font-black text-[1.8rem] pointer-events-none text-neon-green text-shadow-glow-green",
-      };
-      function showFloat(text, type, left, top) {
-        const container = document.getElementById("floatDmgContainer");
-        const el = document.createElement("div");
-        el.className = FLOAT_CLASSES[type] || `float-dmg absolute font-display font-black text-2xl pointer-events-none text-neon-pink text-shadow-glow-pink`;
-        el.textContent = text;
-        const l = parseFloat(left) || 30 + Math.random() * 40;
-        const t = parseFloat(top) || 40 + Math.random() * 20;
-        el.style.left = l + "%";
-        el.style.top = t + "%";
-        el.style.transform = "translateX(-50%)";
-        container.appendChild(el);
-        setTimeout(() => el.remove(), 1400);
-      }
-
-      function initGame() {
-        player = { hp: 50, maxHp: 50, ram: 3, maxRam: 3, block: 0, varX: 0, loopMult: 1 };
-        enemy = { hp: 60, maxHp: 60, attackDmg: 8, intent: "attack" };
-        updateEnemyIntent();
-        drawHand();
-        updateUI();
-        document.getElementById("terminal").innerHTML = '';
-        log("[SYSTEM] Initializing terminal...", "system");
-        log("[SYSTEM] Mainframe Defense Protocol Active.", "system");
-        log("[SYS] Threat Detected: FIREWALL_DAEMON_v1.0", "info");
-      }
-
-      function drawHand() {
-        hand = [];
-        for (let i = 0; i < 5; i++) {
-          hand.push({ ...CARD_TYPES[Math.floor(Math.random() * CARD_TYPES.length)] });
-        }
-        renderHand();
-      }
-
-      function renderHand() {
-        const container = document.getElementById("hand-container");
-        container.innerHTML = "";
-        hand.forEach((card, index) => {
-          const cardEl = document.createElement("div");
-          let rarityBorder = "border-neon-cyan/15";
-          let rarityShadow = "";
-          let rarityColor = "opacity-50 text-white";
-          if (card.rarity === 'rare') {
-             rarityBorder = "border-neon-purple/30";
-             rarityShadow = "shadow-[0_0_8px_rgba(170,68,255,0.1)]";
-             rarityColor = "text-neon-purple opacity-80";
-          } else if (card.rarity === 'epic') {
-             rarityBorder = "border-neon-yellow/35";
-             rarityShadow = "shadow-[0_0_12px_rgba(255,170,0,0.1)]";
-             rarityColor = "text-neon-yellow opacity-90";
-          }
-          
-          cardEl.className = `card type-${card.type} min-w-[110px] sm:min-w-[130px] h-[140px] sm:h-[158px] bg-card-gradient rounded-[4px] p-sm cursor-pointer shrink-0 flex flex-col justify-between relative overflow-hidden transition-all duration-normal border border-solid ${rarityBorder} ${rarityShadow} hover:-translate-y-[10px] hover:scale-102 hover:bg-card-hover hover:border-neon-cyan hover:shadow-glow-cyan hover:shadow-[0_8px_24px_rgba(0,0,0,0.4)]`;
-          
-          cardEl.innerHTML = `
-            <div class="card-ram text-[0.65rem] bg-neon-cyan text-black font-bold py-[2px] px-[6px] rounded-[2px] self-start font-display tracking-[0.5px] relative z-[1]">${card.ram} RAM</div>
-            <div class="card-rarity absolute top-[4px] right-[6px] text-[0.5rem] tracking-[1px] uppercase font-bold ${rarityColor}">${card.rarity}</div>
-            <div class="card-code text-[0.7rem] sm:text-[0.8rem] text-white font-bold font-mono relative z-[1] my-xs leading-[1.3]">${card.code}</div>
-            <div class="card-desc text-[0.6rem] text-white/45 relative z-[1] leading-[1.3]">${card.desc}</div>
-          `;
-          cardEl.onclick = () => playCard(index, cardEl);
-          container.appendChild(cardEl);
-        });
-      }
-
-      function playCard(index, cardEl) {
-        if (isAnimating) return;
-        const card = hand[index];
-        if (!card) return;
-        if (player.ram < card.ram) {
-          cardEl.classList.add("insufficient-ram");
-          log("[ERROR] Insufficient RAM!", "system");
-          setTimeout(() => cardEl.classList.remove("insufficient-ram"), 400);
-          return;
-        }
-
-        isAnimating = true;
-        player.ram -= card.ram;
-        cardEl.classList.add("played");
-        log(`⟫ Execute: ${card.code}`, "player");
-
-        setTimeout(() => {
-          card.action();
-          hand.splice(index, 1);
-          renderHand();
-          updateUI();
-          checkWinLoss();
-          isAnimating = false;
-        }, 400);
-      }
-
-      function dealDamageToEnemy(amount) {
-        const prevHp = enemy.hp;
-        enemy.hp = Math.max(0, enemy.hp - amount);
-        const dealt = prevHp - enemy.hp;
-        showFloat(`-${dealt}`, "enemy", "60%", "30%");
-        document.getElementById("enemy-hp").classList.add("damaged");
-        setTimeout(() => document.getElementById("enemy-hp").classList.remove("damaged"), 400);
-      }
-
-      function endTurn() {
-        if (isAnimating) return;
-        log("[ENEMY] Firewall Daemon initiates COUNTER_ATTACK...", "system");
-        const enemyBox = document.getElementById("enemyBox");
-        enemyBox.classList.add("attacking");
-        setTimeout(() => enemyBox.classList.remove("attacking"), 500);
-
-        let actualDmg = enemy.attackDmg - player.block;
-        let blocked = Math.min(player.block, enemy.attackDmg);
-        if (actualDmg < 0) actualDmg = 0;
-        player.block = Math.max(0, player.block - enemy.attackDmg);
-        player.hp = Math.max(0, player.hp - actualDmg);
-
-        if (blocked > 0) { log(`[BLOCK] Deflected ${blocked} damage!`, "info"); showFloat(`BLOCKED ${blocked}`, "block", "25%", "45%"); }
-        if (actualDmg > 0) { log(`[DAMAGE] System took ${actualDmg} damage!`, "system"); showFloat(`-${actualDmg}`, "player", "35%", "55%"); }
-        else if (blocked >= enemy.attackDmg) { log("[BLOCK] Damage fully negated!", "info"); }
-
-        const intents = ["attack", "attack", "attack", "defend", "buff"];
-        enemy.intent = intents[Math.floor(Math.random() * intents.length)];
-        updateEnemyIntent();
-
-        player.ram = player.maxRam;
-        drawHand();
-        updateUI();
-        checkWinLoss();
-      }
-
-      function updateEnemyIntent() {
-        const intentEl = document.getElementById("enemy-intent");
-        const icon = intentEl.querySelector(".intent-icon");
-        const text = intentEl.querySelector("span:last-child");
-
-        switch (enemy.intent) {
-          case "attack":
-            intentEl.className = "intent-box text-[0.7rem] px-xs py-sm rounded-sm tracking-[1px] uppercase inline-flex items-center gap-[6px] mt-xs border border-solid border-neon-pink/30 text-neon-pink bg-neon-pink/10";
-            icon.textContent = "⚔"; text.textContent = `ATTACK (${enemy.attackDmg} DMG)`;
-            break;
-          case "defend":
-            intentEl.className = "intent-box text-[0.7rem] px-xs py-sm rounded-sm tracking-[1px] uppercase inline-flex items-center gap-[6px] mt-xs border border-solid border-neon-cyan/30 text-neon-cyan bg-neon-cyan/10";
-            icon.textContent = "🛡"; text.textContent = "DEFENSE MATRIX";
-            enemy.hp = Math.min(enemy.maxHp, enemy.hp + 4);
-            log("[ENEMY] Defense Matrix: +4 HP", "warning");
-            break;
-          case "buff":
-            intentEl.className = "intent-box text-[0.7rem] px-xs py-sm rounded-sm tracking-[1px] uppercase inline-flex items-center gap-[6px] mt-xs border border-solid border-neon-purple/30 text-neon-purple bg-neon-purple/10";
-            icon.textContent = "⬆"; text.textContent = "ATTACK BUFF +3";
-            enemy.attackDmg += 3;
-            log("[ENEMY] Attack buffed! DMG ↑", "warning");
-            break;
-        }
-      }
-
-      function log(msg, type) {
-        const term = document.getElementById("terminal");
-        const line = document.createElement("div");
-        let colorClass = "text-neon-green";
-        if (type === "player") colorClass = "text-neon-cyan";
-        if (type === "system") colorClass = "text-neon-pink";
-        if (type === "warning") colorClass = "text-neon-yellow";
-        
-        line.className = `terminal-log opacity-0 mb-[2px] ${colorClass}`;
-        line.innerText = `> ${msg}`;
-        term.appendChild(line);
-        term.scrollTop = term.scrollHeight;
-      }
-
-      function updateUI() {
-        document.getElementById("player-hp").innerText = `${player.hp}/${player.maxHp}`;
-        const hpPct = (player.hp / player.maxHp) * 100;
-        const hpFill = document.getElementById("hpBarFill");
-        hpFill.style.width = Math.max(0, hpPct) + "%";
-        
-        if (hpPct <= 25) hpFill.className = "stat-bar-fill h-full transition-[width] duration-slow rounded-r-sm bg-hp-gradient-low";
-        else if (hpPct <= 50) hpFill.className = "stat-bar-fill h-full transition-[width] duration-slow rounded-r-sm bg-hp-gradient-medium";
-        else hpFill.className = "stat-bar-fill h-full transition-[width] duration-slow rounded-r-sm bg-hp-gradient";
-
-        document.getElementById("player-ram").innerText = `${player.ram}/${player.maxRam}`;
-        document.getElementById("ramBarFill").style.width = Math.max(0, (player.ram / player.maxRam) * 100) + "%";
-        document.getElementById("var-x").innerText = player.varX;
-        document.getElementById("player-block").innerText = player.block;
-        document.getElementById("ramDisplay").innerText = `RAM: ${player.ram}/${player.maxRam}`;
-
-        document.getElementById("enemy-hp").innerText = `${enemy.hp}/${enemy.maxHp}`;
-        document.getElementById("enemyHpFill").style.width = Math.max(0, (enemy.hp / enemy.maxHp) * 100) + "%";
-      }
-
-      function checkWinLoss() {
-        if (enemy.hp <= 0) {
-          setTimeout(() => {
-            log("[VICTORY] Mainframe hacked! You win!", "info");
-            showFloat("VICTORY!", "buff", "40%", "35%");
-            setTimeout(() => { alert("🎉 MAINFRAME HACKED! You defeated the Firewall Daemon!"); initGame(); }, 500);
-          }, 300);
-        } else if (player.hp <= 0) {
-          setTimeout(() => {
-            log("[GAME OVER] System crashed...", "system");
-            showFloat("SYSTEM FAILURE", "enemy", "35%", "35%");
-            setTimeout(() => { alert("❌ SYSTEM CRASHED! The firewall destroyed your system."); initGame(); }, 500);
-          }, 300);
-        }
-      }
-
-      initGame();
-    </script>
+    <script type="module" src="js/game.js"></script>
   </body>
 </html>

@@ -1,1 +1,1 @@
-# Game Edukasi
+# Syntack
