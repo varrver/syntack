@@ -16,6 +16,32 @@ import {
   animateFloatDamage
 } from './motion.js';
 
+/* ── Vector icon set (inline SVG, consistent 2px stroke) ── */
+function svgIcon(paths, sizeClass = "icon") {
+  return `<svg class="${sizeClass}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
+}
+
+const ICONS = {
+  sword: svgIcon(
+    `<polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"></polyline><line x1="13" x2="19" y1="19" y2="13"></line><line x1="16" x2="20" y1="16" y2="20"></line><line x1="19" x2="21" y1="21" y2="19"></line>`,
+    "icon-sm"
+  ),
+  shield: svgIcon(
+    `<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path>`,
+    "icon-sm"
+  ),
+  trend: svgIcon(
+    `<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline>`,
+    "icon-sm"
+  ),
+  speakerOn: svgIcon(
+    `<path d="M11 5 6 9H2v6h4l5 4V5Z"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>`
+  ),
+  speakerOff: svgIcon(
+    `<path d="M11 5 6 9H2v6h4l5 4V5Z"></path><line x1="22" x2="16" y1="9" y2="15"></line><line x1="16" x2="22" y1="9" y2="15"></line>`
+  ),
+};
+
 let player = { hp: 50, maxHp: 50, ram: 3, maxRam: 3, block: 0, varX: 0, loopMult: 1 };
 let enemy = { hp: 60, maxHp: 60, attackDmg: 8, intent: "attack" };
 
@@ -94,19 +120,25 @@ const CARD_TYPES = [
 
 let hand = [];
 let isAnimating = false;
+let gameOver = false;
 
-// Navigation state
-let activeScreen = 'splash'; // 'splash', 'home', 'game'
 
-export function initGame() {
+function initGame() {
   player = { hp: 50, maxHp: 50, ram: 3, maxRam: 3, block: 0, varX: 0, loopMult: 1 };
   enemy = { hp: 60, maxHp: 60, attackDmg: 8, intent: "attack" };
+  gameOver = false;
   updateEnemyIntent();
   drawHand();
   updateUI();
   
   const term = document.getElementById("terminal");
-  if (term) term.innerHTML = '';
+  if (term) {
+    term.innerHTML = '';
+    const cursor = document.createElement("span");
+    cursor.className = "terminal-cursor";
+    cursor.setAttribute("aria-hidden", "true");
+    term.appendChild(cursor);
+  }
   log("[SYSTEM] Initializing terminal...", "system");
   log("[SYS] Firewall Daemon Detected: FIREWALL_DAEMON_v1.0", "info");
 }
@@ -137,19 +169,29 @@ function renderHand() {
       stickerClass = "epic";
     }
     
-    cardEl.className = `card type-${card.type} min-w-[110px] sm:min-w-[130px] h-[145px] sm:h-[160px] p-xs cursor-pointer shrink-0 flex flex-col justify-between relative border-2 ${rarityBorder}`;
+    cardEl.className = `card type-${card.type} min-w-[110px] sm:min-w-[130px] h-[145px] sm:h-[160px] p-2 cursor-pointer shrink-0 flex flex-col justify-between relative border-2 ${rarityBorder}`;
+    cardEl.setAttribute("role", "button");
+    cardEl.setAttribute("tabindex", "0");
+    cardEl.setAttribute("aria-label", `${card.code} — ${card.desc}`);
     
     cardEl.innerHTML = `
       <div class="flex justify-between items-center w-full">
         <span class="card-ram text-[0.6rem] bg-balatro-blue text-black font-pixel font-bold px-[4px] py-[1px] rounded">${card.ram} RAM</span>
         <span class="card-sticker ${stickerClass}">${card.rarity}</span>
       </div>
-      <div class="card-code text-[0.7rem] sm:text-[0.8rem] text-white font-bold font-mono my-xs leading-[1.2] text-center">${card.code}</div>
+      <div class="card-code text-[0.7rem] sm:text-[0.8rem] text-white font-bold font-mono my-2 leading-[1.2] text-center">${card.code}</div>
       <div class="card-desc text-[0.55rem] text-white/60 leading-[1.2] text-center">${card.desc}</div>
     `;
 
     cardEl.addEventListener("mouseenter", () => {
       audioEngine.playHover();
+    });
+
+    cardEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        playCard(index, cardEl);
+      }
     });
 
     cardEl.onclick = () => playCard(index, cardEl);
@@ -161,7 +203,7 @@ function renderHand() {
 
 function playCard(index, cardEl) {
   audioEngine.ensureContext();
-  if (isAnimating) return;
+  if (isAnimating || gameOver) return;
   const card = hand[index];
   if (!card) return;
 
@@ -187,7 +229,7 @@ function playCard(index, cardEl) {
   });
 }
 
-export function dealDamageToEnemy(amount) {
+function dealDamageToEnemy(amount) {
   const prevHp = enemy.hp;
   enemy.hp = Math.max(0, enemy.hp - amount);
   const dealt = prevHp - enemy.hp;
@@ -203,9 +245,9 @@ export function dealDamageToEnemy(amount) {
   }
 }
 
-export function endTurn() {
+function endTurn() {
   audioEngine.ensureContext();
-  if (isAnimating) return;
+  if (isAnimating || gameOver) return;
 
   audioEngine.playExecuteTurn();
   log("[ENEMY] Firewall Daemon initiates COUNTER_ATTACK...", "system");
@@ -252,20 +294,20 @@ function updateEnemyIntent() {
 
   switch (enemy.intent) {
     case "attack":
-      intentEl.className = "intent-box text-[0.65rem] px-xs py-sm rounded tracking-[1px] uppercase inline-flex items-center justify-center gap-xs mt-xs border border-balatro-red/30 text-balatro-red bg-balatro-red/10";
-      icon.textContent = "⚔";
+      intentEl.className = "intent-box text-[0.65rem] px-2 py-1.5 rounded tracking-[1px] uppercase inline-flex items-center justify-center gap-2 mt-2 border border-balatro-red/30 text-balatro-red bg-balatro-red/10";
+      icon.innerHTML = ICONS.sword;
       text.textContent = `ATTACK (${enemy.attackDmg} DMG)`;
       break;
     case "defend":
-      intentEl.className = "intent-box text-[0.65rem] px-xs py-sm rounded tracking-[1px] uppercase inline-flex items-center justify-center gap-xs mt-xs border border-balatro-blue/30 text-balatro-blue bg-balatro-blue/10";
-      icon.textContent = "🛡";
+      intentEl.className = "intent-box text-[0.65rem] px-2 py-1.5 rounded tracking-[1px] uppercase inline-flex items-center justify-center gap-2 mt-2 border border-balatro-blue/30 text-balatro-blue bg-balatro-blue/10";
+      icon.innerHTML = ICONS.shield;
       text.textContent = "DEFENSE MATRIX";
       enemy.hp = Math.min(enemy.maxHp, enemy.hp + 4);
       log("[ENEMY] Defense Matrix: +4 HP", "warning");
       break;
     case "buff":
-      intentEl.className = "intent-box text-[0.65rem] px-xs py-sm rounded tracking-[1px] uppercase inline-flex items-center justify-center gap-xs mt-xs border border-balatro-purple/30 text-balatro-purple bg-balatro-purple/10";
-      icon.textContent = "⬆";
+      intentEl.className = "intent-box text-[0.65rem] px-2 py-1.5 rounded tracking-[1px] uppercase inline-flex items-center justify-center gap-2 mt-2 border border-balatro-purple/30 text-balatro-purple bg-balatro-purple/10";
+      icon.innerHTML = ICONS.trend;
       text.textContent = "ATTACK BUFF +3";
       enemy.attackDmg += 3;
       log("[ENEMY] Attack buffed! DMG ↑", "warning");
@@ -282,52 +324,95 @@ function log(msg, type) {
   if (type === "player") colorClass = "text-balatro-blue";
   if (type === "system") colorClass = "text-balatro-red";
   if (type === "warning") colorClass = "text-balatro-yellow";
-  
+  if (type === "info") colorClass = "text-balatro-green";
+
   line.className = `terminal-log opacity-0 mb-[2px] ${colorClass}`;
   line.innerText = `> ${msg}`;
-  term.appendChild(line);
+  const cursor = term.querySelector(".terminal-cursor");
+  term.insertBefore(line, cursor);
   term.scrollTop = term.scrollHeight;
 }
 
 function updateUI() {
   document.getElementById("player-hp").innerText = `${player.hp}/${player.maxHp}`;
-  const hpPct = (player.hp / player.maxHp) * 100;
+  const hpPct = Math.min(1, Math.max(0, player.hp / player.maxHp));
   const hpFill = document.getElementById("hpBarFill");
   if (hpFill) {
-    hpFill.style.width = Math.max(0, hpPct) + "%";
+    hpFill.style.transform = `scaleX(${hpPct})`;
   }
 
   document.getElementById("player-ram").innerText = `${player.ram}/${player.maxRam}`;
-  document.getElementById("ramBarFill").style.width = Math.max(0, (player.ram / player.maxRam) * 100) + "%";
+  document.getElementById("ramBarFill").style.transform = `scaleX(${Math.min(1, Math.max(0, player.ram / player.maxRam))})`;
   document.getElementById("var-x").innerText = player.varX;
   document.getElementById("player-block").innerText = player.block;
   document.getElementById("ramDisplay").innerText = `RAM: ${player.ram}/${player.maxRam}`;
 
   document.getElementById("enemy-hp").innerText = `${enemy.hp}/${enemy.maxHp}`;
-  document.getElementById("enemyHpFill").style.width = Math.max(0, (enemy.hp / enemy.maxHp) * 100) + "%";
+  document.getElementById("enemyHpFill").style.transform = `scaleX(${Math.min(1, Math.max(0, enemy.hp / enemy.maxHp))})`;
 }
 
 function checkWinLoss() {
+  if (gameOver) return;
   if (enemy.hp <= 0) {
+    gameOver = true;
     audioEngine.playVictory();
     setTimeout(() => {
       log("[VICTORY] Mainframe hacked! You win!", "info");
       animateFloatDamage("VICTORY!", "buff", "40%", "35%");
       setTimeout(() => {
-        alert("🎉 MAINFRAME HACKED! You defeated the Firewall Daemon!");
-        initGame();
+        showEndOverlay(true, "You breached the mainframe and deleted the Firewall Daemon.");
       }, 600);
     }, 300);
   } else if (player.hp <= 0) {
+    gameOver = true;
     audioEngine.playDefeat();
     setTimeout(() => {
       log("[GAME OVER] System crashed...", "system");
       animateFloatDamage("SYSTEM FAILURE", "enemy", "35%", "35%");
       setTimeout(() => {
-        alert("❌ SYSTEM CRASHED! The firewall destroyed your system.");
-        initGame();
+        showEndOverlay(false, "The Firewall Daemon overwhelmed your system.");
       }, 600);
     }, 300);
+  }
+}
+
+function showEndOverlay(isVictory, subText) {
+  const overlay = document.getElementById("end-overlay");
+  if (!overlay) return;
+  overlay.classList.remove("hidden");
+  overlay.classList.add("flex");
+  overlay.classList.toggle("victory", isVictory);
+  overlay.classList.toggle("defeat", !isVictory);
+
+  const title = document.getElementById("end-overlay-title");
+  const chip = document.getElementById("end-overlay-chip");
+  const sub = document.getElementById("end-overlay-sub");
+  if (title) {
+    title.textContent = isVictory ? "VICTORY" : "SYSTEM FAILURE";
+    title.setAttribute("data-text", title.textContent);
+  }
+  if (chip) chip.textContent = isVictory ? "HACK COMPLETE" : "CONNECTION LOST";
+  if (sub) sub.textContent = subText;
+
+  const again = document.getElementById("btn-end-again");
+  if (again) setTimeout(() => again.focus(), 50);
+}
+
+function hideEndOverlay() {
+  const overlay = document.getElementById("end-overlay");
+  if (!overlay) return;
+  overlay.classList.add("hidden");
+  overlay.classList.remove("flex");
+}
+
+function wireEndOverlay() {
+  const again = document.getElementById("btn-end-again");
+  if (again) {
+    again.onclick = () => {
+      audioEngine.playExecuteTurn();
+      hideEndOverlay();
+      initGame();
+    };
   }
 }
 
@@ -350,7 +435,8 @@ function renderArchiveCards() {
       stickerClass = "epic";
     }
 
-    cardEl.className = `card type-${card.type} h-[130px] p-xs flex flex-col justify-between relative border-2 ${rarityBorder}`;
+    cardEl.className = `card type-${card.type} h-[130px] p-2 flex flex-col justify-between relative border-2 ${rarityBorder}`;
+    cardEl.setAttribute("role", "listitem");
     cardEl.innerHTML = `
       <div class="flex justify-between items-center w-full">
         <span class="card-ram text-[0.55rem] bg-balatro-blue text-black font-pixel font-bold px-[3px] py-[1px] rounded">${card.ram} RAM</span>
@@ -377,6 +463,7 @@ function setupNavigation() {
 
   const archiveModal = document.getElementById("archive-modal");
   const rulesModal = document.getElementById("rules-modal");
+  const endOverlay = document.getElementById("end-overlay");
   const btnCloseArchive = document.getElementById("btn-close-archive");
   const btnCloseRules = document.getElementById("btn-close-rules");
 
@@ -385,7 +472,6 @@ function setupNavigation() {
       audioEngine.ensureContext();
       audioEngine.playHover();
       animateScreenTransition(splashScreen, homeScreen);
-      activeScreen = 'home';
     };
   }
 
@@ -394,7 +480,6 @@ function setupNavigation() {
       audioEngine.ensureContext();
       audioEngine.playExecuteTurn();
       animateScreenTransition(homeScreen, gameScreen);
-      activeScreen = 'game';
       initGame();
     };
   }
@@ -403,7 +488,6 @@ function setupNavigation() {
     btnGameHome.onclick = () => {
       audioEngine.playHover();
       animateScreenTransition(gameScreen, homeScreen);
-      activeScreen = 'home';
     };
   }
 
@@ -411,23 +495,73 @@ function setupNavigation() {
     btnMenuArchive.onclick = () => {
       audioEngine.playHover();
       renderArchiveCards();
+      lastFocusedEl = document.activeElement;
       animateModalOpen(archiveModal);
+      focusFirstFocusable(archiveModal);
     };
   }
 
   if (btnMenuRules) {
     btnMenuRules.onclick = () => {
       audioEngine.playHover();
+      lastFocusedEl = document.activeElement;
       animateModalOpen(rulesModal);
+      focusFirstFocusable(rulesModal);
     };
   }
 
   if (btnCloseArchive) {
-    btnCloseArchive.onclick = () => animateModalClose(archiveModal);
+    btnCloseArchive.onclick = () => {
+      animateModalClose(archiveModal);
+      if (lastFocusedEl) lastFocusedEl.focus();
+    };
   }
 
   if (btnCloseRules) {
-    btnCloseRules.onclick = () => animateModalClose(rulesModal);
+    btnCloseRules.onclick = () => {
+      animateModalClose(rulesModal);
+      if (lastFocusedEl) lastFocusedEl.focus();
+    };
+  }
+
+  // Keyboard a11y: Escape closes modals, Tab is trapped inside an open modal
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      [archiveModal, rulesModal].forEach((modal) => {
+        if (modal && !modal.classList.contains("hidden")) {
+          animateModalClose(modal);
+          if (lastFocusedEl) lastFocusedEl.focus();
+        }
+      });
+    }
+
+    if (e.key === "Tab") {
+      const open = [archiveModal, rulesModal, endOverlay].find((m) => m && !m.classList.contains("hidden"));
+      if (open) trapFocus(open, e);
+    }
+  });
+}
+
+let lastFocusedEl = null;
+
+function focusFirstFocusable(container) {
+  if (!container) return;
+  const focusables = container.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  if (focusables.length) focusables[0].focus();
+}
+
+function trapFocus(container, e) {
+  if (!container) return;
+  const focusables = container.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  if (!focusables.length) return;
+  const first = focusables[0];
+  const last = focusables[focusables.length - 1];
+  if (e.shiftKey && document.activeElement === first) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && document.activeElement === last) {
+    e.preventDefault();
+    first.focus();
   }
 }
 
@@ -443,6 +577,9 @@ function setupAudioUI() {
       if (btn) {
         btn.classList.toggle("muted", muted);
         btn.querySelector(".btn-label").textContent = muted ? "AUDIO: OFF" : "AUDIO: ON";
+        btn.setAttribute("aria-pressed", String(muted));
+        const slot = btn.querySelector(".icon-slot");
+        if (slot) slot.innerHTML = muted ? ICONS.speakerOff : ICONS.speakerOn;
       }
     });
   };
@@ -468,6 +605,9 @@ function setupAudioUI() {
     }
   });
 
+  // Reflect persisted mute state (icon + label + aria-pressed)
+  updateMuteState(audioEngine.isMuted);
+
   const unlockAudio = () => {
     audioEngine.ensureContext();
     window.removeEventListener("click", unlockAudio);
@@ -484,4 +624,73 @@ window.endTurn = endTurn;
 document.addEventListener("DOMContentLoaded", () => {
   setupNavigation();
   setupAudioUI();
+  wireEndOverlay();
+});
+
+/* ════════════════════════════════════════════════════════════════════
+   QA TEST HOOK — no-op in production (see visual-check-spec.md §7)
+   Activated only via URL params:
+     ?test=1&screen=arena&seed=<n>&intent=attack|defend|buff&outcome=victory|defeat
+   Used by qa/run.mjs to force deterministic, reproducible game states.
+   Never fires audio and uses no timers the harness cannot predict.
+   ════════════════════════════════════════════════════════════════════ */
+const qaParams = new URLSearchParams(location.search);
+
+// Deterministic RNG (mulberry32). Installed at module scope — before any
+// drawHand() -> Math.random() call — so hands are reproducible across
+// viewports and runs. Applied whenever a numeric `seed` is present (the
+// harness also seeds non-hook scenarios for stable arena screenshots).
+const qaSeedRaw = qaParams.get("seed");
+// Note: Number("") is 0, so an empty ?seed= must not silently seed with 0.
+if (qaSeedRaw !== null && qaSeedRaw !== "" && Number.isFinite(Number(qaSeedRaw))) {
+  const mulberry32 = (a) => () => {
+    a |= 0;
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+  Math.random = mulberry32(Number(qaSeedRaw) >>> 0);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  if (!qaParams.get("test") || qaParams.get("screen") !== "arena") return;
+
+  // Jump straight to the arena with a direct class swap (no animated
+  // splash/home flow) so the hook stays free of audio + motion timers.
+  const splash = document.getElementById("splash-screen");
+  const home = document.getElementById("home-screen");
+  const game = document.getElementById("game-screen");
+  if (splash) {
+    splash.classList.add("hidden");
+    splash.classList.remove("flex");
+  }
+  if (home) {
+    home.classList.add("hidden");
+    home.classList.remove("flex");
+  }
+  if (game) {
+    game.classList.remove("hidden");
+    game.classList.add("flex");
+  }
+  initGame();
+
+  // Force an enemy intent (exercises all three intent UIs — spec §6.4 #7).
+  const qaIntent = qaParams.get("intent");
+  if (qaIntent === "attack" || qaIntent === "defend" || qaIntent === "buff") {
+    enemy.intent = qaIntent;
+    updateEnemyIntent(); // updates DOM + side effects (defend heals, buff raises ATK)
+  }
+
+  // Force the end state, skipping natural play (spec §6.4 #8).
+  const qaOutcome = qaParams.get("outcome");
+  if (qaOutcome === "victory" || qaOutcome === "defeat") {
+    gameOver = true;
+    showEndOverlay(
+      qaOutcome === "victory",
+      qaOutcome === "victory"
+        ? "You breached the mainframe and deleted the Firewall Daemon."
+        : "The Firewall Daemon overwhelmed your system."
+    );
+  }
 });

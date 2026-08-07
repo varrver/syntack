@@ -17,18 +17,16 @@
         theme: {
           extend: {
             colors: {
-              'felt-dark': '#0b3d2e',
-              'felt-med': '#14553d',
-              'felt-light': '#1a6b4e',
               'b-red': '#fe5f55',
               'b-blue': '#009ddc',
               'b-gold': '#f5c542',
               'b-purple': '#8957e5',
               'b-green': '#59d67a',
-              'b-orange': '#e88d39',
-              'card-bg': '#262a3a',
-              'card-face': '#2f3448',
-              'card-border': '#454d6d',
+              'balatro-red': '#fe5f55',
+              'balatro-blue': '#009ddc',
+              'balatro-purple': '#8957e5',
+              'balatro-green': '#59d67a',
+              'balatro-yellow': '#f5c542',
             },
             fontFamily: {
               display: ['Orbitron', 'sans-serif'],
@@ -45,6 +43,9 @@
     <div class="scanlines"></div>
     <div class="float-dmg-container fixed inset-0 z-[100] pointer-events-none" id="floatDmgContainer"></div>
 
+    <!-- Single <main> landmark wrapping all game screens (a11y A3/A5) -->
+    <main class="w-full flex flex-col items-center">
+
     <!-- ════════════════════ SPLASH SCREEN ════════════════════ -->
     <div id="splash-screen" class="relative z-[10] flex flex-col items-center justify-center w-full max-w-[750px] text-center p-8 min-h-[90vh]">
 
@@ -53,7 +54,8 @@
 
       <div class="mb-6 relative">
         <div class="text-[0.55rem] font-pixel text-b-blue tracking-[5px] uppercase mb-2 opacity-70">CYBER DECKBUILDER</div>
-        <h1 class="font-display font-black text-[3rem] sm:text-[4.5rem] tracking-[6px] uppercase leading-none relative"
+        <h1 class="glitch font-display font-black text-[3rem] sm:text-[4.5rem] tracking-[6px] uppercase leading-none relative"
+            data-text="SYNTACK"
             style="color: #fe5f55; text-shadow: 0 0 20px rgba(254,95,85,0.5), 4px 4px 0 #000, -3px -3px 0 #009ddc;">
           SYNTACK
         </h1>
@@ -82,64 +84,70 @@
         </div>
       </div>
 
-      <button id="btn-splash-start" class="balatro-btn py-4 px-10 text-[0.95rem] sm:text-[1.15rem] mt-4">
-        ▶ PLAY
+      <button id="btn-splash-start" class="balatro-btn py-4 px-10 text-[0.95rem] sm:text-[1.15rem] mt-4" aria-label="Start game">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+        PLAY
       </button>
 
-      <p class="text-[0.55rem] text-white/25 mt-6 tracking-widest uppercase">Click anywhere to enable audio</p>
+      <p class="text-[0.55rem] text-white/50 mt-6 tracking-widest uppercase">Click anywhere to enable audio</p>
     </div>
 
     <!-- ════════════════════ HOME MENU ════════════════════ -->
-    <div id="home-screen" class="hidden relative z-[10] flex-col items-center justify-center w-full max-w-[600px] p-8 text-center min-h-[80vh]">
+    <div id="home-screen" class="hidden flex flex-col items-center justify-center w-full max-w-[600px] p-8 text-center min-h-[80vh]">
 
       <div class="absolute w-[250px] h-[250px] rounded-full blur-[100px] opacity-20 bg-b-gold top-[5%] left-1/2 -translate-x-1/2 pointer-events-none"></div>
 
-      <h2 class="font-display font-black text-[2rem] sm:text-[3rem] tracking-[4px] uppercase mb-1 relative"
+      <h1 class="font-display font-black text-[2rem] sm:text-[3rem] tracking-[4px] uppercase mb-1 relative"
           style="color: #f5c542; text-shadow: 0 0 16px rgba(245,197,66,0.4), 3px 3px 0 #000;">
         SYNTACK
-      </h2>
-      <p class="text-[0.7rem] text-white/40 mb-10 tracking-[3px] uppercase font-pixel">Main Menu</p>
+      </h1>
+      <p class="text-[0.7rem] text-white/60 mb-10 tracking-[3px] uppercase font-pixel">Main Menu</p>
 
       <div class="flex flex-col gap-4 w-full max-w-[360px]">
         <button id="btn-menu-start" class="balatro-btn py-4 px-8 text-[1rem]">
-          ⚔ RUN HACK
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+          RUN HACK
         </button>
         <button id="btn-menu-archive" class="balatro-btn balatro-btn-blue py-4 px-8 text-[1rem]">
-          📋 CARD ARCHIVE
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"></path><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"></path><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"></path></svg>
+          CARD ARCHIVE
         </button>
         <button id="btn-menu-rules" class="balatro-btn balatro-btn-gold py-4 px-8 text-[1rem]">
-          📖 HOW TO PLAY
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+          HOW TO PLAY
         </button>
       </div>
 
       <!-- Audio Controls -->
       <div class="flex items-center justify-center gap-4 mt-10 pt-4 border-t border-white/10 w-full text-[0.7rem]">
-        <button id="btnMuteHome" class="audio-control-btn">
-          <span>🔊</span> <span class="btn-label">SFX: ON</span>
+        <button id="btnMuteHome" class="audio-control-btn" aria-pressed="false" aria-label="Toggle sound effects">
+          <span class="icon-slot"></span> <span class="btn-label">AUDIO: ON</span>
         </button>
-        <div class="flex items-center gap-2 text-white/35">
+        <div class="flex items-center gap-2 text-white/55">
           <span class="text-[0.6rem]">VOL</span>
-          <input id="volSliderHome" type="range" min="0" max="1" step="0.05" value="0.6"
+          <input id="volSliderHome" type="range" min="0" max="1" step="0.05" value="0.6" aria-label="Volume"
             class="w-20 h-1 rounded cursor-pointer accent-[#009ddc] bg-white/10" />
         </div>
       </div>
     </div>
 
     <!-- ════════════════════ GAME ARENA ════════════════════ -->
-    <div id="game-screen" class="hidden relative z-[10] w-full max-w-[880px] felt-table p-5 sm:p-7 m-4">
+    <div id="game-screen" class="hidden flex flex-col relative z-[10] w-full max-w-[880px] felt-table p-5 sm:p-7 m-4">
 
       <!-- Top HUD Bar -->
       <div class="relative z-10 flex items-center justify-between mb-4 pb-2 border-b border-white/10 text-[0.7rem]">
-        <button id="btn-game-home" class="audio-control-btn" style="border-color: rgba(245,197,66,0.4); color: #f5c542;">
-          <span>◀</span> <span>MENU</span>
+        <h1 class="sr-only">SYNTACK — Game Arena</h1>
+        <button id="btn-game-home" class="audio-control-btn" style="border-color: rgba(245,197,66,0.4); color: #f5c542;" aria-label="Back to main menu">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>
+          <span>MENU</span>
         </button>
         <div class="flex items-center gap-4">
-          <button id="btnMute" class="audio-control-btn">
-            <span>🔊</span> <span class="btn-label">SFX: ON</span>
+          <button id="btnMute" class="audio-control-btn" aria-pressed="false" aria-label="Toggle sound effects">
+            <span class="icon-slot"></span> <span class="btn-label">AUDIO: ON</span>
           </button>
-          <div class="flex items-center gap-2 text-white/35">
+          <div class="flex items-center gap-2 text-white/55">
             <span class="text-[0.6rem]">VOL</span>
-            <input id="volSlider" type="range" min="0" max="1" step="0.05" value="0.6"
+            <input id="volSlider" type="range" min="0" max="1" step="0.05" value="0.6" aria-label="Volume"
               class="w-16 h-1 rounded cursor-pointer accent-[#009ddc] bg-white/10" />
           </div>
         </div>
@@ -148,30 +156,31 @@
       <!-- Chip Score Displays -->
       <div class="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-5">
         <div class="chip-display p-3 text-center">
-          <div class="text-[0.5rem] font-pixel uppercase text-white/35 mb-1">HP</div>
+          <div class="text-[0.5rem] font-pixel uppercase text-white/55 mb-1">HP</div>
           <div class="chip-val text-[1.1rem] sm:text-[1.3rem]" style="color: #59d67a;" id="player-hp">50/50</div>
           <div class="chip-bar"><div class="chip-bar-fill" style="width: 100%; background: #59d67a; color: #59d67a;" id="hpBarFill"></div></div>
         </div>
         <div class="chip-display p-3 text-center">
-          <div class="text-[0.5rem] font-pixel uppercase text-white/35 mb-1">RAM</div>
+          <div class="text-[0.5rem] font-pixel uppercase text-white/55 mb-1">RAM</div>
           <div class="chip-val text-[1.1rem] sm:text-[1.3rem]" style="color: #009ddc;" id="player-ram">3/3</div>
           <div class="chip-bar"><div class="chip-bar-fill" style="width: 100%; background: #009ddc; color: #009ddc;" id="ramBarFill"></div></div>
         </div>
         <div class="chip-display p-3 text-center">
-          <div class="text-[0.5rem] font-pixel uppercase text-white/35 mb-1">VAR X</div>
+          <div class="text-[0.5rem] font-pixel uppercase text-white/55 mb-1">VAR X</div>
           <div class="chip-val text-[1.1rem] sm:text-[1.3rem]" style="color: #f5c542;" id="var-x">0</div>
         </div>
         <div class="chip-display p-3 text-center">
-          <div class="text-[0.5rem] font-pixel uppercase text-white/35 mb-1">BLOCK</div>
+          <div class="text-[0.5rem] font-pixel uppercase text-white/55 mb-1">BLOCK</div>
           <div class="chip-val text-[1.1rem] sm:text-[1.3rem]" style="color: #8957e5;" id="player-block">0</div>
         </div>
       </div>
 
       <!-- Battle Zone: Terminal + Enemy -->
       <div class="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
-        <div class="terminal p-4 h-[130px] sm:h-[160px] overflow-y-auto text-[0.72rem] leading-[1.7]" id="terminal">
+        <div class="terminal p-4 h-[130px] sm:h-[160px] overflow-y-auto text-[0.72rem] leading-[1.7]" id="terminal" role="log" aria-label="System terminal" aria-live="polite">
           <div class="terminal-log opacity-0 mb-[2px]" style="color:#fe5f55;">[SYS] Initializing…</div>
           <div class="terminal-log opacity-0 mb-[2px]" style="color:#59d67a;">[SYS] Firewall detected.</div>
+          <span class="terminal-cursor" aria-hidden="true"></span>
         </div>
 
         <div class="enemy-panel p-4 text-center flex flex-col justify-center" id="enemyBox">
@@ -183,7 +192,7 @@
           </div>
           <div class="intent-box text-[0.6rem] px-3 py-2 rounded-lg tracking-[1px] uppercase inline-flex items-center justify-center gap-2 mt-3 border border-[rgba(254,95,85,0.3)] bg-[rgba(254,95,85,0.08)]" id="enemy-intent"
                style="color: #fe5f55;">
-            <span class="intent-icon text-sm">⚔</span>
+            <span class="intent-icon" aria-hidden="true"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"></polyline><line x1="13" x2="19" y1="19" y2="13"></line><line x1="16" x2="20" y1="16" y2="20"></line><line x1="19" x2="21" y1="21" y2="19"></line></svg></span>
             <span>ATTACK (8 DMG)</span>
           </div>
         </div>
@@ -192,38 +201,44 @@
       <!-- Hand Section -->
       <div class="relative z-10 mb-5">
         <div class="flex items-center justify-between mb-2">
-          <span class="text-[0.55rem] font-pixel tracking-[2px] uppercase text-white/30">// HAND</span>
+          <span class="text-[0.55rem] font-pixel tracking-[2px] uppercase text-white/50">// HAND</span>
           <span class="text-[0.7rem] font-display font-bold" style="color: #009ddc;" id="ramDisplay">RAM: 3/3</span>
         </div>
-        <div class="hand-container flex gap-3 overflow-x-auto px-1 pt-2 pb-4 min-h-[175px]" id="hand-container"></div>
+        <div class="hand-container flex gap-3 overflow-x-auto px-1 pt-7 pb-5 min-h-[190px]" id="hand-container"></div>
       </div>
 
       <!-- Execute Turn Button -->
       <div class="relative z-10 flex flex-col sm:flex-row justify-between items-center gap-3 pt-4 border-t border-white/10">
-        <span class="text-[0.6rem] text-white/25 tracking-[1px]">⟐ Combine Variables & Loops for max damage</span>
+        <span class="text-[0.6rem] text-white/50 tracking-[1px]">⟐ Combine Variables & Loops for max damage</span>
         <button class="balatro-btn w-full sm:w-auto py-3 px-8 text-[0.85rem]" onclick="endTurn()">
           ⟫ EXECUTE TURN ⟪
         </button>
       </div>
     </div>
 
+    </main>
+
     <!-- ════════════════════ CARD ARCHIVE MODAL ════════════════════ -->
-    <div id="archive-modal" class="modal-overlay hidden">
+    <div id="archive-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="archive-title">
       <div class="modal-content">
         <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
-          <h3 class="font-display font-black text-[1.2rem]" style="color: #009ddc;">📋 CARD ARCHIVE</h3>
-          <button id="btn-close-archive" class="audio-control-btn" style="color: #fe5f55; border-color: rgba(254,95,85,0.3);">✕</button>
+          <h2 id="archive-title" class="font-display font-black text-[1.2rem]" style="color: #009ddc;">CARD ARCHIVE</h2>
+          <button id="btn-close-archive" class="audio-control-btn" style="color: #fe5f55; border-color: rgba(254,95,85,0.3);" aria-label="Close card archive">
+            <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+          </button>
         </div>
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[400px] overflow-y-auto pr-1" id="archive-cards-list"></div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[400px] overflow-y-auto pr-1" id="archive-cards-list" role="list" aria-label="Card archive" tabindex="0"></div>
       </div>
     </div>
 
     <!-- ════════════════════ RULES MODAL ════════════════════ -->
-    <div id="rules-modal" class="modal-overlay hidden">
+    <div id="rules-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="rules-title">
       <div class="modal-content">
         <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
-          <h3 class="font-display font-black text-[1.2rem]" style="color: #f5c542;">📖 HOW TO PLAY</h3>
-          <button id="btn-close-rules" class="audio-control-btn" style="color: #fe5f55; border-color: rgba(254,95,85,0.3);">✕</button>
+          <h2 id="rules-title" class="font-display font-black text-[1.2rem]" style="color: #f5c542;">HOW TO PLAY</h2>
+          <button id="btn-close-rules" class="audio-control-btn" style="color: #fe5f55; border-color: rgba(254,95,85,0.3);" aria-label="Close how to play">
+            <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+          </button>
         </div>
         <div class="space-y-3 text-[0.78rem] leading-[1.7] text-white/80">
           <p><strong style="color:#f5c542;">1. RAM Energy:</strong> Each turn your RAM recharges. Playing cards costs RAM.</p>
@@ -232,6 +247,19 @@
           <p><strong style="color:#59d67a;">4. Block &amp; Defense:</strong> Accumulate Block to shield your HP from enemy counter-attacks.</p>
           <p><strong style="color:#e88d39;">5. End Turn:</strong> Click <strong>"EXECUTE TURN"</strong> to end your turn. The enemy strikes back!</p>
         </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════ END SCREEN OVERLAY (Victory / Defeat) ════════════════════ -->
+    <div id="end-overlay" class="end-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="end-overlay-title">
+      <div class="end-overlay-content">
+        <div class="end-overlay-chip" id="end-overlay-chip">HACK COMPLETE</div>
+        <h2 id="end-overlay-title" class="end-overlay-title glitch" data-text="VICTORY">VICTORY</h2>
+        <p id="end-overlay-sub" class="end-overlay-sub"></p>
+        <button id="btn-end-again" class="balatro-btn py-3 px-8 text-[0.85rem]">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          RUN AGAIN
+        </button>
       </div>
     </div>
 

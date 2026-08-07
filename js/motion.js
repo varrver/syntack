@@ -82,11 +82,23 @@ export function animateHandStagger(container) {
       cards,
       { y: [40, 0], opacity: [0, 1], scale: [0.85, 1] },
       { delay: stagger(0.06), duration: 0.35, easing: spring({ stiffness: 300, damping: 22 }) }
-    );
+    ).then(() => {
+      // Motion leaves an inline transform (e.g. translateY(var(--motion-*))) on
+      // each card when the animation ends, which overrides the stylesheet's
+      // `.card:hover` lift. Clear the inline styles so hover works again (F1),
+      // but skip a card that is mid-play (animateCardPlay marks it with
+      // data-playing) so we don't freeze its play animation.
+      cards.forEach((card) => {
+        if (card.dataset.playing === 'true') return;
+        card.style.transform = '';
+        card.style.opacity = '';
+      });
+    });
   } catch (err) {
     cards.forEach((card) => {
-      card.style.opacity = '1';
-      card.style.transform = 'none';
+      if (card.dataset.playing === 'true') return;
+      card.style.opacity = '';
+      card.style.transform = '';
     });
   }
 }
@@ -97,17 +109,24 @@ export function animateCardPlay(cardEl, onComplete) {
     return;
   }
 
+  // DOM marker: the hand-stagger cleanup (which fires ~0.65s after each render)
+  // must leave this card's inline transform alone while it's playing, or it
+  // would wipe Motion's transform template and freeze the play animation.
+  cardEl.dataset.playing = 'true';
+
   try {
     animate(
       cardEl,
       { y: [0, -40, 10], opacity: [1, 0.9, 0], scale: [1, 1.15, 0.8] },
       { duration: 0.35, easing: spring({ stiffness: 350, damping: 25 }) }
     ).then(() => {
+      delete cardEl.dataset.playing;
       if (onComplete) onComplete();
     });
   } catch (err) {
     cardEl.classList.add('played');
     setTimeout(() => {
+      delete cardEl.dataset.playing;
       if (onComplete) onComplete();
     }, 350);
   }
@@ -120,7 +139,11 @@ export function animateInsufficientRam(cardEl) {
       cardEl,
       { x: [0, -8, 8, -6, 6, 0] },
       { duration: 0.3, easing: spring({ stiffness: 400, damping: 15 }) }
-    );
+    ).then(() => {
+      // Same F1 class: clear the shake's inline transform so the card's
+      // `.card:hover` lift isn't overridden afterwards.
+      cardEl.style.transform = '';
+    });
   } catch (err) {
     cardEl.classList.add('insufficient-ram');
     setTimeout(() => cardEl.classList.remove('insufficient-ram'), 400);
