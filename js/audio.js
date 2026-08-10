@@ -8,7 +8,7 @@ class CyberAudioEngine {
     this.ctx = null;
     this.masterGain = null;
     this.sfxGain = null;
-    
+
     this.isMuted = localStorage.getItem("syntack_muted") === "true";
     this.volume = parseFloat(localStorage.getItem("syntack_volume") || "0.6");
 
@@ -20,7 +20,7 @@ class CyberAudioEngine {
     if (this.ctx) return;
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     if (!AudioContext) return;
-    
+
     this.ctx = new AudioContext();
 
     this.masterGain = this.ctx.createGain();
@@ -45,7 +45,10 @@ class CyberAudioEngine {
     this.isMuted = !this.isMuted;
     localStorage.setItem("syntack_muted", this.isMuted);
     if (this.masterGain) {
-      this.masterGain.gain.setValueAtTime(this.isMuted ? 0 : this.volume, this.ctx.currentTime);
+      this.masterGain.gain.setValueAtTime(
+        this.isMuted ? 0 : this.volume,
+        this.ctx.currentTime,
+      );
     }
     return this.isMuted;
   }

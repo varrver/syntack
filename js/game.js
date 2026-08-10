@@ -3,7 +3,7 @@
  * Balatro-inspired visual & screen navigation architecture.
  */
 
-import { audioEngine } from './audio.js';
+import { audioEngine } from "./audio.js";
 import {
   animateScreenTransition,
   animateModalOpen,
@@ -18,8 +18,8 @@ import {
   animateAttackBolt,
   animateHitFlash,
   animateBurst,
-  animateHandRecoil
-} from './motion.js';
+  animateHandRecoil,
+} from "./motion.js";
 
 /* ── Vector icon set (inline SVG, consistent 2px stroke) ── */
 function svgIcon(paths, sizeClass = "icon") {
@@ -29,36 +29,50 @@ function svgIcon(paths, sizeClass = "icon") {
 const ICONS = {
   sword: svgIcon(
     `<polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"></polyline><line x1="13" x2="19" y1="19" y2="13"></line><line x1="16" x2="20" y1="16" y2="20"></line><line x1="19" x2="21" y1="21" y2="19"></line>`,
-    "icon-sm"
+    "icon-sm",
   ),
   shield: svgIcon(
     `<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path>`,
-    "icon-sm"
+    "icon-sm",
   ),
   trend: svgIcon(
     `<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline>`,
-    "icon-sm"
+    "icon-sm",
   ),
   speakerOn: svgIcon(
-    `<path d="M11 5 6 9H2v6h4l5 4V5Z"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>`
+    `<path d="M11 5 6 9H2v6h4l5 4V5Z"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>`,
   ),
   speakerOff: svgIcon(
-    `<path d="M11 5 6 9H2v6h4l5 4V5Z"></path><line x1="22" x2="16" y1="9" y2="15"></line><line x1="16" x2="22" y1="9" y2="15"></line>`
+    `<path d="M11 5 6 9H2v6h4l5 4V5Z"></path><line x1="22" x2="16" y1="9" y2="15"></line><line x1="16" x2="22" y1="9" y2="15"></line>`,
   ),
 };
 
-let player = { hp: 50, maxHp: 50, ram: 3, maxRam: 3, block: 0, varX: 0, loopMult: 1 };
-let enemy = { hp: 60, maxHp: 60, attackDmg: 8, intent: "attack", name: "FIREWALL DAEMON" };
+let player = {
+  hp: 50,
+  maxHp: 50,
+  ram: 3,
+  maxRam: 3,
+  block: 0,
+  varX: 0,
+  loopMult: 1,
+};
+let enemy = {
+  hp: 60,
+  maxHp: 60,
+  attackDmg: 8,
+  intent: "attack",
+  name: "FIREWALL DAEMON",
+};
 
 /* Multi-node run: the player hacks through BOSS_NODE-1 network nodes plus a
    final MAINFRAME boss. Node 1 keeps the original fight (60 HP / 8 ATK) so the
    QA harness's historical expectations (E3 HP values, golden arena baseline)
    stay valid; later nodes escalate. */
 const ENEMY_ROSTER = [
-  { name: "FIREWALL DAEMON", hp: 60, attackDmg: 8 },   // node 1
+  { name: "FIREWALL DAEMON", hp: 60, attackDmg: 8 }, // node 1
   { name: "INTRUSION WRAITH", hp: 75, attackDmg: 10 }, // node 2
-  { name: "LOGIC BOMBER", hp: 90, attackDmg: 12 },     // node 3
-  { name: "MAINFRAME CORE", hp: 120, attackDmg: 14 },  // node 4 — boss
+  { name: "LOGIC BOMBER", hp: 90, attackDmg: 12 }, // node 3
+  { name: "MAINFRAME CORE", hp: 120, attackDmg: 14 }, // node 4 — boss
 ];
 const BOSS_NODE = ENEMY_ROSTER.length;
 
@@ -66,7 +80,9 @@ let run = {
   node: 1,
   bestNode: (() => {
     try {
-      return parseInt(localStorage.getItem("syntack_best_node") || "0", 10) || 0;
+      return (
+        parseInt(localStorage.getItem("syntack_best_node") || "0", 10) || 0
+      );
     } catch {
       return 0;
     }
@@ -75,25 +91,40 @@ let run = {
 
 const CARD_TYPES = [
   {
-    id: 1, ram: 1, code: "let x = 8;", desc: "Set Variable x = 8", rarity: "common", type: "variable",
+    id: 1,
+    ram: 1,
+    code: "let x = 8;",
+    desc: "Set Variable x = 8",
+    rarity: "common",
+    type: "variable",
     action: () => {
       player.varX = 8;
       log("Variable 'x' set to 8.", "player");
       animateFloatDamage("x = 8", "buff", "35%", "60%");
-    }
+    },
   },
   {
-    id: 2, ram: 1, code: "ATTACK(x)", desc: "Deal dmg = x (Default: 4)", rarity: "common", type: "attack",
+    id: 2,
+    ram: 1,
+    code: "ATTACK(x)",
+    desc: "Deal dmg = x (Default: 4)",
+    rarity: "common",
+    type: "attack",
     action: () => {
       let base = player.varX > 0 ? player.varX : 4;
       let total = base * player.loopMult;
       dealDamageToEnemy(total);
       log(`EXECUTE ATTACK(${total})!`, "player");
       player.loopMult = 1;
-    }
+    },
   },
   {
-    id: 3, ram: 1, code: "if (x > 5)", desc: "If x > 5: +10 Block, +4 ATK", rarity: "rare", type: "variable",
+    id: 3,
+    ram: 1,
+    code: "if (x > 5)",
+    desc: "If x > 5: +10 Block, +4 ATK",
+    rarity: "rare",
+    type: "variable",
     action: () => {
       if (player.varX > 5) {
         player.block += 10;
@@ -104,34 +135,54 @@ const CARD_TYPES = [
       } else {
         log("IF (x > 5) → FALSE. No effect.", "warning");
       }
-    }
+    },
   },
   {
-    id: 4, ram: 2, code: "for (2x Loop)", desc: "Double next attack damage!", rarity: "epic", type: "loop",
+    id: 4,
+    ram: 2,
+    code: "for (2x Loop)",
+    desc: "Double next attack damage!",
+    rarity: "epic",
+    type: "loop",
     action: () => {
       player.loopMult *= 2;
       log("FOR LOOP ACTIVE! Next attack 2x dmg!", "player");
       animateFloatDamage("2x DMG!", "buff", "45%", "50%");
-    }
+    },
   },
   {
-    id: 5, ram: 1, code: "DEFENSE(8)", desc: "Gain +8 Block", rarity: "common", type: "defense",
+    id: 5,
+    ram: 1,
+    code: "DEFENSE(8)",
+    desc: "Gain +8 Block",
+    rarity: "common",
+    type: "defense",
     action: () => {
       player.block += 8;
       log("DEFENSE(8) → Block +8", "player");
       animateFloatDamage("+8 Block", "block", "40%", "60%");
-    }
+    },
   },
   {
-    id: 6, ram: 1, code: "x *= 2", desc: "Double Variable x", rarity: "rare", type: "variable",
+    id: 6,
+    ram: 1,
+    code: "x *= 2",
+    desc: "Double Variable x",
+    rarity: "rare",
+    type: "variable",
     action: () => {
       player.varX *= 2;
       log(`Variable x doubled → x = ${player.varX}`, "player");
       animateFloatDamage("x ×2", "buff", "35%", "55%");
-    }
+    },
   },
   {
-    id: 7, ram: 2, code: "OVERCLOCK()", desc: "Gain +2 RAM (max 5)", rarity: "epic", type: "defense",
+    id: 7,
+    ram: 2,
+    code: "OVERCLOCK()",
+    desc: "Gain +2 RAM (max 5)",
+    rarity: "epic",
+    type: "defense",
     action: () => {
       let gained = Math.min(2, 5 - player.maxRam);
       if (gained > 0) {
@@ -142,10 +193,15 @@ const CARD_TYPES = [
       } else {
         log("OVERCLOCK: RAM already at max.", "warning");
       }
-    }
+    },
   },
   {
-    id: 8, ram: 1, code: "PURGE()", desc: "Deal dmg = Block (max 12)", rarity: "rare", type: "attack",
+    id: 8,
+    ram: 1,
+    code: "PURGE()",
+    desc: "Deal dmg = Block (max 12)",
+    rarity: "rare",
+    type: "attack",
     action: () => {
       let dmg = Math.min(12, player.block);
       if (dmg > 0) {
@@ -154,10 +210,15 @@ const CARD_TYPES = [
       } else {
         log("PURGE: no block to convert.", "warning");
       }
-    }
+    },
   },
   {
-    id: 9, ram: 1, code: "REBOOT()", desc: "Heal +6 HP", rarity: "common", type: "defense",
+    id: 9,
+    ram: 1,
+    code: "REBOOT()",
+    desc: "Heal +6 HP",
+    rarity: "common",
+    type: "defense",
     action: () => {
       const healed = Math.min(player.maxHp - player.hp, 6);
       if (healed > 0) {
@@ -167,15 +228,20 @@ const CARD_TYPES = [
       } else {
         log("REBOOT: HP already full.", "warning");
       }
-    }
+    },
   },
   {
-    id: 10, ram: 2, code: "PARALLEL()", desc: "Next attack 3x dmg", rarity: "epic", type: "loop",
+    id: 10,
+    ram: 2,
+    code: "PARALLEL()",
+    desc: "Next attack 3x dmg",
+    rarity: "epic",
+    type: "loop",
     action: () => {
       player.loopMult *= 3;
       log("PARALLEL THREAD! Next attack 3x dmg!", "player");
       animateFloatDamage("3x DMG!", "buff", "45%", "50%");
-    }
+    },
   },
 ];
 
@@ -186,11 +252,10 @@ let gameOver = false;
 // bolt in dealDamageToEnemy (captured before the card is spliced out).
 let lastPlayRect = null;
 
-
 function resetTerminal() {
   const term = document.getElementById("terminal");
   if (!term) return;
-  term.innerHTML = '';
+  term.innerHTML = "";
   const cursor = document.createElement("span");
   cursor.className = "terminal-cursor";
   cursor.setAttribute("aria-hidden", "true");
@@ -202,7 +267,13 @@ function resetTerminal() {
    the deepest node reached so the home screen can show progress. */
 function loadEnemy() {
   const def = ENEMY_ROSTER[run.node - 1] || ENEMY_ROSTER[0];
-  enemy = { hp: def.hp, maxHp: def.hp, attackDmg: def.attackDmg, intent: "attack", name: def.name };
+  enemy = {
+    hp: def.hp,
+    maxHp: def.hp,
+    attackDmg: def.attackDmg,
+    intent: "attack",
+    name: def.name,
+  };
   player.block = 0;
   player.varX = 0;
   player.loopMult = 1;
@@ -218,23 +289,38 @@ function loadEnemy() {
   const nodeEl = document.getElementById("node-indicator");
   if (nodeEl) nodeEl.textContent = `NODE ${run.node}/${BOSS_NODE}`;
   const bestEl = document.getElementById("best-run-line");
-  if (bestEl) bestEl.textContent = `BEST RUN: NODE ${run.bestNode}/${BOSS_NODE}`;
+  if (bestEl)
+    bestEl.textContent = `BEST RUN: NODE ${run.bestNode}/${BOSS_NODE}`;
 
   resetTerminal();
   // Node-breach boot sequence. Fills the terminal (~6 lines at 11.52px/1.7lh
   // in a 160px box) so it genuinely auto-scrolls as the fight progresses —
   // and gives each node breach its own "system coming online" feel.
   log(`[SYS] Breaching node ${run.node}/${BOSS_NODE} — ${def.name}`, "system");
-  log(`[SYS] Core integrity: ${def.hp} HP · Threat level: ATK ${def.attackDmg}`, "system");
+  log(
+    `[SYS] Core integrity: ${def.hp} HP · Threat level: ATK ${def.attackDmg}`,
+    "system",
+  );
   log(`[SYS] Uplink stable · ${CARD_TYPES.length} primitives cached`, "info");
   log(`[SYS] RAM buffer ${player.ram}/${player.maxRam} · standing by`, "info");
-  log(`[SYS] Firewall heuristics active — breach the core to advance`, "warning");
+  log(
+    `[SYS] Firewall heuristics active — breach the core to advance`,
+    "warning",
+  );
   log(`[SYS] Compile complete. Awaiting command.`, "info");
   updateEnemyIntent();
 }
 
 function initGame() {
-  player = { hp: 50, maxHp: 50, ram: 3, maxRam: 3, block: 0, varX: 0, loopMult: 1 };
+  player = {
+    hp: 50,
+    maxHp: 50,
+    ram: 3,
+    maxRam: 3,
+    block: 0,
+    varX: 0,
+    loopMult: 1,
+  };
   run.node = 1;
   gameOver = false;
   loadEnemy();
@@ -262,25 +348,25 @@ function renderHand() {
   const container = document.getElementById("hand-container");
   if (!container) return;
   container.innerHTML = "";
-  
+
   hand.forEach((card, index) => {
     const cardEl = document.createElement("div");
     let rarityBorder = "border-[#3b3f6b]";
     let stickerClass = "common";
-    
-    if (card.rarity === 'rare') {
+
+    if (card.rarity === "rare") {
       rarityBorder = "border-balatro-purple";
       stickerClass = "rare";
-    } else if (card.rarity === 'epic') {
+    } else if (card.rarity === "epic") {
       rarityBorder = "border-balatro-yellow";
       stickerClass = "epic";
     }
-    
+
     cardEl.className = `card type-${card.type} min-w-[110px] sm:min-w-[130px] h-[145px] sm:h-[160px] p-2 cursor-pointer shrink-0 flex flex-col justify-between relative border-2 ${rarityBorder}`;
     cardEl.setAttribute("role", "button");
     cardEl.setAttribute("tabindex", "0");
     cardEl.setAttribute("aria-label", `${card.code} — ${card.desc}`);
-    
+
     cardEl.innerHTML = `
       <div class="flex justify-between items-center w-full">
         <span class="card-ram text-[0.6rem] bg-balatro-blue text-black font-pixel font-bold px-[4px] py-[1px] rounded">${card.ram} RAM</span>
@@ -435,19 +521,22 @@ function updateEnemyIntent() {
 
   switch (enemy.intent) {
     case "attack":
-      intentEl.className = "intent-box text-[0.65rem] px-2 py-1.5 rounded tracking-[1px] uppercase inline-flex items-center justify-center gap-2 mt-2 border border-balatro-red/30 text-balatro-red bg-balatro-red/10";
+      intentEl.className =
+        "intent-box text-[0.65rem] px-2 py-1.5 rounded tracking-[1px] uppercase inline-flex items-center justify-center gap-2 mt-2 border border-balatro-red/30 text-balatro-red bg-balatro-red/10";
       icon.innerHTML = ICONS.sword;
       text.textContent = `ATTACK (${enemy.attackDmg} DMG)`;
       break;
     case "defend":
-      intentEl.className = "intent-box text-[0.65rem] px-2 py-1.5 rounded tracking-[1px] uppercase inline-flex items-center justify-center gap-2 mt-2 border border-balatro-blue/30 text-balatro-blue bg-balatro-blue/10";
+      intentEl.className =
+        "intent-box text-[0.65rem] px-2 py-1.5 rounded tracking-[1px] uppercase inline-flex items-center justify-center gap-2 mt-2 border border-balatro-blue/30 text-balatro-blue bg-balatro-blue/10";
       icon.innerHTML = ICONS.shield;
       text.textContent = "DEFENSE MATRIX";
       enemy.hp = Math.min(enemy.maxHp, enemy.hp + 4);
       log("[ENEMY] Defense Matrix: +4 HP", "warning");
       break;
     case "buff":
-      intentEl.className = "intent-box text-[0.65rem] px-2 py-1.5 rounded tracking-[1px] uppercase inline-flex items-center justify-center gap-2 mt-2 border border-balatro-purple/30 text-balatro-purple bg-balatro-purple/10";
+      intentEl.className =
+        "intent-box text-[0.65rem] px-2 py-1.5 rounded tracking-[1px] uppercase inline-flex items-center justify-center gap-2 mt-2 border border-balatro-purple/30 text-balatro-purple bg-balatro-purple/10";
       icon.innerHTML = ICONS.trend;
       text.textContent = "ATTACK BUFF +3";
       enemy.attackDmg += 3;
@@ -475,21 +564,26 @@ function log(msg, type) {
 }
 
 function updateUI() {
-  document.getElementById("player-hp").innerText = `${player.hp}/${player.maxHp}`;
+  document.getElementById("player-hp").innerText =
+    `${player.hp}/${player.maxHp}`;
   const hpPct = Math.min(1, Math.max(0, player.hp / player.maxHp));
   const hpFill = document.getElementById("hpBarFill");
   if (hpFill) {
     hpFill.style.transform = `scaleX(${hpPct})`;
   }
 
-  document.getElementById("player-ram").innerText = `${player.ram}/${player.maxRam}`;
-  document.getElementById("ramBarFill").style.transform = `scaleX(${Math.min(1, Math.max(0, player.ram / player.maxRam))})`;
+  document.getElementById("player-ram").innerText =
+    `${player.ram}/${player.maxRam}`;
+  document.getElementById("ramBarFill").style.transform =
+    `scaleX(${Math.min(1, Math.max(0, player.ram / player.maxRam))})`;
   document.getElementById("var-x").innerText = player.varX;
   document.getElementById("player-block").innerText = player.block;
-  document.getElementById("ramDisplay").innerText = `RAM: ${player.ram}/${player.maxRam}`;
+  document.getElementById("ramDisplay").innerText =
+    `RAM: ${player.ram}/${player.maxRam}`;
 
   document.getElementById("enemy-hp").innerText = `${enemy.hp}/${enemy.maxHp}`;
-  document.getElementById("enemyHpFill").style.transform = `scaleX(${Math.min(1, Math.max(0, enemy.hp / enemy.maxHp))})`;
+  document.getElementById("enemyHpFill").style.transform =
+    `scaleX(${Math.min(1, Math.max(0, enemy.hp / enemy.maxHp))})`;
 }
 
 function checkWinLoss() {
@@ -507,12 +601,16 @@ function checkWinLoss() {
         localStorage.setItem("syntack_best_node", String(run.bestNode));
       } catch {}
       const bestEl = document.getElementById("best-run-line");
-      if (bestEl) bestEl.textContent = `BEST RUN: NODE ${run.bestNode}/${BOSS_NODE}`;
+      if (bestEl)
+        bestEl.textContent = `BEST RUN: NODE ${run.bestNode}/${BOSS_NODE}`;
       setTimeout(() => {
         log("[VICTORY] Mainframe hacked! You win!", "info");
         animateFloatDamage("VICTORY!", "buff", "40%", "35%");
         setTimeout(() => {
-          showEndOverlay(true, "You breached the mainframe and deleted the Firewall Daemon.");
+          showEndOverlay(
+            true,
+            "You breached the mainframe and deleted the Firewall Daemon.",
+          );
         }, 600);
       }, 300);
     } else {
@@ -531,7 +629,10 @@ function checkWinLoss() {
       log("[GAME OVER] System crashed...", "system");
       animateFloatDamage("SYSTEM FAILURE", "enemy", "35%", "35%");
       setTimeout(() => {
-        showEndOverlay(false, `The ${enemy.name} overwhelmed your system. (Reached node ${run.node}/${BOSS_NODE})`);
+        showEndOverlay(
+          false,
+          `The ${enemy.name} overwhelmed your system. (Reached node ${run.node}/${BOSS_NODE})`,
+        );
       }, 600);
     }, 300);
   }
@@ -639,10 +740,10 @@ function renderArchiveCards() {
     let rarityBorder = "border-[#3b3f6b]";
     let stickerClass = "common";
 
-    if (card.rarity === 'rare') {
+    if (card.rarity === "rare") {
       rarityBorder = "border-balatro-purple";
       stickerClass = "rare";
-    } else if (card.rarity === 'epic') {
+    } else if (card.rarity === "epic") {
       rarityBorder = "border-balatro-yellow";
       stickerClass = "epic";
     }
@@ -751,7 +852,9 @@ function setupNavigation() {
     }
 
     if (e.key === "Tab") {
-      const open = [archiveModal, rulesModal, endOverlay, rewardOverlay].find((m) => m && !m.classList.contains("hidden"));
+      const open = [archiveModal, rulesModal, endOverlay, rewardOverlay].find(
+        (m) => m && !m.classList.contains("hidden"),
+      );
       if (open) trapFocus(open, e);
     }
   });
@@ -761,13 +864,17 @@ let lastFocusedEl = null;
 
 function focusFirstFocusable(container) {
   if (!container) return;
-  const focusables = container.querySelectorAll('button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  const focusables = container.querySelectorAll(
+    'button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+  );
   if (focusables.length) focusables[0].focus();
 }
 
 function trapFocus(container, e) {
   if (!container) return;
-  const focusables = container.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  const focusables = container.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+  );
   if (!focusables.length) return;
   const first = focusables[0];
   const last = focusables[focusables.length - 1];
@@ -791,7 +898,9 @@ function setupAudioUI() {
     [muteBtn, muteHomeBtn].forEach((btn) => {
       if (btn) {
         btn.classList.toggle("muted", muted);
-        btn.querySelector(".btn-label").textContent = muted ? "AUDIO: OFF" : "AUDIO: ON";
+        btn.querySelector(".btn-label").textContent = muted
+          ? "AUDIO: OFF"
+          : "AUDIO: ON";
         btn.setAttribute("aria-pressed", String(muted));
         const slot = btn.querySelector(".icon-slot");
         if (slot) slot.innerHTML = muted ? ICONS.speakerOff : ICONS.speakerOn;
@@ -859,7 +968,11 @@ const qaParams = new URLSearchParams(location.search);
 // harness also seeds non-hook scenarios for stable arena screenshots).
 const qaSeedRaw = qaParams.get("seed");
 // Note: Number("") is 0, so an empty ?seed= must not silently seed with 0.
-if (qaSeedRaw !== null && qaSeedRaw !== "" && Number.isFinite(Number(qaSeedRaw))) {
+if (
+  qaSeedRaw !== null &&
+  qaSeedRaw !== "" &&
+  Number.isFinite(Number(qaSeedRaw))
+) {
   const mulberry32 = (a) => () => {
     a |= 0;
     a = (a + 0x6d2b79f5) | 0;
@@ -894,7 +1007,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Jump to a specific node (exercises each roster entry's HP/name rendering).
   const qaNode = Number(qaParams.get("node"));
-  if (Number.isInteger(qaNode) && qaNode >= 1 && qaNode <= BOSS_NODE && qaNode !== run.node) {
+  if (
+    Number.isInteger(qaNode) &&
+    qaNode >= 1 &&
+    qaNode <= BOSS_NODE &&
+    qaNode !== run.node
+  ) {
     run.node = qaNode;
     loadEnemy();
     updateUI(); // loadEnemy sets state + name/node labels; updateUI syncs HP/RAM bars
@@ -917,7 +1035,7 @@ document.addEventListener("DOMContentLoaded", () => {
       qaOutcome === "victory",
       qaOutcome === "victory"
         ? "You breached the mainframe and deleted the Firewall Daemon."
-        : "The Firewall Daemon overwhelmed your system."
+        : "The Firewall Daemon overwhelmed your system.",
     );
   }
 });

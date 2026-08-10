@@ -4,7 +4,7 @@
    chip-style score displays, and retro CRT arcade filters.
    ═══════════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Press+Start+2P&family=JetBrains+Mono:wght@400;500;700;800&display=swap');
+/* Fonts are loaded via the <link> in index.html — no duplicate @import. */
 
 /* ── Design Tokens ── */
 :root {
@@ -32,6 +32,18 @@
   --card-bg:        #262a3a;
   --card-face:      #2f3448;
   --card-border:    #454d6d;
+
+  /* RGB triplets (space-separated) — the single source of truth the Tailwind
+     palette in index.html bridges to (rgb(var(--x) / <alpha-value>)). Keep
+     the hexes above and their triplets here in sync. */
+  --balatro-red-rgb:    254 95 85;
+  --balatro-blue-rgb:   0 157 220;
+  --balatro-gold-rgb:   245 197 66;
+  --balatro-purple-rgb: 137 87 229;
+  --balatro-green-rgb:  89 214 122;
+  --balatro-white-rgb:  238 240 242;
+  --balatro-cyan-rgb:   102 201 255;
+  --balatro-orange-rgb: 232 141 57;
 }
 
 /* ────────────────────────────────────────────────────────
@@ -125,7 +137,7 @@ body::after {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  background: linear-gradient(180deg, #fe5f55 0%, #c93a32 100%);
+  background: linear-gradient(180deg, var(--balatro-red) 0%, #c93a32 100%);
   border: 3px solid #ffb4af;
   box-shadow:
     0 7px 0 #7c1d17,
@@ -159,7 +171,7 @@ body::after {
 }
 
 .balatro-btn-blue {
-  background: linear-gradient(180deg, #009ddc 0%, #0071a6 100%);
+  background: linear-gradient(180deg, var(--balatro-blue) 0%, #0071a6 100%);
   border-color: #99daf5;
   box-shadow: 0 7px 0 #004e70, 0 7px 0 1px #00354d, 0 12px 24px rgba(0,0,0,0.5);
 }
@@ -171,7 +183,7 @@ body::after {
 }
 
 .balatro-btn-gold {
-  background: linear-gradient(180deg, #f5c542 0%, #c89e2a 100%);
+  background: linear-gradient(180deg, var(--balatro-gold) 0%, #c89e2a 100%);
   border-color: #fff3cc;
   color: #3d2a00;
   text-shadow: 0 1px 0 rgba(255,255,255,0.3);
@@ -318,6 +330,7 @@ body::after {
    6. ENEMY BOX
    ──────────────────────────────────────────────────────── */
 .enemy-panel {
+  position: relative;
   background:
     linear-gradient(160deg, rgba(254, 95, 85, 0.06) 0%, rgba(40, 20, 30, 0.5) 100%);
   border: 2px solid rgba(254, 95, 85, 0.25);
@@ -360,13 +373,13 @@ body::after {
   text-shadow: 3px 3px 0 #000, -1px -1px 0 #000;
   pointer-events: none;
   position: absolute;
+  animation: floatUp 1.1s ease-out forwards;
 }
 @keyframes floatUp {
   0%   { opacity: 1; transform: translateY(0) scale(0.6); }
   25%  { opacity: 1; transform: translateY(-20px) scale(1.2); }
   100% { opacity: 0; transform: translateY(-70px) scale(1); }
 }
-.float-dmg { animation: floatUp 1.1s ease-out forwards; }
 
 /* ────────────────────────────────────────────────────────
    9. MODALS & OVERLAYS
@@ -438,10 +451,7 @@ body::after {
   display: inline-block;
   vertical-align: middle;
 }
-.icon-slot {
-  display: inline-flex;
-  align-items: center;
-}
+.icon-slot,
 .intent-icon {
   display: inline-flex;
   align-items: center;
@@ -570,9 +580,6 @@ body::after {
    is a scroll container, so pseudo-element brackets there
    would scroll away with the log content)
    ──────────────────────────────────────────────────────── */
-.enemy-panel {
-  position: relative;
-}
 .enemy-panel::before {
   content: "";
   position: absolute; top: 6px; left: 6px;
@@ -828,6 +835,44 @@ body::after {
   25%  { opacity: 1; transform: translateY(-20px) scale(1.35); }
   100% { opacity: 0; transform: translateY(-72px) scale(1); }
 }
+
+/* ────────────────────────────────────────────────────────
+   21. COMPONENT COLOR TINTS
+   Classes that own color declarations which used to be inline `style="color:
+   …"` attributes in index.html. All values reference the :root palette, so
+   index.html itself contains no hex literals (see tailwind.config there).
+   ──────────────────────────────────────────────────────── */
+.splash-title {
+  color: var(--balatro-red);
+  text-shadow:
+    0 0 20px rgb(var(--balatro-red-rgb) / 0.5),
+    4px 4px 0 #000,
+    -3px -3px 0 rgb(var(--balatro-blue-rgb));
+}
+.splash-tagline {
+  color: var(--balatro-gold);
+  text-shadow: 0 2px 0 #6b4f00;
+}
+.home-title {
+  color: var(--balatro-gold);
+  text-shadow:
+    0 0 16px rgb(var(--balatro-gold-rgb) / 0.4),
+    3px 3px 0 #000;
+}
+.enemy-hp {
+  color: var(--balatro-red);
+  text-shadow: 0 2px 8px rgb(var(--balatro-red-rgb) / 0.4);
+}
+
+/* Reward card accent tints (was inline `--rc:` on each button) */
+.reward-card.rc-heal { --rc: var(--balatro-green); }
+.reward-card.rc-ram  { --rc: var(--balatro-blue); }
+.reward-card.rc-hp   { --rc: var(--balatro-gold); }
+
+/* Health-bar fill tints (colors applied via class; width/transform stay inline) */
+.chip-bar-fill.fill-hp    { background: var(--balatro-green); color: var(--balatro-green); }
+.chip-bar-fill.fill-ram   { background: var(--balatro-blue); color: var(--balatro-blue); }
+.chip-bar-fill.fill-enemy { background: var(--balatro-red); color: var(--balatro-red); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

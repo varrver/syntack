@@ -18,6 +18,10 @@
 > **2026-08-10 maintenance round:** K1, K2, K4 and new K7 fixed; K5/K6 confirmed already
 > resolved (see §10). Validated by the full QA matrix under Brave (`CHROME_BIN=/usr/bin/brave-origin`):
 > 88/88 scenarios, 552/552 checks, 0 console FAILs, natural process exit, zero orphaned browsers.
+> Same round: **code-structure refactor** — static game data moved to `js/config.js`, shared card
+> rendering to `js/cards.js`; `js/audio.js` and `js/motion.js` deduplicated (tone/noise-burst + safeAnimate
+> helpers); repeated inline HTML colors replaced with CSS utilities. Behavior-preserving (validated by
+> the same matrix + golden-image + a11y, all green).
 
 ---
 
@@ -129,6 +133,19 @@ qa/
   baselines/            # golden-image baselines — gitignored
   QA-WRAPUP.md          # final summary + git guidance
 .gitignore              # add: qa/reports/, qa/screenshots/, qa/baselines/, server.pid
+```
+
+Game module layout (refactored 2026-08-10 — all DOM/class contracts the harness
+asserts are unchanged):
+
+```
+js/
+  game.js             # runtime state, combat, screen manager, ?test= hook
+  config.js           # static data: CARD_DEFS, ENEMY_ROSTER, INTENT_CONFIG, constants
+  cards.js            # shared card DOM rendering (hand + archive)
+  motion.js           # Motion-driven animations (safeAnimate wrapper)
+  audio.js            # Web Audio synth (tone / noiseBurst primitives)
+vendor/motion.esm.js  # vendored motion@10.18.0 bundle (K2)
 ```
 
 ### 6.2 Command reference
@@ -374,8 +391,9 @@ Two §12 candidates were built after the phases shipped (2026-08-07):
 > arena, archive-modal, rules-modal, end-overlay (victory + defeat), reward-overlay → **0 violations
 > each**; `qa/reports/a11y.json` written. Both suites exit 0 naturally with **zero orphaned browsers**
 > (K7 group-kill holds for all harness consumers). One note: the first a11y run hit a transient
-> reward-overlay hook timeout (the §11 cold-CDN hook-probe flake class) — clean on immediate re-run,
-> no code change needed.
+> reward-overlay hook timeout (the §11 cold-CDN hook-probe flake class) — clean on immediate re-run;
+> hook navigations in `qa/a11y.mjs` now retry once via a `navigateToHook` guard, so a cold-load
+> flake can no longer fail a run.
 
 **Remaining future work (not done):**
 

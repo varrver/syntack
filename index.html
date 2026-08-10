@@ -1,298 +1,773 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SYNTACK — Cyber Deckbuilder</title>
-    <meta name="description" content="SYNTACK — A cyberpunk coding deckbuilder where you hack the mainframe using programming logic cards." />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Orbitron:wght@700;900&family=Press+Start+2P&display=swap"
-      rel="stylesheet"
-    />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              'b-red': '#fe5f55',
-              'b-blue': '#009ddc',
-              'b-gold': '#f5c542',
-              'b-purple': '#8957e5',
-              'b-green': '#59d67a',
-              'balatro-red': '#fe5f55',
-              'balatro-blue': '#009ddc',
-              'balatro-purple': '#8957e5',
-              'balatro-green': '#59d67a',
-              'balatro-yellow': '#f5c542',
-            },
-            fontFamily: {
-              display: ['Orbitron', 'sans-serif'],
-              mono: ['"JetBrains Mono"', 'monospace'],
-              pixel: ['"Press Start 2P"', 'monospace'],
-            },
-          }
-        }
-      }
-    </script>
-    <link rel="stylesheet" href="css/styles.css" />
-  </head>
-  <body class="text-[#eef0f2] font-mono min-h-screen flex flex-col justify-center items-center relative overflow-x-hidden">
-    <div class="scanlines"></div>
-    <div class="float-dmg-container fixed inset-0 z-[100] pointer-events-none" id="floatDmgContainer" aria-hidden="true"></div>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>SYNTACK — Cyber Deckbuilder</title>
+        <meta
+            name="description"
+            content="SYNTACK — A cyberpunk coding deckbuilder where you hack the mainframe using programming logic cards."
+        />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Orbitron:wght@700;900&family=Press+Start+2P&display=swap"
+            rel="stylesheet"
+        />
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            // Single palette, bridged to the CSS variables in
+                            // css/styles.css :root — no hex literals live here.
+                            // gold and yellow alias the same value (yellow is
+                            // kept for the harness-asserted border-balatro-yellow).
+                            "balatro-red": "rgb(var(--balatro-red-rgb) / <alpha-value>)",
+                            "balatro-blue": "rgb(var(--balatro-blue-rgb) / <alpha-value>)",
+                            "balatro-green": "rgb(var(--balatro-green-rgb) / <alpha-value>)",
+                            "balatro-gold": "rgb(var(--balatro-gold-rgb) / <alpha-value>)",
+                            "balatro-yellow": "rgb(var(--balatro-gold-rgb) / <alpha-value>)",
+                            "balatro-purple": "rgb(var(--balatro-purple-rgb) / <alpha-value>)",
+                            "balatro-cyan": "rgb(var(--balatro-cyan-rgb) / <alpha-value>)",
+                            "balatro-orange": "rgb(var(--balatro-orange-rgb) / <alpha-value>)",
+                            "balatro-white": "rgb(var(--balatro-white-rgb) / <alpha-value>)",
+                        },
+                        fontFamily: {
+                            display: ["Orbitron", "sans-serif"],
+                            mono: ['"JetBrains Mono"', "monospace"],
+                            pixel: ['"Press Start 2P"', "monospace"],
+                        },
+                    },
+                },
+            };
+        </script>
+        <link rel="stylesheet" href="css/styles.css" />
+    </head>
+    <body
+        class="text-balatro-white font-mono min-h-screen flex flex-col justify-center items-center relative overflow-x-hidden"
+    >
+        <div class="scanlines"></div>
+        <div
+            class="float-dmg-container fixed inset-0 z-[100] pointer-events-none"
+            id="floatDmgContainer"
+            aria-hidden="true"
+        ></div>
 
-    <!-- Single <main> landmark wrapping all game screens (a11y A3/A5) -->
-    <main class="w-full flex flex-col items-center">
+        <!-- Single <main> landmark wrapping all game screens (a11y A3/A5) -->
+        <main class="w-full flex flex-col items-center">
+            <!-- ════════════════════ SPLASH SCREEN ════════════════════ -->
+            <div
+                id="splash-screen"
+                class="relative z-[10] flex flex-col items-center justify-center w-full max-w-[750px] text-center p-8 min-h-[90vh]"
+            >
+                <!-- Decorative glow orb -->
+                <div
+                    class="absolute w-[300px] h-[300px] rounded-full blur-[120px] opacity-30 bg-balatro-green top-[10%] left-1/2 -translate-x-1/2 pointer-events-none"
+                ></div>
 
-    <!-- ════════════════════ SPLASH SCREEN ════════════════════ -->
-    <div id="splash-screen" class="relative z-[10] flex flex-col items-center justify-center w-full max-w-[750px] text-center p-8 min-h-[90vh]">
+                <div class="mb-6 relative">
+                    <div
+                        class="text-[0.55rem] font-pixel text-balatro-cyan tracking-[5px] uppercase mb-2"
+                    >
+                        CYBER DECKBUILDER
+                    </div>
+                    <h1
+                        class="glitch splash-title font-display font-black text-[3rem] sm:text-[4.5rem] tracking-[6px] uppercase leading-none relative"
+                        data-text="SYNTACK"
+                    >
+                        SYNTACK
+                    </h1>
+                    <div
+                        class="text-[0.7rem] sm:text-[0.85rem] font-mono tracking-[3px] mt-2 splash-tagline"
+                    >
+                        HACK THE MAINFRAME. CONTROL THE LOOPS.
+                    </div>
+                </div>
 
-      <!-- Decorative glow orb -->
-      <div class="absolute w-[300px] h-[300px] rounded-full blur-[120px] opacity-30 bg-b-green top-[10%] left-1/2 -translate-x-1/2 pointer-events-none"></div>
+                <!-- Decorative card fan -->
+                <div
+                    class="flex gap-3 justify-center items-end my-8 select-none"
+                >
+                    <div
+                        class="card w-[90px] h-[125px] p-2 flex flex-col justify-between -rotate-12 translate-y-2 opacity-90 hover:opacity-100"
+                    >
+                        <span class="card-sticker rare self-start">RARE</span>
+                        <span
+                            class="font-mono text-[0.6rem] text-white font-bold text-center"
+                            >ATTACK(x)</span
+                        >
+                        <span
+                            class="text-[0.5rem] font-pixel text-center text-balatro-red"
+                            >DMG 8</span
+                        >
+                    </div>
+                    <div
+                        class="card w-[100px] h-[140px] p-2 flex flex-col justify-between z-10 -translate-y-1"
+                    >
+                        <span class="card-sticker epic self-start">EPIC</span>
+                        <span
+                            class="font-mono text-[0.7rem] text-white font-bold text-center"
+                            >for(2x)</span
+                        >
+                        <span
+                            class="text-[0.5rem] font-pixel text-center text-balatro-gold"
+                            >MULT ×2</span
+                        >
+                    </div>
+                    <div
+                        class="card w-[90px] h-[125px] p-2 flex flex-col justify-between rotate-12 translate-y-2 opacity-90 hover:opacity-100"
+                    >
+                        <span class="card-sticker common self-start"
+                            >COMMON</span
+                        >
+                        <span
+                            class="font-mono text-[0.6rem] text-white font-bold text-center"
+                            >BLOCK(8)</span
+                        >
+                        <span
+                            class="text-[0.5rem] font-pixel text-center text-balatro-blue"
+                            >DEF +8</span
+                        >
+                    </div>
+                </div>
 
-      <div class="mb-6 relative">
-        <div class="text-[0.55rem] font-pixel text-[#66c9ff] tracking-[5px] uppercase mb-2">CYBER DECKBUILDER</div>
-        <h1 class="glitch font-display font-black text-[3rem] sm:text-[4.5rem] tracking-[6px] uppercase leading-none relative"
-            data-text="SYNTACK"
-            style="color: #fe5f55; text-shadow: 0 0 20px rgba(254,95,85,0.5), 4px 4px 0 #000, -3px -3px 0 #009ddc;">
-          SYNTACK
-        </h1>
-        <div class="text-[0.7rem] sm:text-[0.85rem] font-mono tracking-[3px] mt-2"
-             style="color: #f5c542; text-shadow: 0 2px 0 #6b4f00;">
-          HACK THE MAINFRAME. CONTROL THE LOOPS.
+                <button
+                    id="btn-splash-start"
+                    class="balatro-btn py-4 px-10 text-[0.95rem] sm:text-[1.15rem] mt-4"
+                    aria-label="Start game"
+                >
+                    <svg
+                        class="icon"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                    >
+                        <polygon points="6 3 20 12 6 21 6 3"></polygon>
+                    </svg>
+                    PLAY
+                </button>
+
+                <p
+                    class="text-[0.55rem] text-white/75 mt-6 tracking-widest uppercase"
+                >
+                    Click anywhere to enable audio
+                </p>
+            </div>
+
+            <!-- ════════════════════ HOME MENU ════════════════════ -->
+            <div
+                id="home-screen"
+                class="hidden flex flex-col items-center justify-center w-full max-w-[600px] p-8 text-center min-h-[80vh]"
+            >
+                <div
+                    class="absolute w-[250px] h-[250px] rounded-full blur-[100px] opacity-20 bg-balatro-gold top-[5%] left-1/2 -translate-x-1/2 pointer-events-none"
+                ></div>
+
+                <h1
+                    class="home-title font-display font-black text-[2rem] sm:text-[3rem] tracking-[4px] uppercase mb-1 relative"
+                >
+                    SYNTACK
+                </h1>
+                <p
+                    class="text-[0.7rem] text-white/60 mb-10 tracking-[3px] uppercase font-pixel"
+                >
+                    Main Menu
+                </p>
+
+                <div class="flex flex-col gap-4 w-full max-w-[360px]">
+                    <button
+                        id="btn-menu-start"
+                        class="balatro-btn py-4 px-8 text-[1rem]"
+                    >
+                        <svg
+                            class="icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            aria-hidden="true"
+                        >
+                            <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"></path>
+                        </svg>
+                        RUN HACK
+                    </button>
+                    <button
+                        id="btn-menu-archive"
+                        class="balatro-btn balatro-btn-blue py-4 px-8 text-[1rem]"
+                    >
+                        <svg
+                            class="icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            aria-hidden="true"
+                        >
+                            <path
+                                d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"
+                            ></path>
+                            <path
+                                d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"
+                            ></path>
+                            <path
+                                d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"
+                            ></path>
+                        </svg>
+                        CARD ARCHIVE
+                    </button>
+                    <button
+                        id="btn-menu-rules"
+                        class="balatro-btn balatro-btn-gold py-4 px-8 text-[1rem]"
+                    >
+                        <svg
+                            class="icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            aria-hidden="true"
+                        >
+                            <path
+                                d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"
+                            ></path>
+                            <path
+                                d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"
+                            ></path>
+                        </svg>
+                        HOW TO PLAY
+                    </button>
+                </div>
+
+                <!-- Audio Controls -->
+                <div
+                    class="flex items-center justify-center gap-4 mt-10 pt-4 border-t border-white/10 w-full text-[0.7rem]"
+                >
+                    <button
+                        id="btnMuteHome"
+                        class="audio-control-btn"
+                        aria-pressed="false"
+                        aria-label="Toggle sound effects"
+                    >
+                        <span class="icon-slot"></span>
+                        <span class="btn-label">AUDIO: ON</span>
+                    </button>
+                    <div class="flex items-center gap-2 text-white/55">
+                        <span class="text-[0.6rem]">VOL</span>
+                        <input
+                            id="volSliderHome"
+                            type="range"
+                            min="0"
+                            max="1"
+                            step="0.05"
+                            value="0.6"
+                            aria-label="Volume"
+                            class="w-20 h-1 rounded cursor-pointer accent-balatro-blue bg-white/10"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <!-- ════════════════════ GAME ARENA ════════════════════ -->
+            <div
+                id="game-screen"
+                class="hidden flex flex-col relative z-[10] w-full max-w-[880px] felt-table p-5 sm:p-7 m-4"
+            >
+                <!-- Top HUD Bar -->
+                <div
+                    class="relative z-10 flex items-center justify-between mb-4 pb-2 border-b border-white/10 text-[0.7rem]"
+                >
+                    <h1 class="sr-only">SYNTACK — Game Arena</h1>
+                    <button
+                        id="btn-game-home"
+                        class="audio-control-btn text-balatro-gold border-balatro-gold/40"
+                        aria-label="Back to main menu"
+                    >
+                        <svg
+                            class="icon"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            aria-hidden="true"
+                        >
+                            <path d="m12 19-7-7 7-7"></path>
+                            <path d="M19 12H5"></path>
+                        </svg>
+                        <span>MENU</span>
+                    </button>
+                    <div
+                        class="flex flex-col items-center gap-0.5 leading-tight"
+                        aria-live="polite"
+                    >
+                        <span
+                            class="font-pixel text-[0.55rem] tracking-[1px] text-balatro-gold"
+                            id="node-indicator"
+                            >NODE 1/4</span
+                        >
+                        <span
+                            class="text-[0.5rem] text-white/45"
+                            id="best-run-line"
+                            >BEST RUN: NODE 1/4</span
+                        >
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button
+                            id="btnMute"
+                            class="audio-control-btn"
+                            aria-pressed="false"
+                            aria-label="Toggle sound effects"
+                        >
+                            <span class="icon-slot"></span>
+                            <span class="btn-label">AUDIO: ON</span>
+                        </button>
+                        <div class="flex items-center gap-2 text-white/55">
+                            <span class="text-[0.6rem]">VOL</span>
+                            <input
+                                id="volSlider"
+                                type="range"
+                                min="0"
+                                max="1"
+                                step="0.05"
+                                value="0.6"
+                                aria-label="Volume"
+                                class="w-16 h-1 rounded cursor-pointer accent-balatro-blue bg-white/10"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chip Score Displays -->
+                <div
+                    class="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-5"
+                >
+                    <div class="chip-display p-3 text-center">
+                        <div
+                            class="text-[0.5rem] font-pixel uppercase text-white/55 mb-1"
+                        >
+                            HP
+                        </div>
+                        <div
+                            class="chip-val text-[1.1rem] sm:text-[1.3rem] text-balatro-green"
+                            id="player-hp"
+                        >
+                            50/50
+                        </div>
+                        <div class="chip-bar">
+                            <div
+                                class="chip-bar-fill fill-hp"
+                                style="width: 100%"
+                                id="hpBarFill"
+                            ></div>
+                        </div>
+                    </div>
+                    <div class="chip-display p-3 text-center">
+                        <div
+                            class="text-[0.5rem] font-pixel uppercase text-white/55 mb-1"
+                        >
+                            RAM
+                        </div>
+                        <div
+                            class="chip-val text-[1.1rem] sm:text-[1.3rem] text-balatro-blue"
+                            id="player-ram"
+                        >
+                            3/3
+                        </div>
+                        <div class="chip-bar">
+                            <div
+                                class="chip-bar-fill fill-ram"
+                                style="width: 100%"
+                                id="ramBarFill"
+                            ></div>
+                        </div>
+                    </div>
+                    <div class="chip-display p-3 text-center">
+                        <div
+                            class="text-[0.5rem] font-pixel uppercase text-white/55 mb-1"
+                        >
+                            VAR X
+                        </div>
+                        <div
+                            class="chip-val text-[1.1rem] sm:text-[1.3rem] text-balatro-gold"
+                            id="var-x"
+                        >
+                            0
+                        </div>
+                    </div>
+                    <div class="chip-display p-3 text-center">
+                        <div
+                            class="text-[0.5rem] font-pixel uppercase text-white/55 mb-1"
+                        >
+                            BLOCK
+                        </div>
+                        <div
+                            class="chip-val text-[1.1rem] sm:text-[1.3rem] text-balatro-purple"
+                            id="player-block"
+                        >
+                            0
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Battle Zone: Terminal + Enemy -->
+                <div
+                    class="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5"
+                >
+                    <div
+                        class="terminal p-4 h-[130px] sm:h-[160px] overflow-y-auto text-[0.72rem] leading-[1.7]"
+                        id="terminal"
+                        role="log"
+                        aria-label="System terminal"
+                        aria-live="polite"
+                        tabindex="0"
+                    >
+                        <div
+                            class="terminal-log opacity-0 mb-[2px] text-balatro-red"
+                        >
+                            [SYS] Initializing…
+                        </div>
+                        <div
+                            class="terminal-log opacity-0 mb-[2px] text-balatro-green"
+                        >
+                            [SYS] Firewall detected.
+                        </div>
+                        <span class="terminal-cursor" aria-hidden="true"></span>
+                    </div>
+
+                    <div
+                        class="enemy-panel p-4 text-center flex flex-col justify-center"
+                        id="enemyBox"
+                    >
+                        <div
+                            class="font-pixel text-[0.6rem] mb-1 text-balatro-red"
+                            id="enemy-name"
+                        >
+                            ▸ FIREWALL DAEMON ◂
+                        </div>
+                        <div
+                            class="enemy-hp font-display font-black text-[2rem] sm:text-[2.6rem] leading-none mb-2"
+                            id="enemy-hp"
+                        >
+                            60/60
+                        </div>
+                        <div class="chip-bar mx-auto w-full max-w-[200px]">
+                            <div
+                                class="chip-bar-fill fill-enemy"
+                                style="width: 100%; height: 6px"
+                                id="enemyHpFill"
+                            ></div>
+                        </div>
+                        <div
+                            class="intent-box text-[0.6rem] px-3 py-2 rounded-lg tracking-[1px] uppercase inline-flex items-center justify-center gap-2 mt-3 border border-balatro-red/30 bg-balatro-red/10 text-balatro-red"
+                            id="enemy-intent"
+                        >
+                            <span class="intent-icon" aria-hidden="true"
+                                ><svg
+                                    class="icon-sm"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <polyline
+                                        points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"
+                                    ></polyline>
+                                    <line
+                                        x1="13"
+                                        x2="19"
+                                        y1="19"
+                                        y2="13"
+                                    ></line>
+                                    <line
+                                        x1="16"
+                                        x2="20"
+                                        y1="16"
+                                        y2="20"
+                                    ></line>
+                                    <line
+                                        x1="19"
+                                        x2="21"
+                                        y1="21"
+                                        y2="19"
+                                    ></line></svg
+                            ></span>
+                            <span>ATTACK (8 DMG)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hand Section -->
+                <div class="relative z-10 mb-5">
+                    <div class="flex items-center justify-between mb-2">
+                        <span
+                            class="text-[0.55rem] font-pixel tracking-[2px] uppercase text-white/50"
+                            >// HAND</span
+                        >
+                        <span
+                            class="text-[0.7rem] font-display font-bold text-balatro-blue"
+                            id="ramDisplay"
+                            >RAM: 3/3</span
+                        >
+                    </div>
+                    <div
+                        class="hand-container flex gap-3 overflow-x-auto px-1 pt-7 pb-5 min-h-[190px]"
+                        id="hand-container"
+                    ></div>
+                </div>
+
+                <!-- Execute Turn Button -->
+                <div
+                    class="relative z-10 flex flex-col sm:flex-row justify-between items-center gap-3 pt-4 border-t border-white/10"
+                >
+                    <span class="text-[0.6rem] text-white/50 tracking-[1px]"
+                        >⟐ Combine Variables & Loops for max damage</span
+                    >
+                    <button
+                        class="balatro-btn w-full sm:w-auto py-3 px-8 text-[0.85rem]"
+                        onclick="endTurn()"
+                    >
+                        ⟫ EXECUTE TURN ⟪
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- ════════════════════ CARD ARCHIVE MODAL ════════════════════ -->
+        <div
+            id="archive-modal"
+            class="modal-overlay hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="archive-title"
+        >
+            <div class="modal-content">
+                <div
+                    class="flex justify-between items-center mb-4 border-b border-white/10 pb-3"
+                >
+                    <h2
+                        id="archive-title"
+                        class="font-display font-black text-[1.2rem] text-balatro-blue"
+                    >
+                        CARD ARCHIVE
+                    </h2>
+                    <button
+                        id="btn-close-archive"
+                        class="audio-control-btn text-balatro-red border-balatro-red/30"
+                        aria-label="Close card archive"
+                    >
+                        <svg
+                            class="icon-sm"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            aria-hidden="true"
+                        >
+                            <path d="M18 6 6 18"></path>
+                            <path d="m6 6 12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div
+                    class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[400px] overflow-y-auto pr-1"
+                    id="archive-cards-list"
+                    role="list"
+                    aria-label="Card archive"
+                    tabindex="0"
+                ></div>
+            </div>
         </div>
-      </div>
 
-      <!-- Decorative card fan -->
-      <div class="flex gap-3 justify-center items-end my-8 select-none">
-        <div class="card w-[90px] h-[125px] p-2 flex flex-col justify-between -rotate-12 translate-y-2 opacity-90 hover:opacity-100">
-          <span class="card-sticker rare self-start">RARE</span>
-          <span class="font-mono text-[0.6rem] text-white font-bold text-center">ATTACK(x)</span>
-          <span class="text-[0.5rem] font-pixel text-center" style="color: #fe5f55;">DMG 8</span>
-        </div>
-        <div class="card w-[100px] h-[140px] p-2 flex flex-col justify-between z-10 -translate-y-1">
-          <span class="card-sticker epic self-start">EPIC</span>
-          <span class="font-mono text-[0.7rem] text-white font-bold text-center">for(2x)</span>
-          <span class="text-[0.5rem] font-pixel text-center" style="color: #f5c542;">MULT ×2</span>
-        </div>
-        <div class="card w-[90px] h-[125px] p-2 flex flex-col justify-between rotate-12 translate-y-2 opacity-90 hover:opacity-100">
-          <span class="card-sticker common self-start">COMMON</span>
-          <span class="font-mono text-[0.6rem] text-white font-bold text-center">BLOCK(8)</span>
-          <span class="text-[0.5rem] font-pixel text-center" style="color: #009ddc;">DEF +8</span>
-        </div>
-      </div>
-
-      <button id="btn-splash-start" class="balatro-btn py-4 px-10 text-[0.95rem] sm:text-[1.15rem] mt-4" aria-label="Start game">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
-        PLAY
-      </button>
-
-      <p class="text-[0.55rem] text-white/75 mt-6 tracking-widest uppercase">Click anywhere to enable audio</p>
-    </div>
-
-    <!-- ════════════════════ HOME MENU ════════════════════ -->
-    <div id="home-screen" class="hidden flex flex-col items-center justify-center w-full max-w-[600px] p-8 text-center min-h-[80vh]">
-
-      <div class="absolute w-[250px] h-[250px] rounded-full blur-[100px] opacity-20 bg-b-gold top-[5%] left-1/2 -translate-x-1/2 pointer-events-none"></div>
-
-      <h1 class="font-display font-black text-[2rem] sm:text-[3rem] tracking-[4px] uppercase mb-1 relative"
-          style="color: #f5c542; text-shadow: 0 0 16px rgba(245,197,66,0.4), 3px 3px 0 #000;">
-        SYNTACK
-      </h1>
-      <p class="text-[0.7rem] text-white/60 mb-10 tracking-[3px] uppercase font-pixel">Main Menu</p>
-
-      <div class="flex flex-col gap-4 w-full max-w-[360px]">
-        <button id="btn-menu-start" class="balatro-btn py-4 px-8 text-[1rem]">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
-          RUN HACK
-        </button>
-        <button id="btn-menu-archive" class="balatro-btn balatro-btn-blue py-4 px-8 text-[1rem]">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"></path><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"></path><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"></path></svg>
-          CARD ARCHIVE
-        </button>
-        <button id="btn-menu-rules" class="balatro-btn balatro-btn-gold py-4 px-8 text-[1rem]">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
-          HOW TO PLAY
-        </button>
-      </div>
-
-      <!-- Audio Controls -->
-      <div class="flex items-center justify-center gap-4 mt-10 pt-4 border-t border-white/10 w-full text-[0.7rem]">
-        <button id="btnMuteHome" class="audio-control-btn" aria-pressed="false" aria-label="Toggle sound effects">
-          <span class="icon-slot"></span> <span class="btn-label">AUDIO: ON</span>
-        </button>
-        <div class="flex items-center gap-2 text-white/55">
-          <span class="text-[0.6rem]">VOL</span>
-          <input id="volSliderHome" type="range" min="0" max="1" step="0.05" value="0.6" aria-label="Volume"
-            class="w-20 h-1 rounded cursor-pointer accent-[#009ddc] bg-white/10" />
-        </div>
-      </div>
-    </div>
-
-    <!-- ════════════════════ GAME ARENA ════════════════════ -->
-    <div id="game-screen" class="hidden flex flex-col relative z-[10] w-full max-w-[880px] felt-table p-5 sm:p-7 m-4">
-
-      <!-- Top HUD Bar -->
-      <div class="relative z-10 flex items-center justify-between mb-4 pb-2 border-b border-white/10 text-[0.7rem]">
-        <h1 class="sr-only">SYNTACK — Game Arena</h1>
-        <button id="btn-game-home" class="audio-control-btn" style="border-color: rgba(245,197,66,0.4); color: #f5c542;" aria-label="Back to main menu">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>
-          <span>MENU</span>
-        </button>
-        <div class="flex flex-col items-center gap-0.5 leading-tight" aria-live="polite">
-          <span class="font-pixel text-[0.55rem] tracking-[1px]" style="color: #f5c542;" id="node-indicator">NODE 1/4</span>
-          <span class="text-[0.5rem] text-white/45" id="best-run-line">BEST RUN: NODE 1/4</span>
-        </div>
-        <div class="flex items-center gap-4">
-          <button id="btnMute" class="audio-control-btn" aria-pressed="false" aria-label="Toggle sound effects">
-            <span class="icon-slot"></span> <span class="btn-label">AUDIO: ON</span>
-          </button>
-          <div class="flex items-center gap-2 text-white/55">
-            <span class="text-[0.6rem]">VOL</span>
-            <input id="volSlider" type="range" min="0" max="1" step="0.05" value="0.6" aria-label="Volume"
-              class="w-16 h-1 rounded cursor-pointer accent-[#009ddc] bg-white/10" />
-          </div>
-        </div>
-      </div>
-
-      <!-- Chip Score Displays -->
-      <div class="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-5">
-        <div class="chip-display p-3 text-center">
-          <div class="text-[0.5rem] font-pixel uppercase text-white/55 mb-1">HP</div>
-          <div class="chip-val text-[1.1rem] sm:text-[1.3rem]" style="color: #59d67a;" id="player-hp">50/50</div>
-          <div class="chip-bar"><div class="chip-bar-fill" style="width: 100%; background: #59d67a; color: #59d67a;" id="hpBarFill"></div></div>
-        </div>
-        <div class="chip-display p-3 text-center">
-          <div class="text-[0.5rem] font-pixel uppercase text-white/55 mb-1">RAM</div>
-          <div class="chip-val text-[1.1rem] sm:text-[1.3rem]" style="color: #009ddc;" id="player-ram">3/3</div>
-          <div class="chip-bar"><div class="chip-bar-fill" style="width: 100%; background: #009ddc; color: #009ddc;" id="ramBarFill"></div></div>
-        </div>
-        <div class="chip-display p-3 text-center">
-          <div class="text-[0.5rem] font-pixel uppercase text-white/55 mb-1">VAR X</div>
-          <div class="chip-val text-[1.1rem] sm:text-[1.3rem]" style="color: #f5c542;" id="var-x">0</div>
-        </div>
-        <div class="chip-display p-3 text-center">
-          <div class="text-[0.5rem] font-pixel uppercase text-white/55 mb-1">BLOCK</div>
-          <div class="chip-val text-[1.1rem] sm:text-[1.3rem]" style="color: #8957e5;" id="player-block">0</div>
-        </div>
-      </div>
-
-      <!-- Battle Zone: Terminal + Enemy -->
-      <div class="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
-        <div class="terminal p-4 h-[130px] sm:h-[160px] overflow-y-auto text-[0.72rem] leading-[1.7]" id="terminal" role="log" aria-label="System terminal" aria-live="polite" tabindex="0">
-          <div class="terminal-log opacity-0 mb-[2px]" style="color:#fe5f55;">[SYS] Initializing…</div>
-          <div class="terminal-log opacity-0 mb-[2px]" style="color:#59d67a;">[SYS] Firewall detected.</div>
-          <span class="terminal-cursor" aria-hidden="true"></span>
+        <!-- ════════════════════ RULES MODAL ════════════════════ -->
+        <div
+            id="rules-modal"
+            class="modal-overlay hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="rules-title"
+        >
+            <div class="modal-content">
+                <div
+                    class="flex justify-between items-center mb-4 border-b border-white/10 pb-3"
+                >
+                    <h2
+                        id="rules-title"
+                        class="font-display font-black text-[1.2rem] text-balatro-gold"
+                    >
+                        HOW TO PLAY
+                    </h2>
+                    <button
+                        id="btn-close-rules"
+                        class="audio-control-btn text-balatro-red border-balatro-red/30"
+                        aria-label="Close how to play"
+                    >
+                        <svg
+                            class="icon-sm"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            aria-hidden="true"
+                        >
+                            <path d="M18 6 6 18"></path>
+                            <path d="m6 6 12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div
+                    class="space-y-3 text-[0.78rem] leading-[1.7] text-white/80"
+                >
+                    <p>
+                        <strong class="text-balatro-gold">1. RAM Energy:</strong>
+                        Each turn your RAM recharges. Playing cards costs RAM.
+                    </p>
+                    <p>
+                        <strong class="text-balatro-blue">2. Variable X:</strong>
+                        Set
+                        <code class="bg-white/10 px-1 rounded text-[0.7rem]"
+                            >x</code
+                        >
+                        with cards like
+                        <code class="bg-white/10 px-1 rounded text-[0.7rem]"
+                            >let x = 8</code
+                        >. Attack damage scales with x!
+                    </p>
+                    <p>
+                        <strong class="text-balatro-purple">3. For Loops:</strong>
+                        Use
+                        <code class="bg-white/10 px-1 rounded text-[0.7rem]"
+                            >for(2x Loop)</code
+                        >
+                        to multiply your next attack damage!
+                    </p>
+                    <p>
+                        <strong class="text-balatro-green"
+                            >4. Block &amp; Defense:</strong
+                        >
+                        Accumulate Block to shield your HP from enemy
+                        counter-attacks.
+                    </p>
+                    <p>
+                        <strong class="text-balatro-orange">5. End Turn:</strong>
+                        Click <strong>"EXECUTE TURN"</strong> to end your turn.
+                        The enemy strikes back!
+                    </p>
+                </div>
+            </div>
         </div>
 
-        <div class="enemy-panel p-4 text-center flex flex-col justify-center" id="enemyBox">
-          <div class="font-pixel text-[0.6rem] mb-1" style="color: #fe5f55;" id="enemy-name">▸ FIREWALL DAEMON ◂</div>
-          <div class="font-display font-black text-[2rem] sm:text-[2.6rem] leading-none mb-2" id="enemy-hp"
-               style="color: #fe5f55; text-shadow: 0 2px 8px rgba(254,95,85,0.4);">60/60</div>
-          <div class="chip-bar mx-auto w-full max-w-[200px]">
-            <div class="chip-bar-fill" style="width: 100%; background: #fe5f55; color: #fe5f55; height: 6px;" id="enemyHpFill"></div>
-          </div>
-          <div class="intent-box text-[0.6rem] px-3 py-2 rounded-lg tracking-[1px] uppercase inline-flex items-center justify-center gap-2 mt-3 border border-[rgba(254,95,85,0.3)] bg-[rgba(254,95,85,0.08)]" id="enemy-intent"
-               style="color: #fe5f55;">
-            <span class="intent-icon" aria-hidden="true"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"></polyline><line x1="13" x2="19" y1="19" y2="13"></line><line x1="16" x2="20" y1="16" y2="20"></line><line x1="19" x2="21" y1="21" y2="19"></line></svg></span>
-            <span>ATTACK (8 DMG)</span>
-          </div>
+        <!-- ════════════════════ REWARD OVERLAY (between node clears) ════════════════════ -->
+        <div
+            id="reward-overlay"
+            class="modal-overlay hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="reward-title"
+        >
+            <div class="modal-content reward-content text-center">
+                <div
+                    class="font-pixel text-[0.55rem] tracking-[2px] uppercase mb-2 text-balatro-green"
+                >
+                    NODE SECURED
+                </div>
+                <h2
+                    id="reward-title"
+                    class="font-display font-black text-[1.4rem] text-balatro-gold"
+                >
+                    CHOOSE REWARD
+                </h2>
+                <p class="text-[0.7rem] text-white/60 mt-1 mb-6">
+                    Pick one upgrade before the next node.
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <button
+                        id="btn-reward-heal"
+                        class="reward-card rc-heal"
+                    >
+                        <span class="reward-icon">+15</span>
+                        <span class="reward-name">REPAIR</span>
+                        <span class="reward-desc">Restore +15 HP</span>
+                    </button>
+                    <button
+                        id="btn-reward-ram"
+                        class="reward-card rc-ram"
+                    >
+                        <span class="reward-icon">+1</span>
+                        <span class="reward-name">OVERCLOCK</span>
+                        <span class="reward-desc">+1 Max RAM</span>
+                    </button>
+                    <button
+                        id="btn-reward-hp"
+                        class="reward-card rc-hp"
+                    >
+                        <span class="reward-icon">+10</span>
+                        <span class="reward-name">UPLINK</span>
+                        <span class="reward-desc">+10 Max HP</span>
+                    </button>
+                </div>
+            </div>
         </div>
-      </div>
 
-      <!-- Hand Section -->
-      <div class="relative z-10 mb-5">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-[0.55rem] font-pixel tracking-[2px] uppercase text-white/50">// HAND</span>
-          <span class="text-[0.7rem] font-display font-bold" style="color: #009ddc;" id="ramDisplay">RAM: 3/3</span>
+        <!-- ════════════════════ END SCREEN OVERLAY (Victory / Defeat) ════════════════════ -->
+        <div
+            id="end-overlay"
+            class="end-overlay hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="end-overlay-title"
+        >
+            <div class="end-overlay-content">
+                <div class="end-overlay-chip" id="end-overlay-chip">
+                    HACK COMPLETE
+                </div>
+                <h2
+                    id="end-overlay-title"
+                    class="end-overlay-title glitch"
+                    data-text="VICTORY"
+                >
+                    VICTORY
+                </h2>
+                <p id="end-overlay-sub" class="end-overlay-sub"></p>
+                <button
+                    id="btn-end-again"
+                    class="balatro-btn py-3 px-8 text-[0.85rem]"
+                >
+                    <svg
+                        class="icon"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                    >
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                    RUN AGAIN
+                </button>
+            </div>
         </div>
-        <div class="hand-container flex gap-3 overflow-x-auto px-1 pt-7 pb-5 min-h-[190px]" id="hand-container"></div>
-      </div>
 
-      <!-- Execute Turn Button -->
-      <div class="relative z-10 flex flex-col sm:flex-row justify-between items-center gap-3 pt-4 border-t border-white/10">
-        <span class="text-[0.6rem] text-white/50 tracking-[1px]">⟐ Combine Variables & Loops for max damage</span>
-        <button class="balatro-btn w-full sm:w-auto py-3 px-8 text-[0.85rem]" onclick="endTurn()">
-          ⟫ EXECUTE TURN ⟪
-        </button>
-      </div>
-    </div>
-
-    </main>
-
-    <!-- ════════════════════ CARD ARCHIVE MODAL ════════════════════ -->
-    <div id="archive-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="archive-title">
-      <div class="modal-content">
-        <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
-          <h2 id="archive-title" class="font-display font-black text-[1.2rem]" style="color: #009ddc;">CARD ARCHIVE</h2>
-          <button id="btn-close-archive" class="audio-control-btn" style="color: #fe5f55; border-color: rgba(254,95,85,0.3);" aria-label="Close card archive">
-            <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
-          </button>
-        </div>
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[400px] overflow-y-auto pr-1" id="archive-cards-list" role="list" aria-label="Card archive" tabindex="0"></div>
-      </div>
-    </div>
-
-    <!-- ════════════════════ RULES MODAL ════════════════════ -->
-    <div id="rules-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="rules-title">
-      <div class="modal-content">
-        <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
-          <h2 id="rules-title" class="font-display font-black text-[1.2rem]" style="color: #f5c542;">HOW TO PLAY</h2>
-          <button id="btn-close-rules" class="audio-control-btn" style="color: #fe5f55; border-color: rgba(254,95,85,0.3);" aria-label="Close how to play">
-            <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
-          </button>
-        </div>
-        <div class="space-y-3 text-[0.78rem] leading-[1.7] text-white/80">
-          <p><strong style="color:#f5c542;">1. RAM Energy:</strong> Each turn your RAM recharges. Playing cards costs RAM.</p>
-          <p><strong style="color:#009ddc;">2. Variable X:</strong> Set <code class="bg-white/10 px-1 rounded text-[0.7rem]">x</code> with cards like <code class="bg-white/10 px-1 rounded text-[0.7rem]">let x = 8</code>. Attack damage scales with x!</p>
-          <p><strong style="color:#8957e5;">3. For Loops:</strong> Use <code class="bg-white/10 px-1 rounded text-[0.7rem]">for(2x Loop)</code> to multiply your next attack damage!</p>
-          <p><strong style="color:#59d67a;">4. Block &amp; Defense:</strong> Accumulate Block to shield your HP from enemy counter-attacks.</p>
-          <p><strong style="color:#e88d39;">5. End Turn:</strong> Click <strong>"EXECUTE TURN"</strong> to end your turn. The enemy strikes back!</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- ════════════════════ REWARD OVERLAY (between node clears) ════════════════════ -->
-    <div id="reward-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="reward-title">
-      <div class="modal-content reward-content text-center">
-        <div class="font-pixel text-[0.55rem] tracking-[2px] uppercase mb-2" style="color: #59d67a;">NODE SECURED</div>
-        <h2 id="reward-title" class="font-display font-black text-[1.4rem]" style="color: #f5c542;">CHOOSE REWARD</h2>
-        <p class="text-[0.7rem] text-white/60 mt-1 mb-6">Pick one upgrade before the next node.</p>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <button id="btn-reward-heal" class="reward-card" style="--rc: #59d67a;">
-            <span class="reward-icon">+15</span>
-            <span class="reward-name">REPAIR</span>
-            <span class="reward-desc">Restore +15 HP</span>
-          </button>
-          <button id="btn-reward-ram" class="reward-card" style="--rc: #009ddc;">
-            <span class="reward-icon">+1</span>
-            <span class="reward-name">OVERCLOCK</span>
-            <span class="reward-desc">+1 Max RAM</span>
-          </button>
-          <button id="btn-reward-hp" class="reward-card" style="--rc: #f5c542;">
-            <span class="reward-icon">+10</span>
-            <span class="reward-name">UPLINK</span>
-            <span class="reward-desc">+10 Max HP</span>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ════════════════════ END SCREEN OVERLAY (Victory / Defeat) ════════════════════ -->
-    <div id="end-overlay" class="end-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="end-overlay-title">
-      <div class="end-overlay-content">
-        <div class="end-overlay-chip" id="end-overlay-chip">HACK COMPLETE</div>
-        <h2 id="end-overlay-title" class="end-overlay-title glitch" data-text="VICTORY">VICTORY</h2>
-        <p id="end-overlay-sub" class="end-overlay-sub"></p>
-        <button id="btn-end-again" class="balatro-btn py-3 px-8 text-[0.85rem]">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-          RUN AGAIN
-        </button>
-      </div>
-    </div>
-
-    <script type="module" src="js/game.js"></script>
-  </body>
+        <script type="module" src="js/game.js"></script>
+    </body>
 </html>
