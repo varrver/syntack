@@ -1,0 +1,5 @@
+.agents/
+qa/reports/
+qa/screenshots/
+qa/baselines/
+server.pid

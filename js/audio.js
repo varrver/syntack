@@ -243,6 +243,41 @@ class CyberAudioEngine {
     osc.stop(now + 0.12);
   }
 
+  // Impact thud when an attack lands on the enemy. `damage` scales the
+  // pitch and punch: bigger hits (crits) sound deeper and louder, small
+  // hits stay tight and dry.
+  playEnemyHit(damage = 0) {
+    if (this.isMuted) return;
+    this.ensureContext();
+    const now = this.ctx.currentTime;
+    const dmg = Math.max(0, Math.min(30, Number(damage) || 0));
+    const punch = 0.6 + (dmg / 30) * 0.8; // 0.6 (small) → 1.4 (crit)
+
+    const bufferSize = Math.floor(this.ctx.sampleRate * (0.08 + dmg * 0.0008));
+    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+    const out = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      out[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+    }
+
+    const src = this.ctx.createBufferSource();
+    src.buffer = buffer;
+
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(500 + dmg * 16, now);
+    filter.frequency.exponentialRampToValueAtTime(160 + dmg * 4, now + 0.09);
+
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0.35 * punch, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+
+    src.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.sfxGain);
+    src.start(now);
+  }
+
   // --- VICTORY AUDIO (freesound_community-goodresult-82807.mp3.mpeg) ---
 
   playVictory() {

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="id">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -41,7 +41,7 @@
   </head>
   <body class="text-[#eef0f2] font-mono min-h-screen flex flex-col justify-center items-center relative overflow-x-hidden">
     <div class="scanlines"></div>
-    <div class="float-dmg-container fixed inset-0 z-[100] pointer-events-none" id="floatDmgContainer"></div>
+    <div class="float-dmg-container fixed inset-0 z-[100] pointer-events-none" id="floatDmgContainer" aria-hidden="true"></div>
 
     <!-- Single <main> landmark wrapping all game screens (a11y A3/A5) -->
     <main class="w-full flex flex-col items-center">
@@ -53,7 +53,7 @@
       <div class="absolute w-[300px] h-[300px] rounded-full blur-[120px] opacity-30 bg-b-green top-[10%] left-1/2 -translate-x-1/2 pointer-events-none"></div>
 
       <div class="mb-6 relative">
-        <div class="text-[0.55rem] font-pixel text-b-blue tracking-[5px] uppercase mb-2 opacity-70">CYBER DECKBUILDER</div>
+        <div class="text-[0.55rem] font-pixel text-[#66c9ff] tracking-[5px] uppercase mb-2">CYBER DECKBUILDER</div>
         <h1 class="glitch font-display font-black text-[3rem] sm:text-[4.5rem] tracking-[6px] uppercase leading-none relative"
             data-text="SYNTACK"
             style="color: #fe5f55; text-shadow: 0 0 20px rgba(254,95,85,0.5), 4px 4px 0 #000, -3px -3px 0 #009ddc;">
@@ -89,7 +89,7 @@
         PLAY
       </button>
 
-      <p class="text-[0.55rem] text-white/50 mt-6 tracking-widest uppercase">Click anywhere to enable audio</p>
+      <p class="text-[0.55rem] text-white/75 mt-6 tracking-widest uppercase">Click anywhere to enable audio</p>
     </div>
 
     <!-- ════════════════════ HOME MENU ════════════════════ -->
@@ -141,6 +141,10 @@
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg>
           <span>MENU</span>
         </button>
+        <div class="flex flex-col items-center gap-0.5 leading-tight" aria-live="polite">
+          <span class="font-pixel text-[0.55rem] tracking-[1px]" style="color: #f5c542;" id="node-indicator">NODE 1/4</span>
+          <span class="text-[0.5rem] text-white/45" id="best-run-line">BEST RUN: NODE 1/4</span>
+        </div>
         <div class="flex items-center gap-4">
           <button id="btnMute" class="audio-control-btn" aria-pressed="false" aria-label="Toggle sound effects">
             <span class="icon-slot"></span> <span class="btn-label">AUDIO: ON</span>
@@ -177,14 +181,14 @@
 
       <!-- Battle Zone: Terminal + Enemy -->
       <div class="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
-        <div class="terminal p-4 h-[130px] sm:h-[160px] overflow-y-auto text-[0.72rem] leading-[1.7]" id="terminal" role="log" aria-label="System terminal" aria-live="polite">
+        <div class="terminal p-4 h-[130px] sm:h-[160px] overflow-y-auto text-[0.72rem] leading-[1.7]" id="terminal" role="log" aria-label="System terminal" aria-live="polite" tabindex="0">
           <div class="terminal-log opacity-0 mb-[2px]" style="color:#fe5f55;">[SYS] Initializing…</div>
           <div class="terminal-log opacity-0 mb-[2px]" style="color:#59d67a;">[SYS] Firewall detected.</div>
           <span class="terminal-cursor" aria-hidden="true"></span>
         </div>
 
         <div class="enemy-panel p-4 text-center flex flex-col justify-center" id="enemyBox">
-          <div class="font-pixel text-[0.6rem] mb-1" style="color: #fe5f55;">▸ FIREWALL DAEMON ◂</div>
+          <div class="font-pixel text-[0.6rem] mb-1" style="color: #fe5f55;" id="enemy-name">▸ FIREWALL DAEMON ◂</div>
           <div class="font-display font-black text-[2rem] sm:text-[2.6rem] leading-none mb-2" id="enemy-hp"
                style="color: #fe5f55; text-shadow: 0 2px 8px rgba(254,95,85,0.4);">60/60</div>
           <div class="chip-bar mx-auto w-full max-w-[200px]">
@@ -246,6 +250,32 @@
           <p><strong style="color:#8957e5;">3. For Loops:</strong> Use <code class="bg-white/10 px-1 rounded text-[0.7rem]">for(2x Loop)</code> to multiply your next attack damage!</p>
           <p><strong style="color:#59d67a;">4. Block &amp; Defense:</strong> Accumulate Block to shield your HP from enemy counter-attacks.</p>
           <p><strong style="color:#e88d39;">5. End Turn:</strong> Click <strong>"EXECUTE TURN"</strong> to end your turn. The enemy strikes back!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════ REWARD OVERLAY (between node clears) ════════════════════ -->
+    <div id="reward-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="reward-title">
+      <div class="modal-content reward-content text-center">
+        <div class="font-pixel text-[0.55rem] tracking-[2px] uppercase mb-2" style="color: #59d67a;">NODE SECURED</div>
+        <h2 id="reward-title" class="font-display font-black text-[1.4rem]" style="color: #f5c542;">CHOOSE REWARD</h2>
+        <p class="text-[0.7rem] text-white/60 mt-1 mb-6">Pick one upgrade before the next node.</p>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <button id="btn-reward-heal" class="reward-card" style="--rc: #59d67a;">
+            <span class="reward-icon">+15</span>
+            <span class="reward-name">REPAIR</span>
+            <span class="reward-desc">Restore +15 HP</span>
+          </button>
+          <button id="btn-reward-ram" class="reward-card" style="--rc: #009ddc;">
+            <span class="reward-icon">+1</span>
+            <span class="reward-name">OVERCLOCK</span>
+            <span class="reward-desc">+1 Max RAM</span>
+          </button>
+          <button id="btn-reward-hp" class="reward-card" style="--rc: #f5c542;">
+            <span class="reward-icon">+10</span>
+            <span class="reward-name">UPLINK</span>
+            <span class="reward-desc">+10 Max HP</span>
+          </button>
         </div>
       </div>
     </div>

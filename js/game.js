@@ -13,7 +13,12 @@ import {
   animateInsufficientRam,
   animateEnemyDamage,
   animateEnemyAttack,
-  animateFloatDamage
+  animateEnemyTelegraph,
+  animateFloatDamage,
+  animateAttackBolt,
+  animateHitFlash,
+  animateBurst,
+  animateHandRecoil
 } from './motion.js';
 
 /* ── Vector icon set (inline SVG, consistent 2px stroke) ── */
@@ -43,7 +48,30 @@ const ICONS = {
 };
 
 let player = { hp: 50, maxHp: 50, ram: 3, maxRam: 3, block: 0, varX: 0, loopMult: 1 };
-let enemy = { hp: 60, maxHp: 60, attackDmg: 8, intent: "attack" };
+let enemy = { hp: 60, maxHp: 60, attackDmg: 8, intent: "attack", name: "FIREWALL DAEMON" };
+
+/* Multi-node run: the player hacks through BOSS_NODE-1 network nodes plus a
+   final MAINFRAME boss. Node 1 keeps the original fight (60 HP / 8 ATK) so the
+   QA harness's historical expectations (E3 HP values, golden arena baseline)
+   stay valid; later nodes escalate. */
+const ENEMY_ROSTER = [
+  { name: "FIREWALL DAEMON", hp: 60, attackDmg: 8 },   // node 1
+  { name: "INTRUSION WRAITH", hp: 75, attackDmg: 10 }, // node 2
+  { name: "LOGIC BOMBER", hp: 90, attackDmg: 12 },     // node 3
+  { name: "MAINFRAME CORE", hp: 120, attackDmg: 14 },  // node 4 — boss
+];
+const BOSS_NODE = ENEMY_ROSTER.length;
+
+let run = {
+  node: 1,
+  bestNode: (() => {
+    try {
+      return parseInt(localStorage.getItem("syntack_best_node") || "0", 10) || 0;
+    } catch {
+      return 0;
+    }
+  })(),
+};
 
 const CARD_TYPES = [
   {
@@ -116,31 +144,110 @@ const CARD_TYPES = [
       }
     }
   },
+  {
+    id: 8, ram: 1, code: "PURGE()", desc: "Deal dmg = Block (max 12)", rarity: "rare", type: "attack",
+    action: () => {
+      let dmg = Math.min(12, player.block);
+      if (dmg > 0) {
+        dealDamageToEnemy(dmg);
+        log(`PURGE! Converted block → ${dmg} dmg`, "player");
+      } else {
+        log("PURGE: no block to convert.", "warning");
+      }
+    }
+  },
+  {
+    id: 9, ram: 1, code: "REBOOT()", desc: "Heal +6 HP", rarity: "common", type: "defense",
+    action: () => {
+      const healed = Math.min(player.maxHp - player.hp, 6);
+      if (healed > 0) {
+        player.hp += healed;
+        log(`REBOOT! HP +${healed}`, "player");
+        animateFloatDamage(`+${healed} HP`, "heal", "40%", "55%");
+      } else {
+        log("REBOOT: HP already full.", "warning");
+      }
+    }
+  },
+  {
+    id: 10, ram: 2, code: "PARALLEL()", desc: "Next attack 3x dmg", rarity: "epic", type: "loop",
+    action: () => {
+      player.loopMult *= 3;
+      log("PARALLEL THREAD! Next attack 3x dmg!", "player");
+      animateFloatDamage("3x DMG!", "buff", "45%", "50%");
+    }
+  },
 ];
 
 let hand = [];
 let isAnimating = false;
 let gameOver = false;
+// Where the last played card sat on screen — the launch point for the attack
+// bolt in dealDamageToEnemy (captured before the card is spliced out).
+let lastPlayRect = null;
 
+
+function resetTerminal() {
+  const term = document.getElementById("terminal");
+  if (!term) return;
+  term.innerHTML = '';
+  const cursor = document.createElement("span");
+  cursor.className = "terminal-cursor";
+  cursor.setAttribute("aria-hidden", "true");
+  term.appendChild(cursor);
+}
+
+/* Load the current run.node's enemy, reset per-fight state, and reflect the
+   roster in the DOM (name, node indicator, best-run line, terminal). Records
+   the deepest node reached so the home screen can show progress. */
+function loadEnemy() {
+  const def = ENEMY_ROSTER[run.node - 1] || ENEMY_ROSTER[0];
+  enemy = { hp: def.hp, maxHp: def.hp, attackDmg: def.attackDmg, intent: "attack", name: def.name };
+  player.block = 0;
+  player.varX = 0;
+  player.loopMult = 1;
+  player.ram = player.maxRam;
+
+  run.bestNode = Math.max(run.bestNode, run.node);
+  try {
+    localStorage.setItem("syntack_best_node", String(run.bestNode));
+  } catch {}
+
+  const nameEl = document.getElementById("enemy-name");
+  if (nameEl) nameEl.textContent = `▸ ${def.name} ◂`;
+  const nodeEl = document.getElementById("node-indicator");
+  if (nodeEl) nodeEl.textContent = `NODE ${run.node}/${BOSS_NODE}`;
+  const bestEl = document.getElementById("best-run-line");
+  if (bestEl) bestEl.textContent = `BEST RUN: NODE ${run.bestNode}/${BOSS_NODE}`;
+
+  resetTerminal();
+  // Node-breach boot sequence. Fills the terminal (~6 lines at 11.52px/1.7lh
+  // in a 160px box) so it genuinely auto-scrolls as the fight progresses —
+  // and gives each node breach its own "system coming online" feel.
+  log(`[SYS] Breaching node ${run.node}/${BOSS_NODE} — ${def.name}`, "system");
+  log(`[SYS] Core integrity: ${def.hp} HP · Threat level: ATK ${def.attackDmg}`, "system");
+  log(`[SYS] Uplink stable · ${CARD_TYPES.length} primitives cached`, "info");
+  log(`[SYS] RAM buffer ${player.ram}/${player.maxRam} · standing by`, "info");
+  log(`[SYS] Firewall heuristics active — breach the core to advance`, "warning");
+  log(`[SYS] Compile complete. Awaiting command.`, "info");
+  updateEnemyIntent();
+}
 
 function initGame() {
   player = { hp: 50, maxHp: 50, ram: 3, maxRam: 3, block: 0, varX: 0, loopMult: 1 };
-  enemy = { hp: 60, maxHp: 60, attackDmg: 8, intent: "attack" };
+  run.node = 1;
   gameOver = false;
-  updateEnemyIntent();
+  loadEnemy();
   drawHand();
   updateUI();
-  
-  const term = document.getElementById("terminal");
-  if (term) {
-    term.innerHTML = '';
-    const cursor = document.createElement("span");
-    cursor.className = "terminal-cursor";
-    cursor.setAttribute("aria-hidden", "true");
-    term.appendChild(cursor);
-  }
-  log("[SYSTEM] Initializing terminal...", "system");
-  log("[SYS] Firewall Daemon Detected: FIREWALL_DAEMON_v1.0", "info");
+}
+
+function startNextNode() {
+  run.node += 1;
+  gameOver = false;
+  loadEnemy();
+  drawHand();
+  updateUI();
 }
 
 function drawHand() {
@@ -220,6 +327,9 @@ function playCard(index, cardEl) {
   log(`⟫ Execute: ${card.code}`, "player");
 
   animateCardPlay(cardEl, () => {
+    // Snapshot the card's on-screen rect before it's removed, so the attack
+    // bolt can launch from exactly where the card was played.
+    lastPlayRect = cardEl.getBoundingClientRect();
     card.action();
     hand.splice(index, 1);
     renderHand();
@@ -233,15 +343,31 @@ function dealDamageToEnemy(amount) {
   const prevHp = enemy.hp;
   enemy.hp = Math.max(0, enemy.hp - amount);
   const dealt = prevHp - enemy.hp;
-  
-  const enemyBox = document.getElementById("enemyBox");
-  animateEnemyDamage(enemyBox);
-  animateFloatDamage(`-${dealt}`, "enemy", "60%", "30%");
 
-  const enemyHpEl = document.getElementById("enemy-hp");
-  if (enemyHpEl) {
-    enemyHpEl.classList.add("damaged");
-    setTimeout(() => enemyHpEl.classList.remove("damaged"), 400);
+  // Boosted hits (x ≥ 8 or a looped attack) read as criticals: gold number,
+  // gold impact ring, and a deeper, louder hit sound scaled to the damage.
+  const isCrit = amount >= 12;
+  const enemyBox = document.getElementById("enemyBox");
+  if (dealt > 0) {
+    // Action animation: the card's energy bolt arcs from the hand onto the
+    // enemy, the player's hand kicks back in recoil, and the landing moment
+    // triggers the shake + impact flash + hit sound.
+    animateHandRecoil();
+    animateAttackBolt(lastPlayRect, enemyBox, {
+      onImpact: () => {
+        animateEnemyDamage(enemyBox);
+        animateHitFlash(enemyBox, isCrit ? "gold" : "blue");
+        audioEngine.playEnemyHit(dealt);
+        if (isCrit) animateFloatDamage("CRIT!", "crit", "52%", "20%");
+      },
+    });
+    animateFloatDamage(`-${dealt}`, isCrit ? "crit" : "enemy", "60%", "30%");
+
+    const enemyHpEl = document.getElementById("enemy-hp");
+    if (enemyHpEl) {
+      enemyHpEl.classList.add("damaged");
+      setTimeout(() => enemyHpEl.classList.remove("damaged"), 400);
+    }
   }
 }
 
@@ -250,10 +376,7 @@ function endTurn() {
   if (isAnimating || gameOver) return;
 
   audioEngine.playExecuteTurn();
-  log("[ENEMY] Firewall Daemon initiates COUNTER_ATTACK...", "system");
-  
-  const enemyBox = document.getElementById("enemyBox");
-  animateEnemyAttack(enemyBox);
+  log(`[ENEMY] ${enemy.name} initiates COUNTER_ATTACK...`, "system");
 
   let actualDmg = enemy.attackDmg - player.block;
   let blocked = Math.min(player.block, enemy.attackDmg);
@@ -262,19 +385,37 @@ function endTurn() {
   player.block = Math.max(0, player.block - enemy.attackDmg);
   player.hp = Math.max(0, player.hp - actualDmg);
 
-  if (blocked > 0) {
-    audioEngine.playBlock();
-    log(`[BLOCK] Deflected ${blocked} damage!`, "info");
-    animateFloatDamage(`BLOCKED ${blocked}`, "block", "25%", "45%");
-  }
+  if (blocked > 0) audioEngine.playBlock();
+  if (actualDmg > 0) audioEngine.playDamageTaken();
 
-  if (actualDmg > 0) {
-    audioEngine.playDamageTaken();
-    log(`[DAMAGE] System took ${actualDmg} damage!`, "system");
-    animateFloatDamage(`-${actualDmg}`, "player", "35%", "55%");
-  } else if (blocked >= enemy.attackDmg) {
-    log("[BLOCK] Damage fully negated!", "info");
-  }
+  // Action sequence: telegraph (red threat glow) → lunge toward the player →
+  // impact (terminal flash + damage numbers). Game state above is updated
+  // synchronously so UI text is always current; only the visual feedback is
+  // staged to land at the strike moment.
+  const enemyBox = document.getElementById("enemyBox");
+  const terminal = document.getElementById("terminal");
+  const onImpact = () => {
+    animateHitFlash(terminal, "red");
+    if (blocked > 0) {
+      log(`[BLOCK] Deflected ${blocked} damage!`, "info");
+      animateFloatDamage(`BLOCKED ${blocked}`, "block", "25%", "45%");
+    }
+    if (actualDmg > 0) {
+      log(`[DAMAGE] System took ${actualDmg} damage!`, "system");
+      animateFloatDamage(`-${actualDmg}`, "player", "35%", "55%");
+    } else if (blocked >= enemy.attackDmg) {
+      log("[BLOCK] Damage fully negated!", "info");
+    }
+  };
+  // Block card plays / double end-turn while the enemy's attack sequence
+  // (telegraph → lunge → impact → recoil) is playing, so the player can't
+  // interleave a card mid-animation (two Motion writers on the enemyBox).
+  isAnimating = true;
+  animateEnemyTelegraph(enemyBox, () => {
+    animateEnemyAttack(enemyBox, onImpact, () => {
+      isAnimating = false;
+    });
+  });
 
   const intents = ["attack", "attack", "attack", "defend", "buff"];
   enemy.intent = intents[Math.floor(Math.random() * intents.length)];
@@ -353,24 +494,44 @@ function updateUI() {
 
 function checkWinLoss() {
   if (gameOver) return;
+  const enemyBox = document.getElementById("enemyBox");
+  const terminal = document.getElementById("terminal");
   if (enemy.hp <= 0) {
     gameOver = true;
     audioEngine.playVictory();
-    setTimeout(() => {
-      log("[VICTORY] Mainframe hacked! You win!", "info");
-      animateFloatDamage("VICTORY!", "buff", "40%", "35%");
+    animateBurst(enemyBox, "green");
+    if (run.node >= BOSS_NODE) {
+      // Full run victory — record completion and show the final overlay.
+      run.bestNode = BOSS_NODE;
+      try {
+        localStorage.setItem("syntack_best_node", String(run.bestNode));
+      } catch {}
+      const bestEl = document.getElementById("best-run-line");
+      if (bestEl) bestEl.textContent = `BEST RUN: NODE ${run.bestNode}/${BOSS_NODE}`;
       setTimeout(() => {
-        showEndOverlay(true, "You breached the mainframe and deleted the Firewall Daemon.");
-      }, 600);
-    }, 300);
+        log("[VICTORY] Mainframe hacked! You win!", "info");
+        animateFloatDamage("VICTORY!", "buff", "40%", "35%");
+        setTimeout(() => {
+          showEndOverlay(true, "You breached the mainframe and deleted the Firewall Daemon.");
+        }, 600);
+      }, 300);
+    } else {
+      // Node cleared → reward screen before advancing to the next node.
+      setTimeout(() => {
+        log(`[NODE CLEARED] Node ${run.node}/${BOSS_NODE} secured.`, "info");
+        animateFloatDamage("NODE CLEARED!", "buff", "40%", "35%");
+        setTimeout(() => showRewardOverlay(), 600);
+      }, 300);
+    }
   } else if (player.hp <= 0) {
     gameOver = true;
     audioEngine.playDefeat();
+    animateBurst(terminal, "red");
     setTimeout(() => {
       log("[GAME OVER] System crashed...", "system");
       animateFloatDamage("SYSTEM FAILURE", "enemy", "35%", "35%");
       setTimeout(() => {
-        showEndOverlay(false, "The Firewall Daemon overwhelmed your system.");
+        showEndOverlay(false, `The ${enemy.name} overwhelmed your system. (Reached node ${run.node}/${BOSS_NODE})`);
       }, 600);
     }, 300);
   }
@@ -411,9 +572,60 @@ function wireEndOverlay() {
     again.onclick = () => {
       audioEngine.playExecuteTurn();
       hideEndOverlay();
-      initGame();
+      initGame(); // fresh run from node 1
     };
   }
+}
+
+/* ── Reward screen (shown between nodes 1-3 clears) ── */
+function showRewardOverlay() {
+  const overlay = document.getElementById("reward-overlay");
+  if (!overlay) return;
+  overlay.classList.remove("hidden");
+  overlay.classList.add("flex");
+  // REPAIR is pointless (and would silently waste the pick) at full HP.
+  const healBtn = document.getElementById("btn-reward-heal");
+  if (healBtn) healBtn.disabled = player.hp >= player.maxHp;
+  setTimeout(() => focusFirstFocusable(overlay), 50);
+}
+
+function hideRewardOverlay() {
+  const overlay = document.getElementById("reward-overlay");
+  if (!overlay) return;
+  overlay.classList.add("hidden");
+  overlay.classList.remove("flex");
+}
+
+function wireRewardOverlay() {
+  const REWARDS = [
+    ["btn-reward-heal", "heal", "+15 HP — REPAIR"],
+    ["btn-reward-ram", "ram", "+1 MAX RAM — OVERCLOCK"],
+    ["btn-reward-hp", "hp", "+10 MAX HP — UPLINK"],
+  ];
+  REWARDS.forEach(([id, kind, label]) => {
+    const btn = document.getElementById(id);
+    if (btn) {
+      btn.onclick = () => {
+        audioEngine.playExecuteTurn();
+        if (kind === "heal") {
+          player.hp = Math.min(player.maxHp, player.hp + 15);
+        } else if (kind === "ram") {
+          player.maxRam = Math.min(7, player.maxRam + 1);
+          player.ram = player.maxRam;
+        } else if (kind === "hp") {
+          player.maxHp = Math.min(99, player.maxHp + 10);
+          player.hp = Math.min(player.maxHp, player.hp + 10);
+        }
+        log(`[REWARD] ${label} applied.`, "info");
+        hideRewardOverlay();
+        startNextNode();
+        // Move focus into the fresh node's hand — the reward button just
+        // disappeared with the overlay, so don't leave focus stranded on <body>.
+        const firstCard = document.querySelector("#hand-container .card");
+        if (firstCard) firstCard.focus();
+      };
+    }
+  });
 }
 
 // Render Card Archive Modal Content
@@ -464,6 +676,7 @@ function setupNavigation() {
   const archiveModal = document.getElementById("archive-modal");
   const rulesModal = document.getElementById("rules-modal");
   const endOverlay = document.getElementById("end-overlay");
+  const rewardOverlay = document.getElementById("reward-overlay");
   const btnCloseArchive = document.getElementById("btn-close-archive");
   const btnCloseRules = document.getElementById("btn-close-rules");
 
@@ -479,8 +692,10 @@ function setupNavigation() {
     btnMenuStart.onclick = () => {
       audioEngine.ensureContext();
       audioEngine.playExecuteTurn();
-      animateScreenTransition(homeScreen, gameScreen);
-      initGame();
+      // Defer initGame() until the transition finishes: if it ran here, the
+      // hand deal-in would play while #game-screen is still display:none (K1).
+      // initGame() is the onComplete so the arena is fully on screen first.
+      animateScreenTransition(homeScreen, gameScreen, initGame);
     };
   }
 
@@ -536,7 +751,7 @@ function setupNavigation() {
     }
 
     if (e.key === "Tab") {
-      const open = [archiveModal, rulesModal, endOverlay].find((m) => m && !m.classList.contains("hidden"));
+      const open = [archiveModal, rulesModal, endOverlay, rewardOverlay].find((m) => m && !m.classList.contains("hidden"));
       if (open) trapFocus(open, e);
     }
   });
@@ -546,7 +761,7 @@ let lastFocusedEl = null;
 
 function focusFirstFocusable(container) {
   if (!container) return;
-  const focusables = container.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  const focusables = container.querySelectorAll('button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
   if (focusables.length) focusables[0].focus();
 }
 
@@ -625,12 +840,14 @@ document.addEventListener("DOMContentLoaded", () => {
   setupNavigation();
   setupAudioUI();
   wireEndOverlay();
+  wireRewardOverlay();
 });
 
 /* ════════════════════════════════════════════════════════════════════
    QA TEST HOOK — no-op in production (see visual-check-spec.md §7)
    Activated only via URL params:
-     ?test=1&screen=arena&seed=<n>&intent=attack|defend|buff&outcome=victory|defeat
+     ?test=1&screen=arena&seed=<n>&intent=attack|defend|buff
+     &node=1|2|3|4&outcome=victory|defeat|reward
    Used by qa/run.mjs to force deterministic, reproducible game states.
    Never fires audio and uses no timers the harness cannot predict.
    ════════════════════════════════════════════════════════════════════ */
@@ -675,6 +892,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   initGame();
 
+  // Jump to a specific node (exercises each roster entry's HP/name rendering).
+  const qaNode = Number(qaParams.get("node"));
+  if (Number.isInteger(qaNode) && qaNode >= 1 && qaNode <= BOSS_NODE && qaNode !== run.node) {
+    run.node = qaNode;
+    loadEnemy();
+    updateUI(); // loadEnemy sets state + name/node labels; updateUI syncs HP/RAM bars
+  }
+
   // Force an enemy intent (exercises all three intent UIs — spec §6.4 #7).
   const qaIntent = qaParams.get("intent");
   if (qaIntent === "attack" || qaIntent === "defend" || qaIntent === "buff") {
@@ -684,7 +909,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Force the end state, skipping natural play (spec §6.4 #8).
   const qaOutcome = qaParams.get("outcome");
-  if (qaOutcome === "victory" || qaOutcome === "defeat") {
+  if (qaOutcome === "reward") {
+    showRewardOverlay();
+  } else if (qaOutcome === "victory" || qaOutcome === "defeat") {
     gameOver = true;
     showEndOverlay(
       qaOutcome === "victory",
