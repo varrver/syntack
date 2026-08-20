@@ -5,6 +5,7 @@
  */
 
 import { player, enemy } from "./state.js";
+import { dealDamageToEnemy } from "./combat.js";
 import { animateFloatDamage } from "./motion.js";
 
 export const CARD_TYPES = [
@@ -27,7 +28,7 @@ export const CARD_TYPES = [
     desc: "Deal dmg = x (Default: 4)",
     rarity: "common",
     type: "attack",
-    action: (dealDamageToEnemy) => {
+    action: () => {
       let base = player.varX > 0 ? player.varX : 4;
       let total = base * player.loopMult;
       dealDamageToEnemy(total);
@@ -109,7 +110,7 @@ export const CARD_TYPES = [
     desc: "Deal dmg = Block (max 12)",
     rarity: "rare",
     type: "attack",
-    action: (dealDamageToEnemy) => {
+    action: () => {
       let dmg = Math.min(12, player.block);
       if (dmg > 0) {
         dealDamageToEnemy(dmg);

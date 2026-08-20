@@ -122,7 +122,7 @@ function playCard(index, cardEl) {
 
   animateCardPlay(cardEl, () => {
     setLastPlayRect(cardEl.getBoundingClientRect());
-    card.action(dealDamageToEnemy);
+    card.action();
     hand.splice(index, 1);
     renderHand(playCard);
     updateUI();
