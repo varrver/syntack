@@ -2,10 +2,10 @@
  * SYNTACK — Card Definitions
  * All 10 card types with their action functions.
  * Actions mutate player/enemy state and trigger animations.
+ * dealDamageToEnemy is passed as a callback to avoid circular imports.
  */
 
-import { player, enemy } from "./state.js";
-import { dealDamageToEnemy } from "./combat.js";
+import { player } from "./state.js";
 import { animateFloatDamage } from "./motion.js";
 import { log } from "./renderer.js";
 
@@ -30,10 +30,10 @@ export const CARD_TYPES = [
     desc: "Deal dmg = x (Default: 4)",
     rarity: "common",
     type: "attack",
-    action: () => {
+    action: (deal) => {
       let base = player.varX > 0 ? player.varX : 4;
       let total = base * player.loopMult;
-      dealDamageToEnemy(total);
+      deal(total);
       log(`EXECUTE ATTACK(${total})!`, "player");
       player.loopMult = 1;
     },
@@ -122,10 +122,10 @@ export const CARD_TYPES = [
     desc: "Deal dmg = Block (max 12)",
     rarity: "rare",
     type: "attack",
-    action: () => {
+    action: (deal) => {
       let dmg = Math.min(12, player.block);
       if (dmg > 0) {
-        dealDamageToEnemy(dmg);
+        deal(dmg);
         log(`PURGE! Converted block → ${dmg} dmg`, "player");
       } else {
         log("PURGE: no block to convert.", "warning");
@@ -160,48 +160,6 @@ export const CARD_TYPES = [
     action: () => {
       player.loopMult *= 3;
       log("PARALLEL THREAD! Next attack 3x dmg!", "player");
-      animateFloatDamage("3x DMG!", "buff", "45%", "50%");
-    },
-  },
-];
-  {
-    id: 8,
-    ram: 1,
-    code: "PURGE()",
-    desc: "Deal dmg = Block (max 12)",
-    rarity: "rare",
-    type: "attack",
-    action: () => {
-      let dmg = Math.min(12, player.block);
-      if (dmg > 0) {
-        dealDamageToEnemy(dmg);
-      }
-    },
-  },
-  {
-    id: 9,
-    ram: 1,
-    code: "REBOOT()",
-    desc: "Heal +6 HP",
-    rarity: "common",
-    type: "defense",
-    action: () => {
-      const healed = Math.min(player.maxHp - player.hp, 6);
-      if (healed > 0) {
-        player.hp += healed;
-        animateFloatDamage(`+${healed} HP`, "heal", "40%", "55%");
-      }
-    },
-  },
-  {
-    id: 10,
-    ram: 2,
-    code: "PARALLEL()",
-    desc: "Next attack 3x dmg",
-    rarity: "epic",
-    type: "loop",
-    action: () => {
-      player.loopMult *= 3;
       animateFloatDamage("3x DMG!", "buff", "45%", "50%");
     },
   },

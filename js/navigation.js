@@ -58,15 +58,10 @@ export function setupNavigation(initGameFn) {
 
   if (btnSplashStart) {
     btnSplashStart.onclick = () => {
-      console.log("Splash PLAY clicked");
       audioEngine.ensureContext();
       audioEngine.playHover();
-      animateScreenTransition(splashScreen, homeScreen, () => {
-        console.log("Splash → Home transition complete");
-      });
+      animateScreenTransition(splashScreen, homeScreen);
     };
-  } else {
-    console.error("btnSplashStart not found!");
   }
 
   if (btnMenuStart) {

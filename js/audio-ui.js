@@ -49,11 +49,11 @@ export function setupAudioUI() {
 
   updateMuteState(audioEngine.isMuted);
 
-  const unlockAudio = () => {
+  function unlockAudio() {
     audioEngine.ensureContext();
     window.removeEventListener("click", unlockAudio);
     window.removeEventListener("keydown", unlockAudio);
-  };
+  }
   window.addEventListener("click", unlockAudio);
   window.addEventListener("keydown", unlockAudio);
 }
