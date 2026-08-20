@@ -3,7 +3,7 @@
  * Damage dealing, enemy turns, intent updates, and win/loss checks.
  */
 
-import { player, enemy, run, BOSS_NODE, isAnimating, gameOver, lastPlayRect, setGameOver } from "./state.js";
+import { player, enemy, run, BOSS_NODE, isAnimating, gameOver, lastPlayRect, setGameOver, setIsAnimating } from "./state.js";
 import { ICONS } from "./icons.js";
 import { log, updateUI } from "./renderer.js";
 import { audioEngine } from "./audio.js";
@@ -79,10 +79,10 @@ export function endTurn(drawHandFn) {
     }
   };
 
-  isAnimating = true;
+  setIsAnimating(true);
   animateEnemyTelegraph(enemyBox, () => {
     animateEnemyAttack(enemyBox, onImpact, () => {
-      isAnimating = false;
+      setIsAnimating(false);
     });
   });
 
