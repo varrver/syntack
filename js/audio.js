@@ -12,8 +12,8 @@ class CyberAudioEngine {
     this.isMuted = localStorage.getItem("syntack_muted") === "true";
     this.volume = parseFloat(localStorage.getItem("syntack_volume") || "0.6");
 
-    // Preload Victory Audio Asset
-    this.victoryAudio = new Audio("assets/audio/victory.mp3");
+    // Victory audio is lazy-loaded on first play to avoid unused download
+    this._victoryAudio = null;
   }
 
   init() {
@@ -287,10 +287,13 @@ class CyberAudioEngine {
     if (this.isMuted) return;
     this.ensureContext();
 
-    if (this.victoryAudio) {
-      this.victoryAudio.currentTime = 0;
-      this.victoryAudio.volume = this.volume;
-      this.victoryAudio.play().catch((err) => {
+    if (!this._victoryAudio) {
+      this._victoryAudio = new Audio("assets/audio/victory.mp3");
+    }
+    if (this._victoryAudio) {
+      this._victoryAudio.currentTime = 0;
+      this._victoryAudio.volume = this.volume;
+      this._victoryAudio.play().catch((err) => {
         console.warn("Victory audio play error:", err);
       });
     }

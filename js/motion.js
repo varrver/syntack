@@ -508,22 +508,37 @@ export function animateBurst(targetEl, color = "white") {
 
   setTimeout(() => ring.remove(), 850);
 }
+/* ── Element pool for floating damage numbers ──
+   Avoids DOM create/destroy churn: elements are recycled after each
+   animation instead of being garbage-collected. */
+const _floatPool = [];
+
+const _FLOAT_CLASSES = {
+  enemy: "float-dmg absolute text-balatro-red text-[1.6rem]",
+  player: "float-dmg absolute text-balatro-red text-[1.6rem]",
+  block: "float-dmg absolute text-balatro-purple text-[1.2rem]",
+  buff: "float-dmg absolute text-balatro-gold text-[1.4rem]",
+  heal: "float-dmg absolute text-balatro-green text-[1.6rem]",
+  crit: "float-dmg crit absolute text-balatro-gold text-[2rem]",
+};
+
+function _releaseFloat(el) {
+  el.style.cssText = "";
+  el.className = "";
+  el.textContent = "";
+  _floatPool.push(el);
+}
+
 export function animateFloatDamage(text, type, left, top) {
   const container = document.getElementById("floatDmgContainer");
   if (!container) return;
 
-  const FLOAT_CLASSES = {
-    enemy: "float-dmg absolute text-balatro-red text-[1.6rem]",
-    player: "float-dmg absolute text-balatro-red text-[1.6rem]",
-    block: "float-dmg absolute text-balatro-purple text-[1.2rem]",
-    buff: "float-dmg absolute text-balatro-gold text-[1.4rem]",
-    heal: "float-dmg absolute text-balatro-green text-[1.6rem]",
-    crit: "float-dmg crit absolute text-balatro-gold text-[2rem]", // boosted hits (see styles.css .float-dmg.crit)
-  };
+  const el = _floatPool.length
+    ? _floatPool.pop()
+    : document.createElement("div");
 
-  const el = document.createElement("div");
   el.className =
-    FLOAT_CLASSES[type] || `float-dmg absolute text-balatro-red text-[1.6rem]`;
+    _FLOAT_CLASSES[type] || `float-dmg absolute text-balatro-red text-[1.6rem]`;
   el.textContent = text;
 
   const l = parseFloat(left) || 30 + Math.random() * 40;
@@ -544,9 +559,5 @@ export function animateFloatDamage(text, type, left, top) {
       },
     );
   } catch (err) {}
-  // The CSS floatUp animation (1.1s) does the visible floating; the timer only
-  // guarantees removal even if Motion never resolves (see animateEnemyDamage).
-  // No REDUCED_MOTION guard here on purpose: the damage number is informational
-  // (not motion), and the global media rule already freezes its floatUp CSS.
-  setTimeout(() => el.remove(), FLOAT_MS + 100);
+  setTimeout(() => _releaseFloat(el), FLOAT_MS + 100);
 }

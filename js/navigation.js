@@ -113,6 +113,8 @@ export function setupNavigation(initGameFn) {
   }
 
   document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape" && e.key !== "Tab") return;
+
     if (e.key === "Escape") {
       [archiveModal, rulesModal].forEach((modal) => {
         if (modal && !modal.classList.contains("hidden")) {
