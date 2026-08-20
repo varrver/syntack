@@ -11,22 +11,33 @@ A cyberpunk coding deckbuilder where you hack the mainframe with programming-log
 - **Motion library vendored** (`vendor/motion.esm.js`) — the game works fully offline except for Tailwind + fonts (K3, accepted)
 - **Accessible** — keyboard play, focus traps, visible focus rings, reduced-motion support, axe-core audited
 
-## Project structure
+## Project Structure
 
 ```
-index.html            # screens (splash / home / arena), modals, overlays
-css/styles.css        # Balatro design system + utility colors
+index.html              # screens (splash / home / arena), modals, overlays
+css/styles.css          # Balatro design system + utility colors
 js/
-  game.js             # runtime state, combat, screen manager, QA test hook
-  config.js           # static game data (cards, enemy roster, intent styling)
-  cards.js            # card DOM rendering (hand + archive, shared rarity styles)
-  motion.js           # Motion-driven animations & micro-interactions
-  audio.js            # Web Audio synth engine (tone/noise primitives)
-vendor/motion.esm.js  # vendored motion@10.18.0 bundle (do not edit)
-qa/                   # zero-dependency CDP QA harness (see below)
+  game.js               # orchestrator — wires modules, manages hand/card play
+  state.js              # mutable player/enemy/run state, constants
+  cards.js              # card type definitions (10 cards with action functions)
+  icons.js              # single source of truth for SVG icons
+  renderer.js           # DOM rendering (hand, archive, UI updates, terminal log)
+  combat.js             # damage dealing, enemy turns, intent, win/loss checks
+  navigation.js         # screen transitions, modals, keyboard a11y, focus traps
+  reward.js             # reward overlay, end-game overlay (victory/defeat)
+  audio-ui.js           # mute toggle, volume sliders, audio unlock
+  audio.js              # Web Audio synth engine (tone/noise primitives)
+  motion.js             # Motion-driven animations & micro-interactions
+  qa-hook.js            # deterministic RNG + URL param forcing for QA harness
+vendor/
+  motion.esm.js         # vendored motion@10.18.0 bundle (do not edit)
+assets/audio/
+  victory.mp3           # victory jingle (only audio file)
+qa/                     # zero-dependency CDP QA harness (see below)
+docs/                   # academic submission files, storyboard
 ```
 
-## Run locally
+## Run Locally
 
 ```bash
 python3 -m http.server 8123        # from the project root
@@ -35,7 +46,7 @@ python3 -m http.server 8123        # from the project root
 
 No build step, no npm dependencies for the game itself.
 
-## QA harness
+## QA Harness
 
 The `qa/` directory contains a zero-dependency Chrome DevTools Protocol test suite (no npm installs needed; Node ≥ 20 with a global `WebSocket`).
 
@@ -55,4 +66,4 @@ CHROME_BIN=/usr/bin/brave-origin node qa/visual-regress.mjs
 CHROME_BIN=/usr/bin/brave-origin node qa/a11y.mjs
 ```
 
-Reports land in `qa/reports/` (gitignored). The full spec lives in `visual-check-spec.md` (known-issue log K1–K7 + F1, acceptance criteria, QA results).
+Reports land in `qa/reports/` (gitignored). The full spec lives in `qa/visual-check-spec.md`.
