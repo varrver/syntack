@@ -377,10 +377,19 @@ export function animateHandRecoil() {
   }, RECOIL_MS + FX_MARGIN);
 }
 
-/* Energy bolt: launches from the played card's last position (or the hand)
-   and flies in an arc onto the enemy panel, spinning as it travels.
+/* Energy bolt / Bullet: launches from player sprite (or played card)
+   and flies onto the enemy panel with gun shoot & recoil animation.
    `onImpact` fires the instant it lands (shake + flash + sound in game.js). */
 export function animateAttackBolt(fromRect, targetEl, opts = {}) {
+  const playerSprite = document.getElementById("player-sprite");
+  if (playerSprite) {
+    playerSprite.classList.remove("shooting");
+    // trigger reflow to restart animation if fired rapidly
+    void playerSprite.offsetWidth;
+    playerSprite.classList.add("shooting");
+    setTimeout(() => playerSprite.classList.remove("shooting"), 320);
+  }
+
   const container = document.getElementById("floatDmgContainer");
   if (!container || !targetEl) {
     if (opts.onImpact) opts.onImpact();
@@ -396,8 +405,13 @@ export function animateAttackBolt(fromRect, targetEl, opts = {}) {
     if (opts.onImpact) opts.onImpact();
     return;
   }
+
   let sx, sy;
-  if (fromRect && fromRect.width) {
+  const p = playerSprite ? playerSprite.getBoundingClientRect() : null;
+  if (p && p.width) {
+    sx = p.left + p.width - 10;
+    sy = p.top + p.height / 2;
+  } else if (fromRect && fromRect.width) {
     sx = fromRect.left + fromRect.width / 2;
     sy = fromRect.top + fromRect.height / 2;
   } else {
@@ -414,7 +428,7 @@ export function animateAttackBolt(fromRect, targetEl, opts = {}) {
   const dy = ty - sy;
 
   const el = document.createElement("div");
-  el.className = "fx-bolt";
+  el.className = "fx-bullet";
   el.setAttribute("aria-hidden", "true");
   el.style.left = sx + "px";
   el.style.top = sy + "px";
@@ -424,26 +438,21 @@ export function animateAttackBolt(fromRect, targetEl, opts = {}) {
     animate(
       el,
       {
-        x: [0, dx * 0.55, dx],
-        y: [0, dy - 36, dy], // mid-flight arc overshoot, then drops onto the target
-        scale: [1, 1.2, 0.25],
-        rotate: [0, 320],
-        opacity: [1, 1, 0.5],
+        x: [0, dx * 0.5, dx],
+        y: [0, dy * 0.5, dy],
+        scale: [1, 1.3, 0.4],
+        opacity: [1, 1, 0.6],
       },
-      // spring (not a string easing): Motion delegates string easings to WAAPI,
-      // which rejects 'easeIn'/'easeOut' — springs are Motion-native and safe.
       {
         duration: BOLT_MS / 1000,
-        times: [0, 0.55, 1],
-        easing: spring({ stiffness: 300, damping: 26 }),
+        times: [0, 0.5, 1],
+        easing: spring({ stiffness: 350, damping: 25 }),
       },
     );
   } catch (err) {
-    // Motion unavailable — a CSS pulse keeps the bolt visible as an effect.
     el.classList.add("fx-bolt-fallback");
   }
-  // Sequence on a timer (Motion's animate() is not reliably thenable — see
-  // animateEnemyDamage): the bolt flies for BOLT_MS, then lands.
+
   setTimeout(() => {
     el.remove();
     if (opts.onImpact) opts.onImpact();

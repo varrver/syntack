@@ -879,91 +879,118 @@ body::after {
 .chip-bar-fill.fill-enemy { background: var(--balatro-red); color: var(--balatro-red); }
 
 /* ────────────────────────────────────────────────────────
-   22. CHARACTER SPRITES (CSS Art — Cyberpunk Style)
+   22. 2D PIXEL CHARACTER & GUN ANIMATIONS
    ──────────────────────────────────────────────────────── */
 
-/* Player sprite: hooded hacker with glowing visor */
-.sprite-player {
+.sprite-player-2d {
   position: relative;
-  width: 72px;
-  height: 90px;
+  width: 96px;
+  height: 96px;
   margin: 0 auto 6px;
   flex-shrink: 0;
-}
-.sprite-player .sp-body {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 52px;
-  height: 62px;
-  background: linear-gradient(180deg, #1a2744 0%, #0f1a2e 60%, #0a1020 100%);
-  border-radius: 14px 14px 8px 8px;
-  border: 2px solid rgba(0, 157, 220, 0.3);
-  box-shadow: 0 0 20px rgba(0, 157, 220, 0.15), inset 0 -8px 16px rgba(0,0,0,0.4);
-}
-/* Hood / head area */
-.sprite-player .sp-head {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 38px;
-  height: 34px;
-  background: linear-gradient(180deg, #1e2d4a 0%, #152240 100%);
-  border-radius: 50% 50% 40% 40%;
-  border: 2px solid rgba(0, 157, 220, 0.25);
-  z-index: 2;
-}
-/* Glowing visor / eyes */
-.sprite-player .sp-visor {
-  position: absolute;
-  top: 14px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 24px;
-  height: 6px;
-  background: var(--balatro-cyan);
-  border-radius: 3px;
-  box-shadow: 0 0 12px rgba(102, 201, 255, 0.9), 0 0 28px rgba(102, 201, 255, 0.5);
-  z-index: 3;
-  animation: visorPulse 2.5s ease-in-out infinite;
-}
-@keyframes visorPulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 12px rgba(102, 201, 255, 0.9), 0 0 28px rgba(102, 201, 255, 0.5); }
-  50% { opacity: 0.75; box-shadow: 0 0 8px rgba(102, 201, 255, 0.6), 0 0 18px rgba(102, 201, 255, 0.3); }
-}
-/* Circuit lines on body */
-.sprite-player .sp-circuit {
-  position: absolute;
-  bottom: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 30px;
-  height: 20px;
-  border: 1px solid rgba(0, 157, 220, 0.2);
-  border-radius: 4px;
-}
-.sprite-player .sp-circuit::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: rgba(0, 157, 220, 0.25);
-}
-.sprite-player .sp-circuit::after {
-  content: "";
-  position: absolute;
-  top: 2px;
-  bottom: 2px;
-  left: 50%;
-  width: 1px;
-  background: rgba(0, 157, 220, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Enemy sprites — each enemy type gets a distinct CSS art look */
+/* Base character body (Idle animation from sprite sheet) */
+.sprite-player-2d .char-body {
+  position: absolute;
+  inset: 0;
+  background-image: url('../sprite/1 Characters/3 Cyborg/Idle1.png');
+  background-size: 384px 96px;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  animation: charIdle 1s steps(4) infinite;
+}
+
+@keyframes charIdle {
+  0% { background-position: 0 0; }
+  100% { background-position: -384px 0; }
+}
+
+/* Gun overlay positioned near character hand */
+.sprite-player-2d .char-gun {
+  position: absolute;
+  width: 48px;
+  height: 24px;
+  right: 4px;
+  top: 42px;
+  background-image: url('../sprite/2 Guns/6_1.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  z-index: 2;
+  transform-origin: left center;
+}
+
+/* Muzzle flash effect */
+.sprite-player-2d .char-muzzle {
+  position: absolute;
+  width: 96px;
+  height: 96px;
+  right: -60px;
+  top: 6px;
+  background-image: url('../sprite/4 Shoot_effects/6_1.png');
+  background-size: 576px 96px;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  z-index: 3;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Shooting animation triggers */
+.sprite-player-2d.shooting .char-gun {
+  animation: gunRecoil 0.28s ease-out;
+}
+
+.sprite-player-2d.shooting .char-body {
+  animation: charRecoil 0.28s ease-out;
+}
+
+.sprite-player-2d.shooting .char-muzzle {
+  animation: muzzleFlash 0.28s steps(6) forwards;
+}
+
+@keyframes gunRecoil {
+  0% { transform: translateX(0) rotate(0deg); }
+  25% { transform: translateX(-10px) rotate(-15deg); }
+  100% { transform: translateX(0) rotate(0deg); }
+}
+
+@keyframes charRecoil {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes muzzleFlash {
+  0% { opacity: 1; background-position: 0 0; }
+  100% { opacity: 0; background-position: -576px 0; }
+}
+
+/* Bullet projectile animation */
+.fx-bullet {
+  position: fixed;
+  width: 32px;
+  height: 10px;
+  background-image: url('../sprite/5 Bullets/5.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  z-index: 101;
+  pointer-events: none;
+  filter: drop-shadow(0 0 8px rgba(254, 95, 85, 0.9));
+}
+
+/* ────────────────────────────────────────────────────────
+   23. ENEMY SPRITES — each enemy type gets a distinct look
+   ──────────────────────────────────────────────────────── */
 .sprite-enemy {
   position: relative;
   width: 80px;
