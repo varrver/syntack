@@ -16,7 +16,7 @@ import {
   animateInsufficientRam,
   animateFloatDamage,
 } from "./motion.js";
-import { resetTerminal, log, renderHand, updateUI } from "./renderer.js";
+import { resetTerminal, log, renderHand, updateUI, updateEnemySprite } from "./renderer.js";
 import { dealDamageToEnemy, endTurn, updateEnemyIntent, checkWinLoss } from "./combat.js";
 import { setupNavigation } from "./navigation.js";
 import {
@@ -48,6 +48,7 @@ export function loadEnemy() {
 
   const nameEl = document.getElementById("enemy-name");
   if (nameEl) nameEl.textContent = `▸ ${def.name} ◂`;
+  updateEnemySprite(def.name);
   const nodeEl = document.getElementById("node-indicator");
   if (nodeEl) nodeEl.textContent = `NODE ${run.node}/${BOSS_NODE}`;
   const bestEl = document.getElementById("best-run-line");

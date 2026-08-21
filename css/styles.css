@@ -338,6 +338,11 @@ body::after {
   border-radius: 12px;
   box-shadow: inset 0 0 30px rgba(254, 95, 85, 0.05), 0 4px 16px rgba(0,0,0,0.3);
   transition: box-shadow 150ms ease, border-color 150ms ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 /* Red threat glow while the Daemon lunges (toggled by animateEnemyAttack) */
 .enemy-panel.lunging {
@@ -872,6 +877,415 @@ body::after {
 .chip-bar-fill.fill-hp    { background: var(--balatro-green); color: var(--balatro-green); }
 .chip-bar-fill.fill-ram   { background: var(--balatro-blue); color: var(--balatro-blue); }
 .chip-bar-fill.fill-enemy { background: var(--balatro-red); color: var(--balatro-red); }
+
+/* ────────────────────────────────────────────────────────
+   22. CHARACTER SPRITES (CSS Art — Cyberpunk Style)
+   ──────────────────────────────────────────────────────── */
+
+/* Player sprite: hooded hacker with glowing visor */
+.sprite-player {
+  position: relative;
+  width: 72px;
+  height: 90px;
+  margin: 0 auto 6px;
+  flex-shrink: 0;
+}
+.sprite-player .sp-body {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 52px;
+  height: 62px;
+  background: linear-gradient(180deg, #1a2744 0%, #0f1a2e 60%, #0a1020 100%);
+  border-radius: 14px 14px 8px 8px;
+  border: 2px solid rgba(0, 157, 220, 0.3);
+  box-shadow: 0 0 20px rgba(0, 157, 220, 0.15), inset 0 -8px 16px rgba(0,0,0,0.4);
+}
+/* Hood / head area */
+.sprite-player .sp-head {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 38px;
+  height: 34px;
+  background: linear-gradient(180deg, #1e2d4a 0%, #152240 100%);
+  border-radius: 50% 50% 40% 40%;
+  border: 2px solid rgba(0, 157, 220, 0.25);
+  z-index: 2;
+}
+/* Glowing visor / eyes */
+.sprite-player .sp-visor {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 6px;
+  background: var(--balatro-cyan);
+  border-radius: 3px;
+  box-shadow: 0 0 12px rgba(102, 201, 255, 0.9), 0 0 28px rgba(102, 201, 255, 0.5);
+  z-index: 3;
+  animation: visorPulse 2.5s ease-in-out infinite;
+}
+@keyframes visorPulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 12px rgba(102, 201, 255, 0.9), 0 0 28px rgba(102, 201, 255, 0.5); }
+  50% { opacity: 0.75; box-shadow: 0 0 8px rgba(102, 201, 255, 0.6), 0 0 18px rgba(102, 201, 255, 0.3); }
+}
+/* Circuit lines on body */
+.sprite-player .sp-circuit {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 20px;
+  border: 1px solid rgba(0, 157, 220, 0.2);
+  border-radius: 4px;
+}
+.sprite-player .sp-circuit::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(0, 157, 220, 0.25);
+}
+.sprite-player .sp-circuit::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  left: 50%;
+  width: 1px;
+  background: rgba(0, 157, 220, 0.25);
+}
+
+/* Enemy sprites — each enemy type gets a distinct CSS art look */
+.sprite-enemy {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 8px;
+  flex-shrink: 0;
+}
+/* Shared enemy glow pulse */
+.sprite-enemy::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--enemy-glow, rgba(254,95,85,0.15)) 0%, transparent 70%);
+  pointer-events: none;
+  animation: enemyGlow 3s ease-in-out infinite;
+}
+@keyframes enemyGlow {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+
+/* FIREWALL DAEMON — geometric wireframe cube */
+.sprite-enemy.sprite-daemon {
+  --enemy-glow: rgba(254, 95, 85, 0.2);
+}
+.sprite-enemy.sprite-daemon .se-shape {
+  position: absolute;
+  inset: 10px;
+  border: 2px solid var(--balatro-red);
+  border-radius: 4px;
+  transform: rotate(45deg);
+  box-shadow: 0 0 16px rgba(254, 95, 85, 0.4), inset 0 0 12px rgba(254, 95, 85, 0.1);
+}
+.sprite-enemy.sprite-daemon .se-shape::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border: 1px solid rgba(254, 95, 85, 0.5);
+  border-radius: 2px;
+}
+.sprite-enemy.sprite-daemon .se-eye {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  background: var(--balatro-red);
+  border-radius: 50%;
+  box-shadow: 0 0 14px rgba(254, 95, 85, 0.9);
+  animation: enemyEyePulse 2s ease-in-out infinite;
+}
+
+/* INTRUSION WRAITH — ghostly ethereal form */
+.sprite-enemy.sprite-wraith {
+  --enemy-glow: rgba(137, 87, 229, 0.2);
+}
+.sprite-enemy.sprite-wraith .se-shape {
+  position: absolute;
+  inset: 8px;
+  background: linear-gradient(180deg, rgba(137, 87, 229, 0.3) 0%, rgba(137, 87, 229, 0.05) 100%);
+  border: 2px solid rgba(137, 87, 229, 0.5);
+  border-radius: 50% 50% 30% 30%;
+  box-shadow: 0 0 20px rgba(137, 87, 229, 0.3);
+}
+.sprite-enemy.sprite-wraith .se-eye {
+  position: absolute;
+  top: 32%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 4px;
+  background: var(--balatro-purple);
+  border-radius: 2px;
+  box-shadow: 0 0 12px rgba(137, 87, 229, 0.8);
+  animation: enemyEyePulse 2.5s ease-in-out infinite;
+}
+
+/* LOGIC BOMBER — angular explosive shape */
+.sprite-enemy.sprite-bomber {
+  --enemy-glow: rgba(232, 141, 57, 0.2);
+}
+.sprite-enemy.sprite-bomber .se-shape {
+  position: absolute;
+  inset: 12px;
+  background: linear-gradient(135deg, rgba(232, 141, 57, 0.2) 0%, rgba(200, 80, 20, 0.15) 100%);
+  border: 2px solid rgba(232, 141, 57, 0.6);
+  clip-path: polygon(50% 0%, 100% 35%, 85% 100%, 15% 100%, 0% 35%);
+  box-shadow: 0 0 18px rgba(232, 141, 57, 0.3);
+}
+.sprite-enemy.sprite-bomber .se-eye {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  background: var(--balatro-orange);
+  border-radius: 50%;
+  box-shadow: 0 0 14px rgba(232, 141, 57, 0.9);
+  animation: enemyEyePulse 1.8s ease-in-out infinite;
+}
+
+/* MAINFRAME CORE — large pulsing orb (boss) */
+.sprite-enemy.sprite-core {
+  --enemy-glow: rgba(254, 95, 85, 0.25);
+}
+.sprite-enemy.sprite-core .se-shape {
+  position: absolute;
+  inset: 6px;
+  background: radial-gradient(circle at 40% 35%, rgba(254, 95, 85, 0.35) 0%, rgba(180, 30, 30, 0.15) 60%, transparent 100%);
+  border: 3px solid rgba(254, 95, 85, 0.6);
+  border-radius: 50%;
+  box-shadow: 0 0 30px rgba(254, 95, 85, 0.35), inset 0 0 20px rgba(254, 95, 85, 0.15);
+}
+.sprite-enemy.sprite-core .se-shape::before {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  border: 2px solid rgba(254, 95, 85, 0.3);
+  border-radius: 50%;
+}
+.sprite-enemy.sprite-core .se-eye {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  background: var(--balatro-red);
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(254, 95, 85, 1), 0 0 40px rgba(254, 95, 85, 0.5);
+  animation: enemyEyePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes enemyEyePulse {
+  0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 0.6; transform: translate(-50%, -50%) scale(0.85); }
+}
+
+/* ────────────────────────────────────────────────────────
+   23. BATTLE ZONE RESTRUCTURED LAYOUT
+   Player sprite on left, terminal center, enemy right
+   ──────────────────────────────────────────────────────── */
+.battle-zone {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: stretch;
+}
+@media (max-width: 640px) {
+  .battle-zone {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .battle-zone .player-stage,
+  .battle-zone .enemy-stage {
+    justify-self: center;
+  }
+}
+.player-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 8px;
+  min-width: 100px;
+}
+.player-stage .player-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.45rem;
+  color: rgba(102, 201, 255, 0.7);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+.enemy-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 8px;
+  min-width: 120px;
+}
+
+/* ────────────────────────────────────────────────────────
+   24. IMPROVED CARD STYLES (larger, more readable)
+   ──────────────────────────────────────────────────────── */
+.card {
+  min-width: 120px;
+  min-height: 155px;
+  padding: 10px 10px 8px;
+}
+@media (min-width: 640px) {
+  .card {
+    min-width: 140px;
+    min-height: 170px;
+  }
+}
+.card .card-code {
+  font-size: 0.82rem;
+  line-height: 1.25;
+}
+@media (min-width: 640px) {
+  .card .card-code {
+    font-size: 0.92rem;
+  }
+}
+.card .card-desc {
+  font-size: 0.62rem;
+  line-height: 1.3;
+  color: rgba(255,255,255,0.7);
+}
+.card .card-ram {
+  font-size: 0.58rem;
+  padding: 2px 6px;
+}
+
+/* ────────────────────────────────────────────────────────
+   25. HUD REDESIGN — cleaner, grouped, less cluttered
+   ──────────────────────────────────────────────────────── */
+.hud-stats {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.hud-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 70px;
+  padding: 8px 12px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  position: relative;
+}
+.hud-stat::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);
+  border-radius: 8px 8px 0 0;
+  pointer-events: none;
+}
+.hud-stat-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.45rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+}
+.hud-stat-value {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: 1.15rem;
+  line-height: 1;
+}
+@media (min-width: 640px) {
+  .hud-stat-value {
+    font-size: 1.35rem;
+  }
+}
+.hud-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+.hud-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transform-origin: left center;
+  transition: transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.hud-bar-fill.hp { background: var(--balatro-green); }
+.hud-bar-fill.ram { background: var(--balatro-blue); }
+.hud-bar-fill.enemy-hp { background: var(--balatro-red); }
+
+/* ────────────────────────────────────────────────────────
+   26. START SCREEN POLISH
+   ──────────────────────────────────────────────────────── */
+.start-hero {
+  position: relative;
+}
+.start-hero::before {
+  content: "";
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(254, 95, 85, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ────────────────────────────────────────────────────────
+   27. REWARD CARDS — improved spacing & readability
+   ──────────────────────────────────────────────────────── */
+.reward-card {
+  padding: 22px 16px;
+  gap: 8px;
+}
+.reward-icon {
+  font-size: 1.7rem;
+}
+.reward-name {
+  font-size: 0.55rem;
+  letter-spacing: 1.5px;
+}
+.reward-desc {
+  font-size: 0.68rem;
+}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

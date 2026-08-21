@@ -62,25 +62,28 @@
                 id="splash-screen"
                 class="relative z-[10] flex flex-col items-center justify-center w-full max-w-[750px] text-center p-8 min-h-[90vh]"
             >
-                <!-- Decorative glow orb -->
+                <!-- Decorative glow orbs -->
                 <div
-                    class="absolute w-[300px] h-[300px] rounded-full blur-[120px] opacity-30 bg-balatro-green top-[10%] left-1/2 -translate-x-1/2 pointer-events-none"
+                    class="absolute w-[300px] h-[300px] rounded-full blur-[120px] opacity-25 bg-balatro-green top-[10%] left-1/2 -translate-x-1/2 pointer-events-none"
+                ></div>
+                <div
+                    class="absolute w-[200px] h-[200px] rounded-full blur-[100px] opacity-15 bg-balatro-red top-[25%] left-3/4 pointer-events-none"
                 ></div>
 
-                <div class="mb-6 relative">
+                <div class="mb-8 relative start-hero">
                     <div
-                        class="text-[0.55rem] font-pixel text-balatro-cyan tracking-[5px] uppercase mb-2"
+                        class="text-[0.6rem] font-pixel text-balatro-cyan tracking-[6px] uppercase mb-3"
                     >
                         CYBER DECKBUILDER
                     </div>
                     <h1
-                        class="glitch splash-title font-display font-black text-[3rem] sm:text-[4.5rem] tracking-[6px] uppercase leading-none relative"
+                        class="glitch splash-title font-display font-black text-[3.2rem] sm:text-[5rem] tracking-[8px] uppercase leading-none relative"
                         data-text="SYNTACK"
                     >
                         SYNTACK
                     </h1>
                     <div
-                        class="text-[0.7rem] sm:text-[0.85rem] font-mono tracking-[3px] mt-2 splash-tagline"
+                        class="text-[0.75rem] sm:text-[0.9rem] font-mono tracking-[4px] mt-3 splash-tagline"
                     >
                         HACK THE MAINFRAME. CONTROL THE LOOPS.
                     </div>
@@ -88,46 +91,46 @@
 
                 <!-- Decorative card fan -->
                 <div
-                    class="flex gap-3 justify-center items-end my-8 select-none"
+                    class="flex gap-4 justify-center items-end my-8 select-none"
                 >
                     <div
-                        class="card w-[90px] h-[125px] p-2 flex flex-col justify-between -rotate-12 translate-y-2 opacity-90 hover:opacity-100"
+                        class="card w-[95px] h-[132px] p-2.5 flex flex-col justify-between -rotate-12 translate-y-2 opacity-90 hover:opacity-100"
                     >
                         <span class="card-sticker rare self-start">RARE</span>
                         <span
-                            class="font-mono text-[0.6rem] text-white font-bold text-center"
+                            class="font-mono text-[0.65rem] text-white font-bold text-center"
                             >ATTACK(x)</span
                         >
                         <span
-                            class="text-[0.5rem] font-pixel text-center text-balatro-red"
+                            class="text-[0.52rem] font-pixel text-center text-balatro-red"
                             >DMG 8</span
                         >
                     </div>
                     <div
-                        class="card w-[100px] h-[140px] p-2 flex flex-col justify-between z-10 -translate-y-1"
+                        class="card w-[108px] h-[150px] p-2.5 flex flex-col justify-between z-10 -translate-y-1"
                     >
                         <span class="card-sticker epic self-start">EPIC</span>
                         <span
-                            class="font-mono text-[0.7rem] text-white font-bold text-center"
+                            class="font-mono text-[0.75rem] text-white font-bold text-center"
                             >for(2x)</span
                         >
                         <span
-                            class="text-[0.5rem] font-pixel text-center text-balatro-gold"
+                            class="text-[0.52rem] font-pixel text-center text-balatro-gold"
                             >MULT ×2</span
                         >
                     </div>
                     <div
-                        class="card w-[90px] h-[125px] p-2 flex flex-col justify-between rotate-12 translate-y-2 opacity-90 hover:opacity-100"
+                        class="card w-[95px] h-[132px] p-2.5 flex flex-col justify-between rotate-12 translate-y-2 opacity-90 hover:opacity-100"
                     >
                         <span class="card-sticker common self-start"
                             >COMMON</span
                         >
                         <span
-                            class="font-mono text-[0.6rem] text-white font-bold text-center"
+                            class="font-mono text-[0.65rem] text-white font-bold text-center"
                             >BLOCK(8)</span
                         >
                         <span
-                            class="text-[0.5rem] font-pixel text-center text-balatro-blue"
+                            class="text-[0.52rem] font-pixel text-center text-balatro-blue"
                             >DEF +8</span
                         >
                     </div>
@@ -135,7 +138,7 @@
 
                 <button
                     id="btn-splash-start"
-                    class="balatro-btn py-4 px-10 text-[0.95rem] sm:text-[1.15rem] mt-4"
+                    class="balatro-btn py-4 px-12 text-[1rem] sm:text-[1.2rem] mt-6"
                     aria-label="Start game"
                 >
                     <svg
@@ -154,7 +157,7 @@
                 </button>
 
                 <p
-                    class="text-[0.55rem] text-white/75 mt-6 tracking-widest uppercase"
+                    class="text-[0.58rem] text-white/65 mt-8 tracking-widest uppercase"
                 >
                     Click anywhere to enable audio
                 </p>
@@ -168,19 +171,37 @@
                 <div
                     class="absolute w-[250px] h-[250px] rounded-full blur-[100px] opacity-20 bg-balatro-gold top-[5%] left-1/2 -translate-x-1/2 pointer-events-none"
                 ></div>
+                <div
+                    class="absolute w-[180px] h-[180px] rounded-full blur-[80px] opacity-12 bg-balatro-red top-[15%] left-[20%] pointer-events-none"
+                ></div>
 
-                <h1
-                    class="home-title font-display font-black text-[2rem] sm:text-[3rem] tracking-[4px] uppercase mb-1 relative"
-                >
-                    SYNTACK
-                </h1>
-                <p
-                    class="text-[0.7rem] text-white/60 mb-10 tracking-[3px] uppercase font-pixel"
-                >
-                    Main Menu
-                </p>
+                <div class="mb-8">
+                    <div
+                        class="text-[0.5rem] font-pixel text-balatro-cyan tracking-[5px] uppercase mb-2"
+                    >
+                        OPERATOR TERMINAL
+                    </div>
+                    <h1
+                        class="home-title font-display font-black text-[2rem] sm:text-[2.8rem] tracking-[5px] uppercase text-balatro-red"
+                    >
+                        SYNTACK
+                    </h1>
+                    <p
+                        class="text-[0.7rem] text-white/50 mt-2 tracking-[3px] uppercase font-pixel"
+                    >
+                        Main Menu
+                    </p>
+                </div>
 
-                <div class="flex flex-col gap-4 w-full max-w-[360px]">
+                <!-- Best Run -->
+                <div
+                    class="text-[0.55rem] font-mono tracking-[1.5px] uppercase text-balatro-gold mb-8 py-2 px-4 border border-balatro-gold/20 rounded bg-balatro-gold/5"
+                    id="best-run-line-home"
+                >
+                    BEST RUN: NODE 0/4
+                </div>
+
+                <div class="flex flex-col gap-3 w-full max-w-[300px]">
                     <button
                         id="btn-menu-start"
                         class="balatro-btn py-4 px-8 text-[1rem]"
@@ -201,7 +222,7 @@
                     </button>
                     <button
                         id="btn-menu-archive"
-                        class="balatro-btn balatro-btn-blue py-4 px-8 text-[1rem]"
+                        class="balatro-btn balatro-btn-blue py-4 px-8 text-[0.9rem]"
                     >
                         <svg
                             class="icon"
@@ -227,7 +248,7 @@
                     </button>
                     <button
                         id="btn-menu-rules"
-                        class="balatro-btn balatro-btn-gold py-4 px-8 text-[1rem]"
+                        class="balatro-btn balatro-btn-gold py-4 px-8 text-[0.9rem]"
                     >
                         <svg
                             class="icon"
@@ -350,82 +371,80 @@
                     </div>
                 </div>
 
-                <!-- Chip Score Displays -->
+                <!-- HUD Stats -->
                 <div
-                    class="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-5"
+                    class="relative z-10 hud-stats mb-5"
                 >
-                    <div class="chip-display p-3 text-center">
-                        <div
-                            class="text-[0.5rem] font-pixel uppercase text-white/55 mb-1"
-                        >
-                            HP
-                        </div>
-                        <div
-                            class="chip-val text-[1.1rem] sm:text-[1.3rem] text-balatro-green"
+                    <div class="hud-stat">
+                        <span class="hud-stat-label">HP</span>
+                        <span
+                            class="hud-stat-value text-balatro-green"
                             id="player-hp"
                         >
                             50/50
-                        </div>
-                        <div class="chip-bar">
+                        </span>
+                        <div class="hud-bar">
                             <div
-                                class="chip-bar-fill fill-hp"
+                                class="hud-bar-fill hp"
                                 style="width: 100%"
                                 id="hpBarFill"
                             ></div>
                         </div>
                     </div>
-                    <div class="chip-display p-3 text-center">
-                        <div
-                            class="text-[0.5rem] font-pixel uppercase text-white/55 mb-1"
-                        >
-                            RAM
-                        </div>
-                        <div
-                            class="chip-val text-[1.1rem] sm:text-[1.3rem] text-balatro-blue"
+                    <div class="hud-stat">
+                        <span class="hud-stat-label">RAM</span>
+                        <span
+                            class="hud-stat-value text-balatro-blue"
                             id="player-ram"
                         >
                             3/3
-                        </div>
-                        <div class="chip-bar">
+                        </span>
+                        <div class="hud-bar">
                             <div
-                                class="chip-bar-fill fill-ram"
+                                class="hud-bar-fill ram"
                                 style="width: 100%"
                                 id="ramBarFill"
                             ></div>
                         </div>
                     </div>
-                    <div class="chip-display p-3 text-center">
-                        <div
-                            class="text-[0.5rem] font-pixel uppercase text-white/55 mb-1"
-                        >
-                            VAR X
-                        </div>
-                        <div
-                            class="chip-val text-[1.1rem] sm:text-[1.3rem] text-balatro-gold"
+                    <div class="hud-stat">
+                        <span class="hud-stat-label">VAR X</span>
+                        <span
+                            class="hud-stat-value text-balatro-gold"
                             id="var-x"
                         >
                             0
-                        </div>
+                        </span>
                     </div>
-                    <div class="chip-display p-3 text-center">
-                        <div
-                            class="text-[0.5rem] font-pixel uppercase text-white/55 mb-1"
-                        >
-                            BLOCK
-                        </div>
-                        <div
-                            class="chip-val text-[1.1rem] sm:text-[1.3rem] text-balatro-purple"
+                    <div class="hud-stat">
+                        <span class="hud-stat-label">BLOCK</span>
+                        <span
+                            class="hud-stat-value text-balatro-purple"
                             id="player-block"
                         >
                             0
-                        </div>
+                        </span>
                     </div>
                 </div>
 
-                <!-- Battle Zone: Terminal + Enemy -->
+                <!-- Battle Zone: Player + Terminal + Enemy -->
                 <div
-                    class="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5"
+                    class="relative z-10 battle-zone mb-5"
                 >
+                    <!-- Player Stage -->
+                    <div class="player-stage">
+                        <div class="sprite-player" id="player-sprite" aria-hidden="true">
+                            <div class="sp-head">
+                                <div class="sp-visor"></div>
+                            </div>
+                            <div class="sp-body">
+                                <div class="sp-circuit"></div>
+                            </div>
+                        </div>
+                        <span class="player-label">OPERATOR</span>
+                    </div>
+
+                    <!-- Terminal -->
                     <div
                         class="terminal p-4 h-[130px] sm:h-[160px] overflow-y-auto text-[0.72rem] leading-[1.7]"
                         id="terminal"
@@ -447,31 +466,38 @@
                         <span class="terminal-cursor" aria-hidden="true"></span>
                     </div>
 
+                    <!-- Enemy Stage -->
                     <div
-                        class="enemy-panel p-4 text-center flex flex-col justify-center"
+                        class="enemy-panel p-4 text-center"
                         id="enemyBox"
                     >
+                        <!-- Enemy sprite (set by JS based on enemy type) -->
+                        <div class="sprite-enemy sprite-daemon" id="enemy-sprite" aria-hidden="true">
+                            <div class="se-shape"></div>
+                            <div class="se-eye"></div>
+                        </div>
+
                         <div
-                            class="font-pixel text-[0.6rem] mb-1 text-balatro-red"
+                            class="font-pixel text-[0.55rem] tracking-[1.5px] text-balatro-red"
                             id="enemy-name"
                         >
                             ▸ FIREWALL DAEMON ◂
                         </div>
                         <div
-                            class="enemy-hp font-display font-black text-[2rem] sm:text-[2.6rem] leading-none mb-2"
+                            class="enemy-hp font-display font-black text-[1.8rem] sm:text-[2.2rem] leading-none"
                             id="enemy-hp"
                         >
                             60/60
                         </div>
-                        <div class="chip-bar mx-auto w-full max-w-[200px]">
+                        <div class="hud-bar mx-auto w-full max-w-[180px]">
                             <div
-                                class="chip-bar-fill fill-enemy"
-                                style="width: 100%; height: 6px"
+                                class="hud-bar-fill enemy-hp"
+                                style="width: 100%"
                                 id="enemyHpFill"
                             ></div>
                         </div>
                         <div
-                            class="intent-box text-[0.6rem] px-3 py-2 rounded-lg tracking-[1px] uppercase inline-flex items-center justify-center gap-2 mt-3 border border-balatro-red/30 bg-balatro-red/10 text-balatro-red"
+                            class="intent-box text-[0.58rem] px-3 py-1.5 rounded-lg tracking-[1px] uppercase inline-flex items-center justify-center gap-1.5 mt-2 border border-balatro-red/30 bg-balatro-red/10 text-balatro-red"
                             id="enemy-intent"
                         >
                             <span class="intent-icon" aria-hidden="true"
@@ -513,19 +539,19 @@
 
                 <!-- Hand Section -->
                 <div class="relative z-10 mb-5">
-                    <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center justify-between mb-3">
                         <span
-                            class="text-[0.55rem] font-pixel tracking-[2px] uppercase text-white/50"
+                            class="text-[0.6rem] font-pixel tracking-[2px] uppercase text-white/60"
                             >// HAND</span
                         >
                         <span
-                            class="text-[0.7rem] font-display font-bold text-balatro-blue"
+                            class="text-[0.75rem] font-display font-bold text-balatro-blue"
                             id="ramDisplay"
                             >RAM: 3/3</span
                         >
                     </div>
                     <div
-                        class="hand-container flex gap-3 overflow-x-auto px-1 pt-7 pb-5 min-h-[190px]"
+                        class="hand-container flex gap-4 overflow-x-auto px-2 pt-8 pb-6 min-h-[200px]"
                         id="hand-container"
                     ></div>
                 </div>
@@ -634,7 +660,7 @@
                     </button>
                 </div>
                 <div
-                    class="space-y-3 text-[0.78rem] leading-[1.7] text-white/80"
+                    class="space-y-4 text-[0.82rem] leading-[1.8] text-white/80"
                 >
                     <p>
                         <strong class="text-balatro-gold">1. RAM Energy:</strong>
@@ -643,18 +669,18 @@
                     <p>
                         <strong class="text-balatro-blue">2. Variable X:</strong>
                         Set
-                        <code class="bg-white/10 px-1 rounded text-[0.7rem]"
+                        <code class="bg-white/10 px-1.5 py-0.5 rounded text-[0.75rem]"
                             >x</code
                         >
                         with cards like
-                        <code class="bg-white/10 px-1 rounded text-[0.7rem]"
+                        <code class="bg-white/10 px-1.5 py-0.5 rounded text-[0.75rem]"
                             >let x = 8</code
                         >. Attack damage scales with x!
                     </p>
                     <p>
                         <strong class="text-balatro-purple">3. For Loops:</strong>
                         Use
-                        <code class="bg-white/10 px-1 rounded text-[0.7rem]"
+                        <code class="bg-white/10 px-1.5 py-0.5 rounded text-[0.75rem]"
                             >for(2x Loop)</code
                         >
                         to multiply your next attack damage!

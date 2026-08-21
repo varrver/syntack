@@ -11,6 +11,25 @@ import { animateHandStagger } from "./motion.js";
 let _termEl = null;
 let _cursorEl = null;
 
+/* ── Enemy sprite mapping ────────────────────────────────────────── */
+const _ENEMY_SPRITE_CLASS = {
+  "FIREWALL DAEMON": "sprite-daemon",
+  "INTRUSION WRAITH": "sprite-wraith",
+  "LOGIC BOMBER": "sprite-bomber",
+  "MAINFRAME CORE": "sprite-core",
+};
+let _lastSpriteClass = "";
+
+export function updateEnemySprite(enemyName) {
+  const el = document.getElementById("enemy-sprite");
+  if (!el) return;
+  const cls = _ENEMY_SPRITE_CLASS[enemyName] || "sprite-daemon";
+  if (cls === _lastSpriteClass) return;
+  el.classList.remove("sprite-daemon", "sprite-wraith", "sprite-bomber", "sprite-core");
+  el.classList.add(cls);
+  _lastSpriteClass = cls;
+}
+
 export function resetTerminal() {
   _termEl = document.getElementById("terminal");
   if (!_termEl) return;
@@ -55,14 +74,14 @@ function _ensureCardTemplate() {
   if (_cardTpl) return _cardTpl;
   _cardTpl = document.createElement("template");
   _cardTpl.innerHTML = `
-    <div class="card min-w-[110px] sm:min-w-[130px] h-[145px] sm:h-[160px] p-2 cursor-pointer shrink-0 flex flex-col justify-between relative border-2"
+    <div class="card min-w-[120px] sm:min-w-[140px] h-[155px] sm:h-[170px] p-2.5 cursor-pointer shrink-0 flex flex-col justify-between relative border-2"
          role="button" tabindex="0">
       <div class="flex justify-between items-center w-full">
         <span class="card-ram text-[0.6rem] bg-balatro-blue text-black font-pixel font-bold px-[4px] py-[1px] rounded"></span>
         <span class="card-sticker"></span>
       </div>
-      <div class="card-code text-[0.7rem] sm:text-[0.8rem] text-white font-bold font-mono my-2 leading-[1.2] text-center"></div>
-      <div class="card-desc text-[0.55rem] text-white/60 leading-[1.2] text-center"></div>
+      <div class="card-code text-[0.82rem] sm:text-[0.92rem] text-white font-bold font-mono my-2 leading-[1.25] text-center"></div>
+      <div class="card-desc text-[0.62rem] text-white/70 leading-[1.3] text-center"></div>
     </div>
   `;
   return _cardTpl;
@@ -156,15 +175,15 @@ export function renderArchiveCards() {
       stickerClass = "epic";
     }
 
-    cardEl.className = `card type-${card.type} h-[130px] p-2 flex flex-col justify-between relative border-2 ${rarityBorder}`;
+    cardEl.className = `card type-${card.type} h-[145px] p-2.5 flex flex-col justify-between relative border-2 ${rarityBorder}`;
     cardEl.setAttribute("role", "listitem");
     cardEl.innerHTML = `
       <div class="flex justify-between items-center w-full">
         <span class="card-ram text-[0.55rem] bg-balatro-blue text-black font-pixel font-bold px-[3px] py-[1px] rounded">${card.ram} RAM</span>
         <span class="card-sticker ${stickerClass}">${card.rarity}</span>
       </div>
-      <div class="card-code text-[0.65rem] text-white font-bold font-mono text-center">${card.code}</div>
-      <div class="card-desc text-[0.5rem] text-white/60 text-center">${card.desc}</div>
+      <div class="card-code text-[0.72rem] text-white font-bold font-mono text-center">${card.code}</div>
+      <div class="card-desc text-[0.58rem] text-white/60 text-center">${card.desc}</div>
     `;
     container.appendChild(cardEl);
   });
