@@ -897,7 +897,7 @@ body::after {
 .sprite-player-2d .char-body {
   position: absolute;
   inset: 0;
-  background-image: url('../sprite/1 Characters/3 Cyborg/Idle1.png');
+  background-image: url('../assets/sprite/1 Characters/3 Cyborg/Idle1.png');
   background-size: 384px 96px;
   background-repeat: no-repeat;
   image-rendering: pixelated;
@@ -917,7 +917,7 @@ body::after {
   height: 24px;
   right: 4px;
   top: 42px;
-  background-image: url('../sprite/2 Guns/6_1.png');
+  background-image: url('../assets/sprite/2 Guns/6_1.png');
   background-size: contain;
   background-repeat: no-repeat;
   image-rendering: pixelated;
@@ -933,7 +933,7 @@ body::after {
   height: 96px;
   right: -60px;
   top: 6px;
-  background-image: url('../sprite/4 Shoot_effects/6_1.png');
+  background-image: url('../assets/sprite/4 Shoot_effects/6_1.png');
   background-size: 576px 96px;
   background-repeat: no-repeat;
   image-rendering: pixelated;
@@ -978,7 +978,7 @@ body::after {
   position: fixed;
   width: 32px;
   height: 10px;
-  background-image: url('../sprite/5 Bullets/5.png');
+  background-image: url('../assets/sprite/5 Bullets/5.png');
   background-size: contain;
   background-repeat: no-repeat;
   image-rendering: pixelated;
