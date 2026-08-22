@@ -345,7 +345,7 @@
                             >BEST RUN: NODE 1/4</span
                         >
                     </div>
-                    <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-3">
                         <button
                             id="btnMute"
                             class="audio-control-btn"
@@ -375,7 +375,7 @@
                 <div
                     class="relative z-10 hud-stats mb-5"
                 >
-                    <div class="hud-stat">
+                    <div class="chip-display hud-stat">
                         <span class="hud-stat-label">HP</span>
                         <span
                             class="hud-stat-value text-balatro-green"
@@ -391,7 +391,7 @@
                             ></div>
                         </div>
                     </div>
-                    <div class="hud-stat">
+                    <div class="chip-display hud-stat">
                         <span class="hud-stat-label">RAM</span>
                         <span
                             class="hud-stat-value text-balatro-blue"
@@ -407,7 +407,7 @@
                             ></div>
                         </div>
                     </div>
-                    <div class="hud-stat">
+                    <div class="chip-display hud-stat">
                         <span class="hud-stat-label">VAR X</span>
                         <span
                             class="hud-stat-value text-balatro-gold"
@@ -416,7 +416,7 @@
                             0
                         </span>
                     </div>
-                    <div class="hud-stat">
+                    <div class="chip-display hud-stat">
                         <span class="hud-stat-label">BLOCK</span>
                         <span
                             class="hud-stat-value text-balatro-purple"
@@ -427,112 +427,44 @@
                     </div>
                 </div>
 
-                <!-- Battle Zone: Player + Terminal + Enemy -->
-                <div
-                    class="relative z-10 battle-zone mb-5"
-                >
-                    <!-- Player Stage -->
-                    <div class="player-stage">
-                        <div class="sprite-player-2d" id="player-sprite" aria-hidden="true">
-                            <div class="char-body"></div>
-                            <div class="char-gun"></div>
+                <!-- Battle Zone: Viewport + Terminal -->
+                <div class="relative z-10 battle-zone mb-5">
+                    <!-- Side-Scrolling Auto-Runner Arena Viewport -->
+                    <div class="arena-viewport-container mb-4 overflow-hidden rounded-xl border border-balatro-blue/40 shadow-[0_0_30px_rgba(0,180,216,0.2)] bg-black/90 relative">
+                        <canvas id="game-canvas" width="820" height="260" class="w-full h-[220px] sm:h-[260px] block cursor-crosshair"></canvas>
+
+                        <!-- Hidden compatibility sprite nodes for DOM queries/a11y -->
+                        <div class="hidden" id="player-sprite" aria-hidden="true">
                             <div class="char-muzzle" id="player-muzzle"></div>
                         </div>
-                        <span class="player-label">OPERATOR</span>
-                    </div>
+                        <div class="hidden" id="enemy-sprite" aria-hidden="true"></div>
 
-                    <!-- Terminal -->
-                    <div
-                        class="terminal p-4 h-[130px] sm:h-[160px] overflow-y-auto text-[0.72rem] leading-[1.7]"
-                        id="terminal"
-                        role="log"
-                        aria-label="System terminal"
-                        aria-live="polite"
-                        tabindex="0"
-                    >
-                        <div
-                            class="terminal-log opacity-0 mb-[2px] text-balatro-red"
-                        >
-                            [SYS] Initializing…
-                        </div>
-                        <div
-                            class="terminal-log opacity-0 mb-[2px] text-balatro-green"
-                        >
-                            [SYS] Firewall detected.
-                        </div>
-                        <span class="terminal-cursor" aria-hidden="true"></span>
-                    </div>
-
-                    <!-- Enemy Stage -->
-                    <div
-                        class="enemy-panel p-4 text-center"
-                        id="enemyBox"
-                    >
-                        <!-- Enemy sprite (set by JS based on enemy type) -->
-                        <div class="sprite-enemy sprite-daemon" id="enemy-sprite" aria-hidden="true">
-                            <div class="se-shape"></div>
-                            <div class="se-eye"></div>
+                        <!-- Floating Enemy HUD Badge (Over Enemy Canvas Position) -->
+                        <div class="absolute top-3 right-4 z-20 flex flex-col items-end pointer-events-none" id="enemyBox">
+                            <div class="font-pixel text-[0.6rem] tracking-[1.5px] text-balatro-red bg-black/75 px-2.5 py-1 rounded border border-balatro-red/40 shadow-md" id="enemy-name">
+                                ▸ FIREWALL DAEMON ◂
+                            </div>
+                            <div class="enemy-hp font-display font-black text-[1.4rem] sm:text-[1.8rem] leading-none text-balatro-red mt-1 drop-shadow-[0_0_8px_rgba(255,0,0,0.6)]" id="enemy-hp">
+                                60/60
+                            </div>
+                            <div class="hud-bar w-[140px] sm:w-[180px] mt-1 bg-black/80 border border-white/10">
+                                <div class="hud-bar-fill enemy-hp" style="width: 100%" id="enemyHpFill"></div>
+                            </div>
+                            <div class="intent-box text-[0.55rem] px-2.5 py-1 rounded tracking-[1px] uppercase inline-flex items-center justify-center gap-1.5 mt-1 border border-balatro-red/30 bg-black/85 text-balatro-red shadow" id="enemy-intent">
+                                <span class="intent-icon" aria-hidden="true"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"></polyline><line x1="13" x2="19" y1="19" y2="13"></line><line x1="16" x2="20" y1="16" y2="20"></line><line x1="19" x2="21" y1="21" y2="19"></line></svg></span>
+                                <span>ATTACK (8 DMG)</span>
+                            </div>
                         </div>
 
-                        <div
-                            class="font-pixel text-[0.55rem] tracking-[1.5px] text-balatro-red"
-                            id="enemy-name"
-                        >
-                            ▸ FIREWALL DAEMON ◂
-                        </div>
-                        <div
-                            class="enemy-hp font-display font-black text-[1.8rem] sm:text-[2.2rem] leading-none"
-                            id="enemy-hp"
-                        >
-                            60/60
-                        </div>
-                        <div class="hud-bar mx-auto w-full max-w-[180px]">
-                            <div
-                                class="hud-bar-fill enemy-hp"
-                                style="width: 100%"
-                                id="enemyHpFill"
-                            ></div>
-                        </div>
-                        <div
-                            class="intent-box text-[0.58rem] px-3 py-1.5 rounded-lg tracking-[1px] uppercase inline-flex items-center justify-center gap-1.5 mt-2 border border-balatro-red/30 bg-balatro-red/10 text-balatro-red"
-                            id="enemy-intent"
-                        >
-                            <span class="intent-icon" aria-hidden="true"
-                                ><svg
-                                    class="icon-sm"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                >
-                                    <polyline
-                                        points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"
-                                    ></polyline>
-                                    <line
-                                        x1="13"
-                                        x2="19"
-                                        y1="19"
-                                        y2="13"
-                                    ></line>
-                                    <line
-                                        x1="16"
-                                        x2="20"
-                                        y1="16"
-                                        y2="20"
-                                    ></line>
-                                    <line
-                                        x1="19"
-                                        x2="21"
-                                        y1="21"
-                                        y2="19"
-                                    ></line></svg
-                            ></span>
-                            <span>ATTACK (8 DMG)</span>
+                        <!-- Floating Player Status Overlay -->
+                        <div class="absolute top-3 left-4 z-20 flex flex-col items-start pointer-events-none">
+                            <div class="font-pixel text-[0.58rem] tracking-[1.5px] text-balatro-cyan bg-black/75 px-2.5 py-1 rounded border border-balatro-cyan/40 shadow-md">
+                                CYBORG OPERATIVE
+                            </div>
                         </div>
                     </div>
                 </div>
+
 
                 <!-- Hand Section -->
                 <div class="relative z-10 mb-5">
@@ -540,11 +472,6 @@
                         <span
                             class="text-[0.6rem] font-pixel tracking-[2px] uppercase text-white/60"
                             >// HAND</span
-                        >
-                        <span
-                            class="text-[0.75rem] font-display font-bold text-balatro-blue"
-                            id="ramDisplay"
-                            >RAM: 3/3</span
                         >
                     </div>
                     <div
@@ -562,6 +489,7 @@
                     >
                     <button
                         id="btn-end-turn"
+                        onclick="endTurn()"
                         class="balatro-btn w-full sm:w-auto py-3 px-8 text-[0.85rem]"
                     >
                         ⟫ EXECUTE TURN ⟪

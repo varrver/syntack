@@ -1,15 +1,9 @@
-/**
- * SYNTACK — Combat System
- * Damage dealing, enemy turns, intent updates, and win/loss checks.
- */
-
-import { player, enemy, run, BOSS_NODE, isAnimating, gameOver, lastPlayRect, setGameOver, setIsAnimating } from "./state.js";
+import { player, enemy, run, BOSS_NODE, isAnimating, gameOver, lastPlayRect, setGameOver, setIsAnimating, playerSprite, enemySprite, projectiles, particles } from "./state.js";
 import { ICONS } from "./icons.js";
 import { log, updateUI } from "./renderer.js";
 import { audioEngine } from "./audio.js";
 import {
   animateHandRecoil,
-  animateAttackBolt,
   animateEnemyDamage,
   animateHitFlash,
   animateFloatDamage,
@@ -26,24 +20,55 @@ export function dealDamageToEnemy(amount) {
 
   const isCrit = amount >= 12;
   const enemyBox = document.getElementById("enemyBox");
+
   if (dealt > 0) {
     animateHandRecoil();
-    animateAttackBolt(lastPlayRect, enemyBox, {
+    
+    // Spawn bullet projectile on canvas from robot gun muzzle to enemy
+    projectiles.push({
+      x: playerSprite.x + 75,
+      y: worldYToMuzzleY(),
+      vx: 850,
+      vy: 0,
+      targetX: enemySprite.x + 25,
       onImpact: () => {
+        enemySprite.animState = "hurt";
+        setTimeout(() => {
+          if (enemySprite.animState === "hurt") enemySprite.animState = "idle";
+        }, 350);
+
+        // Spawn spark particles on impact
+        for (let i = 0; i < 8; i++) {
+          particles.push({
+            x: enemySprite.x + 25,
+            y: worldYToMuzzleY() + (Math.random() * 30 - 15),
+            vx: Math.random() * 200 - 100,
+            vy: Math.random() * 200 - 100,
+            color: isCrit ? "rgb(245, 197, 66)" : "rgb(0, 157, 220)",
+            life: 0.35,
+            maxLife: 0.35,
+            radius: Math.random() * 3 + 2,
+          });
+        }
+
         animateEnemyDamage(enemyBox);
         animateHitFlash(enemyBox, isCrit ? "gold" : "blue");
         audioEngine.playEnemyHit(dealt);
         if (isCrit) animateFloatDamage("CRIT!", "crit", "52%", "20%");
+        animateFloatDamage(`-${dealt}`, isCrit ? "crit" : "enemy", "60%", "30%");
+
+        const enemyHpEl = document.getElementById("enemy-hp");
+        if (enemyHpEl) {
+          enemyHpEl.classList.add("damaged");
+          setTimeout(() => enemyHpEl.classList.remove("damaged"), 400);
+        }
       },
     });
-    animateFloatDamage(`-${dealt}`, isCrit ? "crit" : "enemy", "60%", "30%");
-
-    const enemyHpEl = document.getElementById("enemy-hp");
-    if (enemyHpEl) {
-      enemyHpEl.classList.add("damaged");
-      setTimeout(() => enemyHpEl.classList.remove("damaged"), 400);
-    }
   }
+}
+
+function worldYToMuzzleY() {
+  return 210 - 90 + 45; // groundY - pDrawH + muzzleOffset
 }
 
 export function endTurn(drawHandFn) {
@@ -65,8 +90,18 @@ export function endTurn(drawHandFn) {
 
   const enemyBox = document.getElementById("enemyBox");
   const terminal = document.getElementById("terminal");
+  
+  enemySprite.animState = "attack";
+
   const onImpact = () => {
     animateHitFlash(terminal, "red");
+    if (actualDmg > 0) {
+      playerSprite.animState = "hurt";
+      setTimeout(() => {
+        if (playerSprite.animState === "hurt") playerSprite.animState = "idle";
+      }, 350);
+    }
+
     if (blocked > 0) {
       log(`[BLOCK] Deflected ${blocked} damage!`, "info");
       animateFloatDamage(`BLOCKED ${blocked}`, "block", "25%", "45%");
@@ -82,6 +117,7 @@ export function endTurn(drawHandFn) {
   setIsAnimating(true);
   animateEnemyTelegraph(enemyBox, () => {
     animateEnemyAttack(enemyBox, onImpact, () => {
+      enemySprite.animState = "idle";
       setIsAnimating(false);
     });
   });
@@ -105,23 +141,23 @@ export function updateEnemyIntent() {
   switch (enemy.intent) {
     case "attack":
       intentEl.className =
-        "intent-box text-[0.65rem] px-2 py-1.5 rounded tracking-[1px] uppercase inline-flex items-center justify-center gap-2 mt-2 border border-balatro-red/30 text-balatro-red bg-balatro-red/10";
-      icon.innerHTML = ICONS.sword;
-      text.textContent = `ATTACK (${enemy.attackDmg} DMG)`;
+        "intent-box text-[0.55rem] px-2.5 py-1 rounded tracking-[1px] uppercase inline-flex items-center justify-center gap-1.5 mt-1 border border-balatro-red/30 bg-black/85 text-balatro-red shadow";
+      if (icon) icon.innerHTML = ICONS.sword;
+      if (text) text.textContent = `ATTACK (${enemy.attackDmg} DMG)`;
       break;
     case "defend":
       intentEl.className =
-        "intent-box text-[0.65rem] px-2 py-1.5 rounded tracking-[1px] uppercase inline-flex items-center justify-center gap-2 mt-2 border border-balatro-blue/30 text-balatro-blue bg-balatro-blue/10";
-      icon.innerHTML = ICONS.shield;
-      text.textContent = "DEFENSE MATRIX";
+        "intent-box text-[0.55rem] px-2.5 py-1 rounded tracking-[1px] uppercase inline-flex items-center justify-center gap-1.5 mt-1 border border-balatro-blue/30 bg-black/85 text-balatro-blue shadow";
+      if (icon) icon.innerHTML = ICONS.shield;
+      if (text) text.textContent = "DEFENSE MATRIX";
       enemy.hp = Math.min(enemy.maxHp, enemy.hp + 4);
       log("[ENEMY] Defense Matrix: +4 HP", "warning");
       break;
     case "buff":
       intentEl.className =
-        "intent-box text-[0.65rem] px-2 py-1.5 rounded tracking-[1px] uppercase inline-flex items-center justify-center gap-2 mt-2 border border-balatro-purple/30 text-balatro-purple bg-balatro-purple/10";
-      icon.innerHTML = ICONS.trend;
-      text.textContent = "ATTACK BUFF +3";
+        "intent-box text-[0.55rem] px-2.5 py-1 rounded tracking-[1px] uppercase inline-flex items-center justify-center gap-1.5 mt-1 border border-balatro-purple/30 bg-black/85 text-balatro-purple shadow";
+      if (icon) icon.innerHTML = ICONS.trend;
+      if (text) text.textContent = "ATTACK BUFF +3";
       enemy.attackDmg += 3;
       log("[ENEMY] Attack buffed! DMG ↑", "warning");
       break;
@@ -134,6 +170,7 @@ export function checkWinLoss() {
   const terminal = document.getElementById("terminal");
   if (enemy.hp <= 0) {
     setGameOver(true);
+    enemySprite.animState = "death";
     audioEngine.playVictory();
     animateBurst(enemyBox, "green");
     if (run.node >= BOSS_NODE) {
@@ -163,6 +200,7 @@ export function checkWinLoss() {
     }
   } else if (player.hp <= 0) {
     setGameOver(true);
+    playerSprite.animState = "hurt";
     audioEngine.playDefeat();
     animateBurst(terminal, "red");
     setTimeout(() => {
@@ -177,3 +215,4 @@ export function checkWinLoss() {
     }, 300);
   }
 }
+

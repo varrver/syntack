@@ -5,7 +5,7 @@
  * dealDamageToEnemy is passed as a callback to avoid circular imports.
  */
 
-import { player } from "./state.js";
+import { player, playerSprite } from "./state.js";
 import { animateFloatDamage } from "./motion.js";
 import { log } from "./renderer.js";
 
@@ -33,6 +33,7 @@ export const CARD_TYPES = [
     action: (deal) => {
       let base = player.varX > 0 ? player.varX : 4;
       let total = base * player.loopMult;
+      playerSprite.muzzleFlashTimer = 0.3;
       deal(total);
       log(`EXECUTE ATTACK(${total})!`, "player");
       player.loopMult = 1;
@@ -49,6 +50,7 @@ export const CARD_TYPES = [
       if (player.varX > 5) {
         player.block += 10;
         player.varX += 4;
+        playerSprite.shieldTimer = 0.8;
         log("IF (x > 5) → TRUE! Block +10, x +4", "player");
         animateFloatDamage("+10 Block", "block", "30%", "55%");
         animateFloatDamage("x +4", "buff", "55%", "55%");
@@ -79,6 +81,7 @@ export const CARD_TYPES = [
     type: "defense",
     action: () => {
       player.block += 8;
+      playerSprite.shieldTimer = 0.8;
       log("DEFENSE(8) → Block +8", "player");
       animateFloatDamage("+8 Block", "block", "40%", "60%");
     },
@@ -125,6 +128,7 @@ export const CARD_TYPES = [
     action: (deal) => {
       let dmg = Math.min(12, player.block);
       if (dmg > 0) {
+        playerSprite.muzzleFlashTimer = 0.3;
         deal(dmg);
         log(`PURGE! Converted block → ${dmg} dmg`, "player");
       } else {
@@ -143,6 +147,7 @@ export const CARD_TYPES = [
       const healed = Math.min(player.maxHp - player.hp, 6);
       if (healed > 0) {
         player.hp += healed;
+        playerSprite.shieldTimer = 0.5;
         log(`REBOOT! HP +${healed}`, "player");
         animateFloatDamage(`+${healed} HP`, "heal", "40%", "55%");
       } else {
@@ -164,3 +169,4 @@ export const CARD_TYPES = [
     },
   },
 ];
+

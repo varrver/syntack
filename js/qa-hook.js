@@ -1,10 +1,5 @@
-/**
- * SYNTACK — QA Test Hook
- * Deterministic RNG + URL param forcing for the CDP test harness.
- * Only active when ?test=1&screen=arena is present.
- */
-
-import { run, enemy, gameOver, setGameOver, BOSS_NODE } from "./state.js";
+import { run, enemy, setGameOver, BOSS_NODE } from "./state.js";
+import { updateEnemyIntent } from "./combat.js";
 
 const qaParams = new URLSearchParams(location.search);
 
@@ -44,21 +39,24 @@ export function initQaHook(callbacks) {
   }
 
   const qaNode = Number(qaParams.get("node"));
+  callbacks.initGame();
+
   if (
     Number.isInteger(qaNode) &&
     qaNode >= 1 &&
-    qaNode <= BOSS_NODE &&
-    qaNode !== run.node
+    qaNode <= BOSS_NODE
   ) {
     run.node = qaNode;
+    run.bestNode = Math.max(run.bestNode, qaNode);
+    if (callbacks.loadEnemy) callbacks.loadEnemy();
   }
+
 
   const qaIntent = qaParams.get("intent");
   if (qaIntent === "attack" || qaIntent === "defend" || qaIntent === "buff") {
     enemy.intent = qaIntent;
+    updateEnemyIntent();
   }
-
-  callbacks.initGame();
 
   const qaOutcome = qaParams.get("outcome");
   if (qaOutcome === "reward") {
@@ -75,3 +73,4 @@ export function initQaHook(callbacks) {
     }, 0);
   }
 }
+

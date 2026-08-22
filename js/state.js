@@ -43,6 +43,40 @@ export let run = {
   })(),
 };
 
+export let world = {
+  phase: "BATTLE", // "BATTLE" | "RUNNING" | "VICTORY"
+  scrollX: 0,
+  targetScrollX: 0,
+  scrollSpeed: 180, // px per sec when running
+  groundY: 210,
+};
+
+export let playerSprite = {
+  x: 80,
+  y: 135,
+  width: 96,
+  height: 96,
+  animState: "idle", // "idle" | "walk" | "run" | "shoot" | "hurt"
+  frame: 0,
+  frameTimer: 0,
+  shieldTimer: 0,
+  muzzleFlashTimer: 0,
+};
+
+export let enemySprite = {
+  x: 620,
+  y: 95,
+  width: 144,
+  height: 144,
+  animState: "idle", // "idle" | "run" | "attack" | "hurt" | "death"
+  frame: 0,
+  frameTimer: 0,
+  opacity: 1,
+};
+
+export let projectiles = [];
+export let particles = [];
+
 export let hand = [];
 export let isAnimating = false;
 export let gameOver = false;
@@ -52,3 +86,5 @@ export function setHand(value) { hand = value; }
 export function setIsAnimating(value) { isAnimating = value; }
 export function setGameOver(value) { gameOver = value; }
 export function setLastPlayRect(value) { lastPlayRect = value; }
+export function setWorldPhase(phase) { world.phase = phase; }
+

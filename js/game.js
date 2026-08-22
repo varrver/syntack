@@ -7,16 +7,15 @@
 import {
   player, enemy, run, hand, gameOver, isAnimating, lastPlayRect,
   setHand, setIsAnimating, setGameOver, setLastPlayRect,
-  ENEMY_ROSTER, BOSS_NODE,
+  ENEMY_ROSTER, BOSS_NODE, world, playerSprite, enemySprite, setWorldPhase,
 } from "./state.js";
 import { CARD_TYPES } from "./cards.js";
 import { audioEngine } from "./audio.js";
 import {
   animateCardPlay,
   animateInsufficientRam,
-  animateFloatDamage,
 } from "./motion.js";
-import { resetTerminal, log, renderHand, updateUI, updateEnemySprite } from "./renderer.js";
+import { resetTerminal, log, renderHand, updateUI, updateEnemySprite, drawScene, initCanvasRenderer } from "./renderer.js";
 import { dealDamageToEnemy, endTurn, updateEnemyIntent, checkWinLoss } from "./combat.js";
 import { setupNavigation } from "./navigation.js";
 import {
@@ -27,6 +26,32 @@ import {
 } from "./reward.js";
 import { initQaHook } from "./qa-hook.js";
 import { setupAudioUI } from "./audio-ui.js";
+
+let lastTimestamp = 0;
+
+function gameLoop(timestamp) {
+  const dt = Math.min(0.05, (timestamp - lastTimestamp) / 1000 || 0.016);
+  lastTimestamp = timestamp;
+
+  // Handle side-scroller running transition state between waves
+  if (world.phase === "RUNNING") {
+    world.scrollX += world.scrollSpeed * dt;
+    playerSprite.animState = "run";
+    
+    if (enemySprite.x > 620) {
+      enemySprite.x = Math.max(620, enemySprite.x - 220 * dt);
+      enemySprite.animState = "run";
+    } else {
+      setWorldPhase("BATTLE");
+      playerSprite.animState = "idle";
+      enemySprite.animState = "idle";
+      enemySprite.opacity = 1;
+    }
+  }
+
+  drawScene(dt);
+  requestAnimationFrame(gameLoop);
+}
 
 export function loadEnemy() {
   const def = ENEMY_ROSTER[run.node - 1] || ENEMY_ROSTER[0];
@@ -40,6 +65,12 @@ export function loadEnemy() {
   player.varX = 0;
   player.loopMult = 1;
   player.ram = player.maxRam;
+
+  // Setup enemy entry position for wave transition
+  enemySprite.x = 850;
+  enemySprite.opacity = 1;
+  enemySprite.animState = "run";
+  setWorldPhase("RUNNING");
 
   run.bestNode = Math.max(run.bestNode, run.node);
   try {
@@ -64,12 +95,14 @@ export function loadEnemy() {
   log(`[SYS] Uplink stable · ${CARD_TYPES.length} primitives cached`, "info");
   log(`[SYS] RAM buffer ${player.ram}/${player.maxRam} · standing by`, "info");
   log(
-    `[SYS] Firewall heuristics active — breach the core to advance`,
+    `[SYS] Auto-runner engaged — eliminate node core`,
     "warning",
   );
   log(`[SYS] Compile complete. Awaiting command.`, "info");
   updateEnemyIntent();
+  updateUI();
 }
+
 
 export function initGame() {
   player.hp = 50;
@@ -137,6 +170,9 @@ function endTurnHandler() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  initCanvasRenderer();
+  requestAnimationFrame(gameLoop);
+
   setupNavigation(initGame);
   setupAudioUI();
   wireEndOverlay(initGame);
@@ -149,7 +185,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   initQaHook({
     initGame,
+    loadEnemy,
     showRewardOverlay,
     showEndOverlay,
   });
 });
+
+
+
