@@ -1915,31 +1915,31 @@ body::after {
 }
 
 .parallax-layer.layer-1 {
-  background-image: url('../assets/image/1%20Backgrounds/1/Night/1.png');
+  background-image: url('../assets/sprite/lib/2%20Background/Night/1.png');
   animation: parallaxScroll 90s linear infinite;
   transform: translate3d(calc(var(--parallax-x, 0px) * 0.03), calc(var(--parallax-y, 0px) * 0.02), 0);
 }
 
 .parallax-layer.layer-2 {
-  background-image: url('../assets/image/1%20Backgrounds/1/Night/2.png');
+  background-image: url('../assets/sprite/lib/2%20Background/Night/2.png');
   animation: parallaxScroll 60s linear infinite;
   transform: translate3d(calc(var(--parallax-x, 0px) * 0.08), calc(var(--parallax-y, 0px) * 0.05), 0);
 }
 
 .parallax-layer.layer-3 {
-  background-image: url('../assets/image/1%20Backgrounds/1/Night/3.png');
+  background-image: url('../assets/sprite/lib/2%20Background/Night/3.png');
   animation: parallaxScroll 36s linear infinite;
   transform: translate3d(calc(var(--parallax-x, 0px) * 0.15), calc(var(--parallax-y, 0px) * 0.10), 0);
 }
 
 .parallax-layer.layer-4 {
-  background-image: url('../assets/image/1%20Backgrounds/1/Night/4.png');
+  background-image: url('../assets/sprite/lib/2%20Background/Night/4.png');
   animation: parallaxScroll 22s linear infinite;
   transform: translate3d(calc(var(--parallax-x, 0px) * 0.22), calc(var(--parallax-y, 0px) * 0.16), 0);
 }
 
 .parallax-layer.layer-5 {
-  background-image: url('../assets/image/1%20Backgrounds/1/Night/5.png');
+  background-image: url('../assets/sprite/lib/2%20Background/Night/5.png');
   animation: parallaxScroll 14s linear infinite;
   transform: translate3d(calc(var(--parallax-x, 0px) * 0.32), calc(var(--parallax-y, 0px) * 0.24), 0);
 }
