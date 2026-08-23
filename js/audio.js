@@ -67,6 +67,7 @@ class CyberAudioEngine {
   playHover() {
     if (this.isMuted) return;
     this.ensureContext();
+    if (!this.ctx) return;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
     const now = this.ctx.currentTime;
@@ -88,6 +89,7 @@ class CyberAudioEngine {
   playCard(type) {
     if (this.isMuted) return;
     this.ensureContext();
+    if (!this.ctx) return;
     const now = this.ctx.currentTime;
 
     if (type === "attack") {
@@ -159,6 +161,7 @@ class CyberAudioEngine {
   playInsufficientRam() {
     if (this.isMuted) return;
     this.ensureContext();
+    if (!this.ctx) return;
     const now = this.ctx.currentTime;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
@@ -179,6 +182,7 @@ class CyberAudioEngine {
   playExecuteTurn() {
     if (this.isMuted) return;
     this.ensureContext();
+    if (!this.ctx) return;
     const now = this.ctx.currentTime;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
@@ -199,6 +203,7 @@ class CyberAudioEngine {
   playDamageTaken() {
     if (this.isMuted) return;
     this.ensureContext();
+    if (!this.ctx) return;
     const now = this.ctx.currentTime;
 
     const bufferSize = this.ctx.sampleRate * 0.15;
@@ -229,6 +234,7 @@ class CyberAudioEngine {
   playBlock() {
     if (this.isMuted) return;
     this.ensureContext();
+    if (!this.ctx) return;
     const now = this.ctx.currentTime;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
@@ -252,6 +258,7 @@ class CyberAudioEngine {
   playEnemyHit(damage = 0) {
     if (this.isMuted) return;
     this.ensureContext();
+    if (!this.ctx) return;
     const now = this.ctx.currentTime;
     const dmg = Math.max(0, Math.min(30, Number(damage) || 0));
     const punch = 0.6 + (dmg / 30) * 0.8; // 0.6 (small) → 1.4 (crit)
@@ -286,6 +293,7 @@ class CyberAudioEngine {
   playVictory() {
     if (this.isMuted) return;
     this.ensureContext();
+    if (!this.ctx) return;
 
     if (!this._victoryAudio) {
       this._victoryAudio = new Audio("assets/audio/victory.mp3");
@@ -302,6 +310,7 @@ class CyberAudioEngine {
   playDefeat() {
     if (this.isMuted) return;
     this.ensureContext();
+    if (!this.ctx) return;
     const now = this.ctx.currentTime;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
