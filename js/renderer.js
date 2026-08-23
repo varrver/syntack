@@ -74,18 +74,22 @@ function _ensureCardTemplate() {
   if (_cardTpl) return _cardTpl;
   _cardTpl = document.createElement("template");
   _cardTpl.innerHTML = `
-    <div class="card min-w-[120px] sm:min-w-[140px] h-[155px] sm:h-[170px] p-2.5 cursor-pointer shrink-0 flex flex-col justify-between relative border-2"
+    <div class="card min-w-[130px] sm:min-w-[145px] w-[135px] sm:w-[150px] h-[175px] sm:h-[190px] p-2 sm:p-2.5 cursor-pointer shrink-0 flex flex-col justify-between relative border-0"
          role="button" tabindex="0">
-      <div class="flex justify-between items-center w-full">
-        <span class="card-ram text-[0.6rem] bg-balatro-blue text-black font-pixel font-bold px-[4px] py-[1px] rounded"></span>
+      <div class="flex justify-between items-center w-full z-10 px-0.5 pt-0.5">
+        <span class="card-ram text-[0.52rem] sm:text-[0.56rem] bg-black/85 text-balatro-blue font-pixel font-bold px-1 py-0.5 rounded border border-balatro-blue/40 shadow-sm"></span>
         <span class="card-sticker"></span>
       </div>
-      <div class="card-code text-[0.82rem] sm:text-[0.92rem] text-white font-bold font-mono my-2 leading-[1.25] text-center"></div>
-      <div class="card-desc text-[0.62rem] text-white/70 leading-[1.3] text-center"></div>
+      <div class="card-body-frame my-auto flex flex-col items-center justify-center px-1 z-10">
+        <div class="card-code text-[0.76rem] sm:text-[0.84rem] text-white font-bold font-mono text-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] leading-tight"></div>
+        <div class="card-desc text-[0.55rem] sm:text-[0.58rem] text-white/85 leading-tight text-center mt-1 font-sans"></div>
+      </div>
+      <div class="card-footer-type text-[0.48rem] font-pixel tracking-wider text-center uppercase text-white/60 z-10 pb-0.5"></div>
     </div>
   `;
   return _cardTpl;
 }
+
 
 function _attachHandDelegation(container) {
   if (_delegationAttached) return;
@@ -138,6 +142,9 @@ export function renderHand(playCardFn) {
   hand.forEach((card, index) => {
     const cardEl = tpl.content.firstElementChild.cloneNode(true);
     cardEl.classList.add(`type-${card.type}`, _RARITY_BORDER[card.rarity] || "border-[#3b3f6b]");
+    if (player.ram < card.ram) {
+      cardEl.classList.add("unusable");
+    }
     cardEl.dataset.index = index;
     cardEl.setAttribute("aria-label", `${card.code} — ${card.desc}`);
 
@@ -150,12 +157,18 @@ export function renderHand(playCardFn) {
     cardEl.querySelector(".card-code").textContent = card.code;
     cardEl.querySelector(".card-desc").textContent = card.desc;
 
+    const footerType = cardEl.querySelector(".card-footer-type");
+    if (footerType) {
+      footerType.textContent = card.type;
+    }
+
     fragment.appendChild(cardEl);
   });
 
   container.appendChild(fragment);
   animateHandStagger(container);
 }
+
 
 export function renderArchiveCards() {
   const container = document.getElementById("archive-cards-list");
@@ -164,30 +177,26 @@ export function renderArchiveCards() {
 
   CARD_TYPES.forEach((card) => {
     const cardEl = document.createElement("div");
-    let rarityBorder = "border-[#3b3f6b]";
-    let stickerClass = "common";
+    const stickerClass = card.rarity || "common";
 
-    if (card.rarity === "rare") {
-      rarityBorder = "border-balatro-purple";
-      stickerClass = "rare";
-    } else if (card.rarity === "epic") {
-      rarityBorder = "border-balatro-yellow";
-      stickerClass = "epic";
-    }
-
-    cardEl.className = `card type-${card.type} h-[145px] p-2.5 flex flex-col justify-between relative border-2 ${rarityBorder}`;
+    cardEl.className = `card type-${card.type} h-[175px] p-2 flex flex-col justify-between relative border-0`;
     cardEl.setAttribute("role", "listitem");
     cardEl.innerHTML = `
-      <div class="flex justify-between items-center w-full">
-        <span class="card-ram text-[0.55rem] bg-balatro-blue text-black font-pixel font-bold px-[3px] py-[1px] rounded">${card.ram} RAM</span>
+      <div class="flex justify-between items-center w-full z-10 px-0.5 pt-0.5">
+        <span class="card-ram text-[0.52rem] bg-black/85 text-balatro-blue font-pixel font-bold px-1 py-0.5 rounded border border-balatro-blue/40 shadow-sm">${card.ram} RAM</span>
         <span class="card-sticker ${stickerClass}">${card.rarity}</span>
       </div>
-      <div class="card-code text-[0.72rem] text-white font-bold font-mono text-center">${card.code}</div>
-      <div class="card-desc text-[0.58rem] text-white/60 text-center">${card.desc}</div>
+      <div class="card-body-frame my-auto flex flex-col items-center justify-center px-1 z-10">
+        <div class="card-code text-[0.76rem] text-white font-bold font-mono text-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] leading-tight">${card.code}</div>
+        <div class="card-desc text-[0.55rem] text-white/85 leading-tight text-center mt-1 font-sans">${card.desc}</div>
+      </div>
+      <div class="card-footer-type text-[0.48rem] font-pixel tracking-wider text-center uppercase text-white/60 z-10 pb-0.5">${card.type}</div>
     `;
     container.appendChild(cardEl);
   });
 }
+
+
 
 /* ── Canvas 2D Side-Scrolling Renderer ───────────────────────────── */
 import { world, playerSprite, enemySprite, projectiles, particles } from "./state.js";
@@ -198,38 +207,38 @@ const _images = {};
 
 // Sprite configurations
 const SPRITES = {
-  bgNight: [1, 2, 3, 4, 5].map(n => `assets/sprite/2 Background/Night/${n}.png`),
-  groundTile: "assets/sprite/1 Tiles/Tile_02.png",
-  groundSubTile: "assets/sprite/1 Tiles/Tile_05.png",
+  bgNight: [1, 2, 3, 4, 5].map(n => `assets/sprite/lib/2 Background/Night/${n}.png`),
+  groundTile: "assets/sprite/lib/1 Tiles/Tile_02.png",
+  groundSubTile: "assets/sprite/lib/1 Tiles/Tile_05.png",
   player: {
-    idle: { src: "assets/sprite/1 Characters/3 Cyborg/Idle1.png", frames: 4, width: 48, height: 48 },
-    run: { src: "assets/sprite/1 Characters/3 Cyborg/Run1.png", frames: 6, width: 48, height: 48 },
-    walk: { src: "assets/sprite/1 Characters/3 Cyborg/Walk1.png", frames: 6, width: 48, height: 48 },
-    hurt: { src: "assets/sprite/1 Characters/3 Cyborg/Idle2.png", frames: 4, width: 48, height: 48 },
+    idle: { src: "assets/sprite/player/Idle1.png", frames: 4, width: 48, height: 48 },
+    run: { src: "assets/sprite/player/Run1.png", frames: 6, width: 48, height: 48 },
+    walk: { src: "assets/sprite/player/Walk1.png", frames: 6, width: 48, height: 48 },
+    hurt: { src: "assets/sprite/player/Idle2.png", frames: 4, width: 48, height: 48 },
   },
   enemy1: { // FIREWALL DAEMON
-    idle: { src: "assets/sprite/1 Enemies/1/Idle.png", frames: 4, width: 96, height: 96 },
-    run: { src: "assets/sprite/1 Enemies/1/Run.png", frames: 6, width: 96, height: 96 },
-    attack: { src: "assets/sprite/1 Enemies/1/Attack.png", frames: 6, width: 96, height: 96 },
-    hurt: { src: "assets/sprite/1 Enemies/1/Hurt.png", frames: 2, width: 96, height: 96 },
-    death: { src: "assets/sprite/1 Enemies/1/Death.png", frames: 6, width: 96, height: 96 },
+    idle: { src: "assets/sprite/enemy/0/Idle.png", frames: 4, width: 96, height: 96 },
+    run: { src: "assets/sprite/enemy/0/Run.png", frames: 6, width: 96, height: 96 },
+    attack: { src: "assets/sprite/enemy/0/Attack.png", frames: 6, width: 96, height: 96 },
+    hurt: { src: "assets/sprite/enemy/0/Death.png", frames: 2, width: 96, height: 96 },
+    death: { src: "assets/sprite/enemy/0/Death.png", frames: 6, width: 96, height: 96 },
   },
   enemy2: { // INTRUSION WRAITH
-    idle: { src: "assets/sprite/1 Enemies/2/Idle.png", frames: 6, width: 96, height: 96 },
-    run: { src: "assets/sprite/1 Enemies/2/Drive.png", frames: 6, width: 96, height: 96 },
-    attack: { src: "assets/sprite/1 Enemies/2/Drive.png", frames: 6, width: 96, height: 96 },
-    hurt: { src: "assets/sprite/1 Enemies/2/Hurt.png", frames: 2, width: 96, height: 96 },
-    death: { src: "assets/sprite/1 Enemies/2/Death.png", frames: 4, width: 96, height: 96 },
+    idle: { src: "assets/sprite/enemy/1/Idle.png", frames: 6, width: 96, height: 96 },
+    run: { src: "assets/sprite/enemy/1/Drive.png", frames: 6, width: 96, height: 96 },
+    attack: { src: "assets/sprite/enemy/1/Drive.png", frames: 6, width: 96, height: 96 },
+    hurt: { src: "assets/sprite/enemy/1/Hurt.png", frames: 2, width: 96, height: 96 },
+    death: { src: "assets/sprite/enemy/1/Death.png", frames: 4, width: 96, height: 96 },
   },
   enemy3: { // LOGIC BOMBER / MAINFRAME CORE
-    idle: { src: "assets/sprite/1 Enemies/3/Idle.png", frames: 4, width: 96, height: 96 },
-    run: { src: "assets/sprite/1 Enemies/3/Walk.png", frames: 6, width: 96, height: 96 },
-    attack: { src: "assets/sprite/1 Enemies/3/Attack.png", frames: 6, width: 96, height: 96 },
-    hurt: { src: "assets/sprite/1 Enemies/3/Hurt.png", frames: 2, width: 96, height: 96 },
-    death: { src: "assets/sprite/1 Enemies/3/Death.png", frames: 6, width: 96, height: 96 },
+    idle: { src: "assets/sprite/enemy/2/Idle.png", frames: 4, width: 96, height: 96 },
+    run: { src: "assets/sprite/enemy/2/Walk.png", frames: 6, width: 96, height: 96 },
+    attack: { src: "assets/sprite/enemy/2/Attack.png", frames: 6, width: 96, height: 96 },
+    hurt: { src: "assets/sprite/enemy/2/Hurt.png", frames: 2, width: 96, height: 96 },
+    death: { src: "assets/sprite/enemy/2/Death.png", frames: 6, width: 96, height: 96 },
   },
-  bullet: "assets/sprite/5 Bullets/1.png",
-  muzzleFlash: "assets/sprite/4 Shoot_effects/6_1.png",
+  bullet: "assets/sprite/attack/5.png",
+  muzzleFlash: "assets/sprite/attack/6_1.png",
 };
 
 function _loadImage(src) {
@@ -244,7 +253,7 @@ export function initCanvasRenderer() {
   _canvas = document.getElementById("game-canvas");
   if (!_canvas) return;
   _ctx = _canvas.getContext("2d");
-  
+
   // Preload primary sprites
   SPRITES.bgNight.forEach(_loadImage);
   _loadImage(SPRITES.groundTile);
@@ -362,7 +371,7 @@ export function drawScene(dt = 0.016) {
   if (enemy.hp > 0 || enemySprite.opacity > 0) {
     enemySprite.frameTimer += dt;
     const eSpriteSet = (enemy.name === "INTRUSION WRAITH" ? SPRITES.enemy2 :
-                        enemy.name === "LOGIC BOMBER" ? SPRITES.enemy3 : SPRITES.enemy1);
+      enemy.name === "LOGIC BOMBER" ? SPRITES.enemy3 : SPRITES.enemy1);
     const eAnimConfig = eSpriteSet[enemySprite.animState] || eSpriteSet.idle;
     if (enemySprite.frameTimer >= 0.12) {
       enemySprite.frameTimer = 0;
@@ -472,7 +481,7 @@ export function updateUI() {
   r.playerRam.innerText = `${player.ram}/${player.maxRam}`;
   if (r.ramBarFill)
     r.ramBarFill.style.transform = `scaleX(${Math.min(1, Math.max(0, player.ram / player.maxRam))})`;
-  
+
   if (r.varX) r.varX.innerText = player.varX;
   if (r.playerBlock) r.playerBlock.innerText = player.block;
   if (r.playerBlockVal) r.playerBlockVal.innerText = player.block;

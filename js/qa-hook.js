@@ -25,6 +25,9 @@ export function initQaHook(callbacks) {
   const splash = document.getElementById("splash-screen");
   const home = document.getElementById("home-screen");
   const game = document.getElementById("game-screen");
+  const parallaxBg = document.getElementById("menu-parallax-bg");
+  if (parallaxBg) parallaxBg.classList.add("in-game");
+
   if (splash) {
     splash.classList.add("hidden");
     splash.classList.remove("flex");

@@ -56,6 +56,29 @@ export function setupNavigation(initGameFn) {
   const btnCloseArchive = document.getElementById("btn-close-archive");
   const btnCloseRules = document.getElementById("btn-close-rules");
 
+  const parallaxBg = document.getElementById("menu-parallax-bg");
+
+  if (parallaxBg) {
+    let mouseX = 0;
+    let mouseY = 0;
+    let targetX = 0;
+    let targetY = 0;
+
+    window.addEventListener("mousemove", (e) => {
+      targetX = (e.clientX / window.innerWidth - 0.5) * 50;
+      targetY = (e.clientY / window.innerHeight - 0.5) * 30;
+    });
+
+    function updateParallax() {
+      mouseX += (targetX - mouseX) * 0.06;
+      mouseY += (targetY - mouseY) * 0.06;
+      parallaxBg.style.setProperty("--parallax-x", `${mouseX.toFixed(2)}px`);
+      parallaxBg.style.setProperty("--parallax-y", `${mouseY.toFixed(2)}px`);
+      requestAnimationFrame(updateParallax);
+    }
+    updateParallax();
+  }
+
   if (btnSplashStart) {
     btnSplashStart.onclick = () => {
       audioEngine.ensureContext();
@@ -68,6 +91,7 @@ export function setupNavigation(initGameFn) {
     btnMenuStart.onclick = () => {
       audioEngine.ensureContext();
       audioEngine.playExecuteTurn();
+      if (parallaxBg) parallaxBg.classList.add("in-game");
       animateScreenTransition(homeScreen, gameScreen, initGameFn);
     };
   }
@@ -75,6 +99,7 @@ export function setupNavigation(initGameFn) {
   if (btnGameHome) {
     btnGameHome.onclick = () => {
       audioEngine.playHover();
+      if (parallaxBg) parallaxBg.classList.remove("in-game");
       animateScreenTransition(gameScreen, homeScreen);
     };
   }
