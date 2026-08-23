@@ -65,20 +65,15 @@
     <main class="w-full flex flex-col items-center">
         <!-- ════════════════════ SPLASH SCREEN ════════════════════ -->
         <div id="splash-screen"
-            class="relative z-[10] flex flex-col items-center justify-center w-full max-w-[750px] text-center p-8 min-h-[90vh]">
-            <!-- Decorative glow orbs -->
-            <div
-                class="absolute w-[300px] h-[300px] rounded-full blur-[120px] opacity-25 bg-balatro-green top-[10%] left-1/2 -translate-x-1/2 pointer-events-none">
-            </div>
-            <div
-                class="absolute w-[200px] h-[200px] rounded-full blur-[100px] opacity-15 bg-balatro-red top-[25%] left-3/4 pointer-events-none">
-            </div>
+            class="relative z-[10] flex flex-col items-center justify-center w-full min-h-screen text-center overflow-hidden">
+            <!-- CRT scanline overlay -->
+            <div class="absolute inset-0 pointer-events-none splash-scanlines"></div>
 
             <div class="mb-8 relative start-hero">
                 <div class="text-[0.6rem] font-pixel text-balatro-cyan tracking-[6px] uppercase mb-3">
                     CYBER DECKBUILDER
                 </div>
-                <h1 class="glitch splash-title font-display font-black text-[3.2rem] sm:text-[5rem] tracking-[8px] uppercase leading-none relative"
+                <h1 class="glitch splash-title font-display font-black text-[4rem] sm:text-[6.5rem] tracking-[8px] uppercase leading-none relative"
                     data-text="SYNTACK">
                     SYNTACK
                 </h1>
@@ -87,28 +82,10 @@
                 </div>
             </div>
 
-            <!-- Decorative card fan -->
-            <div class="flex gap-4 justify-center items-end my-8 select-none">
-                <div
-                    class="card w-[95px] h-[132px] p-2.5 flex flex-col justify-between -rotate-12 translate-y-2 opacity-90 hover:opacity-100">
-                    <span class="card-sticker rare self-start">RARE</span>
-                    <span class="font-mono text-[0.65rem] text-white font-bold text-center">ATTACK(x)</span>
-                    <span class="text-[0.52rem] font-pixel text-center text-balatro-red">DMG 8</span>
-                </div>
-                <div class="card w-[108px] h-[150px] p-2.5 flex flex-col justify-between z-10 -translate-y-1">
-                    <span class="card-sticker epic self-start">EPIC</span>
-                    <span class="font-mono text-[0.75rem] text-white font-bold text-center">for(2x)</span>
-                    <span class="text-[0.52rem] font-pixel text-center text-balatro-gold">MULT ×2</span>
-                </div>
-                <div
-                    class="card w-[95px] h-[132px] p-2.5 flex flex-col justify-between rotate-12 translate-y-2 opacity-90 hover:opacity-100">
-                    <span class="card-sticker common self-start">COMMON</span>
-                    <span class="font-mono text-[0.65rem] text-white font-bold text-center">BLOCK(8)</span>
-                    <span class="text-[0.52rem] font-pixel text-center text-balatro-blue">DEF +8</span>
-                </div>
-            </div>
+            <!-- Neon divider -->
+            <div class="splash-divider my-8"></div>
 
-            <button id="btn-splash-start" class="balatro-btn py-4 px-12 text-[1rem] sm:text-[1.2rem] mt-6"
+            <button id="btn-splash-start" class="balatro-btn splash-play-btn py-4 px-12 text-[1rem] sm:text-[1.2rem]"
                 aria-label="Start game">
                 <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -117,8 +94,8 @@
                 PLAY
             </button>
 
-            <p class="text-[0.58rem] text-white/65 mt-8 tracking-widest uppercase">
-                Click anywhere to enable audio
+            <p class="text-[0.5rem] text-white/30 mt-12 tracking-widest uppercase">
+                v0.1 — Built with vanilla JS
             </p>
         </div>
 

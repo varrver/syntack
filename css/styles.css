@@ -1325,6 +1325,53 @@ body::after {
   text-shadow: 0 2px 0 #6b4f00;
 }
 
+/* CRT scanline overlay */
+.splash-scanlines {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.08) 2px,
+    rgba(0, 0, 0, 0.08) 4px
+  );
+  z-index: 1;
+}
+
+/* Neon divider between title and CTA */
+.splash-divider {
+  width: 120px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--balatro-cyan), transparent);
+  box-shadow: 0 0 12px rgb(var(--balatro-cyan-rgb) / 0.5),
+    0 0 24px rgb(var(--balatro-cyan-rgb) / 0.2);
+  border-radius: 1px;
+}
+
+/* PLAY button pulse glow */
+.splash-play-btn {
+  position: relative;
+  animation: splashPulse 2.4s ease-in-out infinite;
+}
+
+@keyframes splashPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 8px rgb(var(--balatro-cyan-rgb) / 0.3),
+      0 0 20px rgb(var(--balatro-cyan-rgb) / 0.1);
+  }
+  50% {
+    box-shadow:
+      0 0 16px rgb(var(--balatro-cyan-rgb) / 0.5),
+      0 0 40px rgb(var(--balatro-cyan-rgb) / 0.25);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash-play-btn {
+    animation: none;
+  }
+}
+
 .home-title {
   color: var(--balatro-gold);
   text-shadow:
