@@ -1329,6 +1329,19 @@ body::after {
   text-shadow: 0 2px 0 #6b4f00;
 }
 
+/* CRT phosphor-line texture — additive light lines only (5% alpha),
+   so the overlay adds grain without darkening the scene */
+.splash-scanlines {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(148, 190, 255, 0.05) 2px,
+    rgba(148, 190, 255, 0.05) 3px
+  );
+  z-index: 1;
+}
+
 /* Neon divider between title and CTA */
 .splash-divider {
   width: 120px;
