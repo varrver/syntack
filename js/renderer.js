@@ -204,6 +204,11 @@ import { world, playerSprite, enemySprite, projectiles, particles } from "./stat
 let _canvas = null;
 let _ctx = null;
 const _images = {};
+const _bgImgs = [];
+let _groundTileImg = null;
+let _groundSubTileImg = null;
+let _bulletImg = null;
+let _muzzleFlashImg = null;
 
 // Sprite configurations
 const SPRITES = {
@@ -253,13 +258,14 @@ export function initCanvasRenderer() {
   _canvas = document.getElementById("game-canvas");
   if (!_canvas) return;
   _ctx = _canvas.getContext("2d");
+  _ctx.imageSmoothingEnabled = false;
 
-  // Preload primary sprites
-  SPRITES.bgNight.forEach(_loadImage);
-  _loadImage(SPRITES.groundTile);
-  _loadImage(SPRITES.groundSubTile);
-  _loadImage(SPRITES.bullet);
-  _loadImage(SPRITES.muzzleFlash);
+  // Preload and cache primary sprites
+  SPRITES.bgNight.forEach(src => _bgImgs.push(_loadImage(src)));
+  _groundTileImg = _loadImage(SPRITES.groundTile);
+  _groundSubTileImg = _loadImage(SPRITES.groundSubTile);
+  _bulletImg = _loadImage(SPRITES.bullet);
+  _muzzleFlashImg = _loadImage(SPRITES.muzzleFlash);
   Object.values(SPRITES.player).forEach(s => _loadImage(s.src));
   Object.values(SPRITES.enemy1).forEach(s => _loadImage(s.src));
   Object.values(SPRITES.enemy2).forEach(s => _loadImage(s.src));
@@ -275,12 +281,11 @@ export function drawScene(dt = 0.016) {
   const h = _canvas.height;
 
   _ctx.clearRect(0, 0, w, h);
-  _ctx.imageSmoothingEnabled = false; // Pixel art look
 
   // 1. Draw Parallax Background
   const speeds = [0.1, 0.25, 0.4, 0.65, 1.0];
-  SPRITES.bgNight.forEach((src, idx) => {
-    const img = _loadImage(src);
+  for (let idx = 0; idx < _bgImgs.length; idx++) {
+    const img = _bgImgs[idx];
     if (img.complete && img.naturalWidth > 0) {
       const speed = speeds[idx] || 0.5;
       const offsetX = (world.scrollX * speed) % w;
@@ -290,10 +295,10 @@ export function drawScene(dt = 0.016) {
       _ctx.fillStyle = idx === 0 ? "#0a0c16" : "rgba(10, 20, 40, 0.15)";
       _ctx.fillRect(0, 0, w, h);
     }
-  });
+  }
 
   // 2. Draw Ground Tiles
-  const groundTileImg = _loadImage(SPRITES.groundTile);
+  const groundTileImg = _groundTileImg;
   const tileSize = 32;
   const tileScale = 1.25; // 40px tiles
   const scaledTile = tileSize * tileScale;
@@ -359,7 +364,7 @@ export function drawScene(dt = 0.016) {
   // Muzzle Flash
   if (playerSprite.muzzleFlashTimer > 0) {
     playerSprite.muzzleFlashTimer -= dt;
-    const mImg = _loadImage(SPRITES.muzzleFlash);
+    const mImg = _muzzleFlashImg;
     const muzzleX = pDrawX + pDrawW - 10;
     const muzzleY = pDrawY + pDrawH / 2 - 12;
     if (mImg.complete && mImg.naturalWidth > 0) {
@@ -411,7 +416,7 @@ export function drawScene(dt = 0.016) {
     proj.x += proj.vx * dt;
     proj.y += proj.vy * dt;
 
-    const bImg = _loadImage(SPRITES.bullet);
+    const bImg = _bulletImg;
     if (bImg.complete && bImg.naturalWidth > 0) {
       _ctx.drawImage(bImg, proj.x, proj.y, 20, 10);
     } else {
@@ -426,10 +431,12 @@ export function drawScene(dt = 0.016) {
     // Collision check with target
     if (proj.vx > 0 && proj.x >= proj.targetX) {
       if (proj.onImpact) proj.onImpact();
-      projectiles.splice(i, 1);
+      projectiles[i] = projectiles[projectiles.length - 1];
+      projectiles.pop();
     } else if (proj.vx < 0 && proj.x <= proj.targetX) {
       if (proj.onImpact) proj.onImpact();
-      projectiles.splice(i, 1);
+      projectiles[i] = projectiles[projectiles.length - 1];
+      projectiles.pop();
     }
   }
 
@@ -440,11 +447,12 @@ export function drawScene(dt = 0.016) {
     p.y += p.vy * dt;
     p.life -= dt;
     if (p.life <= 0) {
-      particles.splice(i, 1);
+      particles[i] = particles[particles.length - 1];
+      particles.pop();
       continue;
     }
     const alpha = p.life / p.maxLife;
-    _ctx.fillStyle = p.color.replace(")", `, ${alpha})`).replace("rgb", "rgba");
+    _ctx.fillStyle = `rgba(${p.r},${p.g},${p.b},${alpha})`;
     _ctx.beginPath();
     _ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
     _ctx.fill();

@@ -28,16 +28,24 @@ import { initQaHook } from "./qa-hook.js";
 import { setupAudioUI } from "./audio-ui.js";
 
 let lastTimestamp = 0;
+let _gameScreenEl = null;
 
 function gameLoop(timestamp) {
+  requestAnimationFrame(gameLoop);
+
+  if (!_gameScreenEl) _gameScreenEl = document.getElementById("game-screen");
+  if (!_gameScreenEl || _gameScreenEl.classList.contains("hidden")) {
+    lastTimestamp = timestamp;
+    return;
+  }
+
   const dt = Math.min(0.05, (timestamp - lastTimestamp) / 1000 || 0.016);
   lastTimestamp = timestamp;
 
-  // Handle side-scroller running transition state between waves
   if (world.phase === "RUNNING") {
     world.scrollX += world.scrollSpeed * dt;
     playerSprite.animState = "run";
-    
+
     if (enemySprite.x > 620) {
       enemySprite.x = Math.max(620, enemySprite.x - 220 * dt);
       enemySprite.animState = "run";
@@ -50,7 +58,6 @@ function gameLoop(timestamp) {
   }
 
   drawScene(dt);
-  requestAnimationFrame(gameLoop);
 }
 
 export function loadEnemy() {
