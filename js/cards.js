@@ -15,7 +15,6 @@ export const CARD_TYPES = [
     ram: 1,
     code: "let x = 8;",
     desc: "Set Variable x = 8",
-    rarity: "common",
     type: "variable",
     action: () => {
       player.varX = 8;
@@ -28,7 +27,6 @@ export const CARD_TYPES = [
     ram: 1,
     code: "ATTACK(x)",
     desc: "Deal dmg = x (Default: 4)",
-    rarity: "common",
     type: "attack",
     action: (deal) => {
       let base = player.varX > 0 ? player.varX : 4;
@@ -44,7 +42,6 @@ export const CARD_TYPES = [
     ram: 1,
     code: "if (x > 5)",
     desc: "If x > 5: +10 Block, +4 ATK",
-    rarity: "rare",
     type: "variable",
     action: () => {
       if (player.varX > 5) {
@@ -64,7 +61,6 @@ export const CARD_TYPES = [
     ram: 2,
     code: "for (2x Loop)",
     desc: "Double next attack damage!",
-    rarity: "epic",
     type: "loop",
     action: () => {
       player.loopMult *= 2;
@@ -77,7 +73,6 @@ export const CARD_TYPES = [
     ram: 1,
     code: "DEFENSE(8)",
     desc: "Gain +8 Block",
-    rarity: "common",
     type: "defense",
     action: () => {
       player.block += 8;
@@ -91,7 +86,6 @@ export const CARD_TYPES = [
     ram: 1,
     code: "x *= 2",
     desc: "Double Variable x",
-    rarity: "rare",
     type: "variable",
     action: () => {
       player.varX *= 2;
@@ -104,7 +98,6 @@ export const CARD_TYPES = [
     ram: 2,
     code: "OVERCLOCK()",
     desc: "Gain +2 RAM (max 5)",
-    rarity: "epic",
     type: "defense",
     action: () => {
       let gained = Math.min(2, 5 - player.maxRam);
@@ -123,7 +116,6 @@ export const CARD_TYPES = [
     ram: 1,
     code: "PURGE()",
     desc: "Deal dmg = Block (max 12)",
-    rarity: "rare",
     type: "attack",
     action: (deal) => {
       let dmg = Math.min(12, player.block);
@@ -141,7 +133,6 @@ export const CARD_TYPES = [
     ram: 1,
     code: "REBOOT()",
     desc: "Heal +6 HP",
-    rarity: "common",
     type: "defense",
     action: () => {
       const healed = Math.min(player.maxHp - player.hp, 6);
@@ -160,7 +151,6 @@ export const CARD_TYPES = [
     ram: 2,
     code: "PARALLEL()",
     desc: "Next attack 3x dmg",
-    rarity: "epic",
     type: "loop",
     action: () => {
       player.loopMult *= 3;

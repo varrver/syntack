@@ -64,12 +64,6 @@ let _playCardFn = null;
 let _delegationAttached = false;
 let _lastHoveredCard = null;
 
-const _RARITY_BORDER = {
-  common: "border-[#3b3f6b]",
-  rare: "border-balatro-purple",
-  epic: "border-balatro-yellow",
-};
-
 function _ensureCardTemplate() {
   if (_cardTpl) return _cardTpl;
   _cardTpl = document.createElement("template");
@@ -77,9 +71,8 @@ function _ensureCardTemplate() {
     <div class="card min-w-[145px] sm:min-w-[160px] w-[150px] sm:w-[165px] h-[185px] sm:h-[200px] p-2 sm:p-2.5 cursor-pointer shrink-0 flex flex-col justify-between relative border-0"
          role="button" tabindex="0">
       <span class="card-type-bar" aria-hidden="true"></span>
-      <div class="flex justify-between items-center w-full z-10 px-0.5 pt-0.5">
+      <div class="flex justify-start items-center w-full z-10 px-0.5 pt-0.5">
         <span class="card-ram text-[0.52rem] sm:text-[0.56rem] bg-black/85 text-balatro-blue font-pixel font-bold px-1 py-0.5 rounded border border-balatro-blue/40 shadow-sm"></span>
-        <span class="card-sticker"></span>
       </div>
       <div class="card-body-frame my-auto flex flex-col items-center justify-center px-1 z-10">
         <div class="card-code text-[0.8rem] sm:text-[0.9rem] text-white font-bold font-mono text-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] leading-tight"></div>
@@ -142,18 +135,13 @@ export function renderHand(playCardFn) {
 
   hand.forEach((card, index) => {
     const cardEl = tpl.content.firstElementChild.cloneNode(true);
-    cardEl.classList.add(`type-${card.type}`, _RARITY_BORDER[card.rarity] || "border-[#3b3f6b]");
+    cardEl.classList.add(`type-${card.type}`);
     if (player.ram < card.ram) {
       cardEl.classList.add("unusable");
     }
     cardEl.dataset.index = index;
     cardEl.setAttribute("aria-label", `${card.code} — ${card.desc}`);
 
-    const sticker = cardEl.querySelector(".card-sticker");
-    if (sticker) {
-      sticker.classList.add(card.rarity || "common");
-      sticker.textContent = card.rarity;
-    }
     cardEl.querySelector(".card-ram").textContent = `${card.ram} RAM`;
     cardEl.querySelector(".card-code").textContent = card.code;
     cardEl.querySelector(".card-desc").textContent = card.desc;
@@ -178,14 +166,12 @@ export function renderArchiveCards() {
 
   CARD_TYPES.forEach((card) => {
     const cardEl = document.createElement("div");
-    const stickerClass = card.rarity || "common";
 
     cardEl.className = `card type-${card.type} h-[175px] p-2 flex flex-col justify-between relative border-0`;
     cardEl.setAttribute("role", "listitem");
     cardEl.innerHTML = `
-      <div class="flex justify-between items-center w-full z-10 px-0.5 pt-0.5">
+      <div class="flex justify-start items-center w-full z-10 px-0.5 pt-0.5">
         <span class="card-ram text-[0.52rem] bg-black/85 text-balatro-blue font-pixel font-bold px-1 py-0.5 rounded border border-balatro-blue/40 shadow-sm">${card.ram} RAM</span>
-        <span class="card-sticker ${stickerClass}">${card.rarity}</span>
       </div>
       <div class="card-body-frame my-auto flex flex-col items-center justify-center px-1 z-10">
         <div class="card-code text-[0.76rem] text-white font-bold font-mono text-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] leading-tight">${card.code}</div>

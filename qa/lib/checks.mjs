@@ -71,9 +71,7 @@ export const arenaData = `(() => {
     cursor: !!document.querySelector('.terminal-cursor'),
     cursorAnim: style(document.querySelector('.terminal-cursor'), 'animationName'),
     handCount: cards.length,
-    handRarityOk: cards.filter((c) =>
-      /#3b3f6b|border-balatro-(purple|yellow)/.test(c.className)
-    ).length,
+    handTypeBars: cards.filter((c) => c.querySelector('.card-type-bar')).length,
     handRamBadges: cards.filter((c) => c.querySelector('.card-ram')).length,
     intentSvg: enemyIntent ? !!enemyIntent.querySelector('svg') : false,
     intentText: enemyIntent ? enemyIntent.textContent.trim() : '',
@@ -253,9 +251,9 @@ export const ARENA_SUITE = [
     detail: (d) => `cursor=${d.cursor} animationName=${d.cursorAnim}`,
   },
   {
-    name: 'A8-hand-four-cards-borders-ram',
-    check: (d) => d.handCount === 4 && d.handRarityOk === 4 && d.handRamBadges === 4,
-    detail: (d) => `cards=${d.handCount} rarityOk=${d.handRarityOk} ramBadges=${d.handRamBadges}`,
+    name: 'A8-hand-four-cards-typebars-ram',
+    check: (d) => d.handCount === 4 && d.handTypeBars === 4 && d.handRamBadges === 4,
+    detail: (d) => `cards=${d.handCount} typeBars=${d.handTypeBars} ramBadges=${d.handRamBadges}`,
   },
   {
     name: 'A9-intent-box-icon-and-label',

@@ -529,36 +529,6 @@ body::after {
   }
 }
 
-.card-sticker {
-
-  font-family: 'Press Start 2P', monospace;
-  font-size: 0.42rem;
-  padding: 2px 6px;
-  border-radius: 3px;
-  text-transform: uppercase;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
-  letter-spacing: 0.5px;
-}
-
-/* Contrast-safe (WCAG AA): white on #56249e ≈ 7.9:1, #d0d6ed on #323854 ≈ 6.7:1 */
-.card-sticker.common {
-  background: #323854;
-  color: #d0d6ed;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-.card-sticker.rare {
-  background: #56249e;
-  color: #fff;
-  border: 1px solid var(--balatro-purple);
-}
-
-.card-sticker.epic {
-  background: var(--balatro-gold);
-  color: #2b1d00;
-  border: 1px solid #ffe885;
-}
-
 
 /* Card play animation */
 @keyframes cardPlay {
