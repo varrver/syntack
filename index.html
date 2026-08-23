@@ -201,23 +201,31 @@
             class="hidden flex flex-col relative z-[10] w-full max-w-[880px] felt-table p-3.5 sm:p-5 m-2 sm:m-4">
             <!-- Top HUD Bar -->
             <div
-                class="relative z-10 flex items-center justify-between mb-4 pb-2 border-b border-white/10 text-[0.7rem]">
+                class="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0 mb-4 pb-2 border-b border-white/10 text-[0.7rem]">
                 <h1 class="sr-only">SYNTACK — Game Arena</h1>
-                <button id="btn-game-home" class="audio-control-btn"
-                    aria-label="Back to main menu">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="m12 19-7-7 7-7"></path>
-                        <path d="M19 12H5"></path>
-                    </svg>
-                    <span>MENU</span>
-                </button>
+                <div class="flex items-center justify-between w-full sm:w-auto">
+                    <button id="btn-game-home" class="audio-control-btn"
+                        aria-label="Back to main menu">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="m12 19-7-7 7-7"></path>
+                            <path d="M19 12H5"></path>
+                        </svg>
+                        <span>MENU</span>
+                    </button>
+                    <div class="flex items-center gap-3 sm:hidden">
+                        <button id="btnMute-mobile" class="audio-control-btn" aria-pressed="false"
+                            aria-label="Toggle sound effects">
+                            <span class="icon-slot"></span>
+                        </button>
+                    </div>
+                </div>
                 <div class="flex flex-col items-center gap-0.5 leading-tight" aria-live="polite">
                     <span class="font-pixel text-[0.55rem] tracking-[1px] text-balatro-gold" id="node-indicator">NODE
                         1/4</span>
                     <span class="text-[0.5rem] text-white/45" id="best-run-line">BEST RUN: NODE 1/4</span>
                 </div>
-                <div class="flex items-center gap-3">
+                <div class="hidden sm:flex items-center gap-3">
                     <button id="btnMute" class="audio-control-btn" aria-pressed="false"
                         aria-label="Toggle sound effects">
                         <span class="icon-slot"></span>
@@ -270,7 +278,7 @@
                 <!-- Side-Scrolling Auto-Runner Arena Viewport -->
                 <div class="arena-viewport-container mb-4 relative">
                     <canvas id="game-canvas" width="820" height="260"
-                        class="w-full h-[220px] sm:h-[260px] block cursor-crosshair"></canvas>
+                        class="w-full h-[160px] sm:h-[260px] block cursor-crosshair"></canvas>
 
                     <!-- Hidden compatibility sprite nodes for DOM queries/a11y -->
                     <div class="hidden" id="player-sprite" aria-hidden="true">
@@ -326,7 +334,7 @@
                 <div class="flex items-center justify-between mb-3">
                     <span class="text-[0.6rem] font-pixel tracking-[2px] uppercase text-white/60">// HAND</span>
                 </div>
-                <div class="hand-container flex gap-4 overflow-x-auto px-2 pt-8 pb-6 min-h-[200px]" id="hand-container">
+                <div class="hand-container flex gap-4 overflow-x-auto px-2 pt-8 pb-6 min-h-[140px] sm:min-h-[200px]" id="hand-container">
                 </div>
             </div>
 

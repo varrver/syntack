@@ -9,16 +9,16 @@ import { ICONS } from "./icons.js";
 export function setupAudioUI() {
   const muteBtn = document.getElementById("btnMute");
   const muteHomeBtn = document.getElementById("btnMuteHome");
+  const muteMobileBtn = document.getElementById("btnMute-mobile");
   const volSlider = document.getElementById("volSlider");
   const volSliderHome = document.getElementById("volSliderHome");
 
   const updateMuteState = (muted) => {
-    [muteBtn, muteHomeBtn].forEach((btn) => {
+    [muteBtn, muteHomeBtn, muteMobileBtn].forEach((btn) => {
       if (btn) {
         btn.classList.toggle("muted", muted);
-        btn.querySelector(".btn-label").textContent = muted
-          ? "AUDIO: OFF"
-          : "AUDIO: ON";
+        const label = btn.querySelector(".btn-label");
+        if (label) label.textContent = muted ? "AUDIO: OFF" : "AUDIO: ON";
         btn.setAttribute("aria-pressed", String(muted));
         const slot = btn.querySelector(".icon-slot");
         if (slot) slot.innerHTML = muted ? ICONS.speakerOff : ICONS.speakerOn;
@@ -26,7 +26,7 @@ export function setupAudioUI() {
     });
   };
 
-  [muteBtn, muteHomeBtn].forEach((btn) => {
+  [muteBtn, muteHomeBtn, muteMobileBtn].forEach((btn) => {
     if (btn) {
       btn.onclick = () => {
         const muted = audioEngine.toggleMute();

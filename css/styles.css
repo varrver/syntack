@@ -1788,6 +1788,17 @@ body::after {
   position: relative;
 }
 
+@media (max-width: 640px) {
+  .hud-stats {
+    gap: 4px;
+  }
+  .hud-stat {
+    min-width: 0;
+    flex: 1 1 0;
+    padding: 5px 4px;
+  }
+}
+
 .hud-stat::after {
   content: "";
   position: absolute;
