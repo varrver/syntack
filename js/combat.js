@@ -140,26 +140,25 @@ export function updateEnemyIntent() {
   const icon = intentEl.querySelector(".intent-icon");
   const text = intentEl.querySelector("span:last-child");
 
+  const INTENT_BASE = "intent-box text-[0.45rem] sm:text-[0.5rem] px-2 py-0.5 rounded tracking-[1px] uppercase inline-flex items-center justify-center gap-1 mt-0.5 bg-black/75";
+
   switch (enemy.intent) {
     case "attack":
-      intentEl.className =
-        "intent-box text-[0.55rem] px-2.5 py-1 rounded tracking-[1px] uppercase inline-flex items-center justify-center gap-1.5 mt-1 border border-balatro-red/30 bg-black/85 text-balatro-red shadow";
+      intentEl.className = `${INTENT_BASE} border border-balatro-red/20 text-balatro-red/80`;
       if (icon) icon.innerHTML = ICONS.sword;
-      if (text) text.textContent = `ATTACK (${enemy.attackDmg} DMG)`;
+      if (text) text.textContent = `ATTACK ${enemy.attackDmg}`;
       break;
     case "defend":
-      intentEl.className =
-        "intent-box text-[0.55rem] px-2.5 py-1 rounded tracking-[1px] uppercase inline-flex items-center justify-center gap-1.5 mt-1 border border-balatro-blue/30 bg-black/85 text-balatro-blue shadow";
+      intentEl.className = `${INTENT_BASE} border border-balatro-blue/20 text-balatro-blue/80`;
       if (icon) icon.innerHTML = ICONS.shield;
-      if (text) text.textContent = "DEFENSE MATRIX";
+      if (text) text.textContent = "DEFEND +4";
       enemy.hp = Math.min(enemy.maxHp, enemy.hp + 4);
       log("[ENEMY] Defense Matrix: +4 HP", "warning");
       break;
     case "buff":
-      intentEl.className =
-        "intent-box text-[0.55rem] px-2.5 py-1 rounded tracking-[1px] uppercase inline-flex items-center justify-center gap-1.5 mt-1 border border-balatro-purple/30 bg-black/85 text-balatro-purple shadow";
+      intentEl.className = `${INTENT_BASE} border border-balatro-purple/20 text-balatro-purple/80`;
       if (icon) icon.innerHTML = ICONS.trend;
-      if (text) text.textContent = "ATTACK BUFF +3";
+      if (text) text.textContent = "BUFF +3";
       enemy.attackDmg += 3;
       log("[ENEMY] Attack buffed! DMG ↑", "warning");
       break;

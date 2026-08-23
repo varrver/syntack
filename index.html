@@ -287,21 +287,23 @@
                     <div class="hidden" id="enemy-sprite" aria-hidden="true"></div>
 
                     <!-- Floating Enemy HUD Badge (Over Enemy Canvas Position) -->
-                    <div class="absolute top-3 right-4 z-20 flex flex-col items-end pointer-events-none" id="enemyBox">
-                        <div class="font-pixel text-[0.6rem] tracking-[1.5px] text-balatro-red bg-black/75 px-2.5 py-1 rounded border border-balatro-red/40 shadow-md"
+                    <div class="absolute top-2 right-2 sm:top-3 sm:right-4 z-20 flex flex-col items-end pointer-events-none" id="enemyBox">
+                        <div class="font-pixel text-[0.5rem] sm:text-[0.6rem] tracking-[1.5px] text-balatro-red bg-black/80 px-2 py-0.5 rounded-t border border-balatro-red/30 border-b-0"
                             id="enemy-name">
-                            ▸ FIREWALL DAEMON ◂
+                            FIREWALL DAEMON
                         </div>
-                        <div class="enemy-hp font-display font-black text-[1.4rem] sm:text-[1.8rem] leading-none text-balatro-red mt-1 drop-shadow-[0_0_8px_rgba(255,0,0,0.6)]"
-                            id="enemy-hp">
-                            60/60
+                        <div class="flex items-center gap-2 bg-black/80 px-2 py-1 rounded-b border border-balatro-red/30 border-t-0">
+                            <div class="enemy-hp font-display font-black text-[0.9rem] sm:text-[1.1rem] leading-none text-balatro-red tabular-nums"
+                                id="enemy-hp">
+                                60/60
+                            </div>
+                            <div class="hud-bar w-[80px] sm:w-[120px] bg-black/60 border border-white/10">
+                                <div class="hud-bar-fill enemy-hp" style="width: 100%" id="enemyHpFill"></div>
+                            </div>
                         </div>
-                        <div class="hud-bar w-[140px] sm:w-[180px] mt-1 bg-black/80 border border-white/10">
-                            <div class="hud-bar-fill enemy-hp" style="width: 100%" id="enemyHpFill"></div>
-                        </div>
-                        <div class="intent-box text-[0.55rem] px-2.5 py-1 rounded tracking-[1px] uppercase inline-flex items-center justify-center gap-1.5 mt-1 border border-balatro-red/30 bg-black/85 text-balatro-red shadow"
+                        <div class="intent-box text-[0.45rem] sm:text-[0.5rem] px-2 py-0.5 rounded tracking-[1px] uppercase inline-flex items-center justify-center gap-1 mt-0.5 border border-balatro-red/20 bg-black/75 text-balatro-red/80"
                             id="enemy-intent">
-                            <span class="intent-icon" aria-hidden="true"><svg class="icon-sm" viewBox="0 0 24 24"
+                            <span class="intent-icon" aria-hidden="true"><svg class="w-3 h-3" viewBox="0 0 24 24"
                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                     stroke-linejoin="round">
                                     <polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"></polyline>
@@ -309,15 +311,7 @@
                                     <line x1="16" x2="20" y1="16" y2="20"></line>
                                     <line x1="19" x2="21" y1="21" y2="19"></line>
                                 </svg></span>
-                            <span>ATTACK (8 DMG)</span>
-                        </div>
-                    </div>
-
-                    <!-- Floating Player Status Overlay -->
-                    <div class="absolute top-3 left-4 z-20 flex flex-col items-start pointer-events-none">
-                        <div
-                            class="font-pixel text-[0.58rem] tracking-[1.5px] text-balatro-cyan bg-black/75 px-2.5 py-1 rounded border border-balatro-cyan/40 shadow-md">
-                            CYBORG OPERATIVE
+                            <span>ATTACK 8</span>
                         </div>
                     </div>
                 </div>

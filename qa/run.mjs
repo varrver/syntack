@@ -325,9 +325,9 @@ async function runReducedMotion(ctx) {
 
 /* ── hook-dependent scenarios (Phase 2 gate — skipped until ?test= exists) ── */
 const INTENT_EXPECT = {
-  attack: /ATTACK \(\d+ DMG\)/,
-  defend: /DEFENSE MATRIX/,
-  buff: /ATTACK BUFF/,
+  attack: /ATTACK \d+/,
+  defend: /DEFEND/,
+  buff: /BUFF/,
 };
 
 async function runIntents(ctx) {

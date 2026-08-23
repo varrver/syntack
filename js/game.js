@@ -85,7 +85,7 @@ export function loadEnemy() {
   } catch {}
 
   const nameEl = document.getElementById("enemy-name");
-  if (nameEl) nameEl.textContent = `▸ ${def.name} ◂`;
+  if (nameEl) nameEl.textContent = def.name;
   updateEnemySprite(def.name);
   const nodeEl = document.getElementById("node-indicator");
   if (nodeEl) nodeEl.textContent = `NODE ${run.node}/${BOSS_NODE}`;
