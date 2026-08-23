@@ -729,6 +729,20 @@ body::after {
   background: rgba(254, 95, 85, 0.08);
 }
 
+#btn-game-home {
+  background: rgba(245, 197, 66, 0.10);
+  border: 1px solid rgba(245, 197, 66, 0.45);
+  color: var(--balatro-gold);
+  padding: 5px 12px;
+  font-size: 0.7rem;
+}
+
+#btn-game-home:hover {
+  background: rgba(245, 197, 66, 0.22);
+  border-color: var(--balatro-gold);
+  box-shadow: 0 0 12px rgba(245, 197, 66, 0.4);
+}
+
 /* ────────────────────────────────────────────────────────
    11. HAND SCROLLBAR
    ──────────────────────────────────────────────────────── */
