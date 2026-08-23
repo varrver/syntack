@@ -101,26 +101,25 @@
 
         <!-- ════════════════════ HOME MENU ════════════════════ -->
         <div id="home-screen"
-            class="hidden relative z-[10] flex flex-col items-center justify-center w-full max-w-[600px] p-8 text-center min-h-[80vh]">
-            <div
-                class="absolute w-[250px] h-[250px] rounded-full blur-[100px] opacity-20 bg-balatro-gold top-[5%] left-1/2 -translate-x-1/2 pointer-events-none">
-            </div>
-            <div
-                class="absolute w-[180px] h-[180px] rounded-full blur-[80px] opacity-12 bg-balatro-red top-[15%] left-[20%] pointer-events-none">
-            </div>
+            class="hidden relative z-[10] flex flex-col items-center justify-center w-full min-h-screen text-center overflow-hidden p-8">
+            <!-- CRT scanline overlay -->
+            <div class="absolute inset-0 pointer-events-none splash-scanlines"></div>
 
             <div class="mb-8">
                 <div class="text-[0.5rem] font-pixel text-balatro-cyan tracking-[5px] uppercase mb-2">
                     OPERATOR TERMINAL
                 </div>
                 <h1
-                    class="home-title font-display font-black text-[2rem] sm:text-[2.8rem] tracking-[5px] uppercase text-balatro-red">
+                    class="home-title font-display font-black text-[2.8rem] sm:text-[4rem] tracking-[5px] uppercase text-balatro-red">
                     SYNTACK
                 </h1>
                 <p class="text-[0.7rem] text-white/50 mt-2 tracking-[3px] uppercase font-pixel">
                     Main Menu
                 </p>
             </div>
+
+            <!-- Neon divider -->
+            <div class="splash-divider my-6"></div>
 
             <!-- Best Run -->
             <div class="text-[0.55rem] font-mono tracking-[1.5px] uppercase text-balatro-gold mb-8 py-2 px-4 border border-balatro-gold/20 rounded bg-balatro-gold/5"
