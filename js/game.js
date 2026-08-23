@@ -176,6 +176,17 @@ function endTurnHandler() {
   endTurn(drawHand);
 }
 
+async function applyBuildLabel() {
+  const el = document.getElementById("splash-build");
+  if (!el) return;
+  try {
+    const { BUILD } = await import("./version.js");
+    el.textContent = `build ${BUILD} — vanilla JS`;
+  } catch {
+    el.textContent = "dev build — vanilla JS";
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   initCanvasRenderer();
   requestAnimationFrame(gameLoop);
@@ -196,6 +207,8 @@ document.addEventListener("DOMContentLoaded", () => {
     showRewardOverlay,
     showEndOverlay,
   });
+
+  applyBuildLabel();
 });
 
 

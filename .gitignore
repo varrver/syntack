@@ -1,3 +1,5 @@
 .agents/
+qa/baselines/
 qa/reports/
 qa/screenshots/
+js/version.js
