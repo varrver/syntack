@@ -1329,18 +1329,6 @@ body::after {
   text-shadow: 0 2px 0 #6b4f00;
 }
 
-/* CRT scanline overlay */
-.splash-scanlines {
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0, 0, 0, 0.08) 2px,
-    rgba(0, 0, 0, 0.08) 4px
-  );
-  z-index: 1;
-}
-
 /* Neon divider between title and CTA */
 .splash-divider {
   width: 120px;
