@@ -253,8 +253,8 @@ export const ARENA_SUITE = [
     detail: (d) => `cursor=${d.cursor} animationName=${d.cursorAnim}`,
   },
   {
-    name: 'A8-hand-five-cards-borders-ram',
-    check: (d) => d.handCount === 5 && d.handRarityOk === 5 && d.handRamBadges === 5,
+    name: 'A8-hand-four-cards-borders-ram',
+    check: (d) => d.handCount === 4 && d.handRarityOk === 4 && d.handRamBadges === 4,
     detail: (d) => `cards=${d.handCount} rarityOk=${d.handRarityOk} ramBadges=${d.handRamBadges}`,
   },
   {
@@ -336,8 +336,8 @@ export const END_TURN_SUITE = [
     detail: (d) => `enemy=${d.enemyHp} player=${d.playerHp}`,
   },
   {
-    name: 'E4-hand-refilled-to-five',
-    check: (d) => d.handCount === 5,
+    name: 'E4-hand-refilled-to-four',
+    check: (d) => d.handCount === 4,
     detail: (d) => `cards=${d.handCount}`,
   },
 ];

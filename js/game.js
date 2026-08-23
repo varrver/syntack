@@ -136,7 +136,7 @@ export function startNextNode() {
 
 export function drawHand() {
   const newHand = [];
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 4; i++) {
     newHand.push({ ...CARD_TYPES[Math.floor(Math.random() * CARD_TYPES.length)] });
   }
   setHand(newHand);

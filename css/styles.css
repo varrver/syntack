@@ -339,6 +339,40 @@ body::after {
   pointer-events: none;
 }
 
+/* Left-edge type indicator bar */
+.card-type-bar {
+  position: absolute;
+  left: 0;
+  top: 12%;
+  bottom: 12%;
+  width: 3px;
+  border-radius: 0 2px 2px 0;
+  background: rgba(80, 120, 200, 0.6);
+  box-shadow: 0 0 8px rgba(80, 120, 200, 0.4);
+  pointer-events: none;
+  z-index: 15;
+}
+
+.card.type-attack .card-type-bar {
+  background: rgba(254, 95, 85, 0.85);
+  box-shadow: 0 0 10px rgba(254, 95, 85, 0.5);
+}
+
+.card.type-defense .card-type-bar {
+  background: rgba(0, 240, 255, 0.85);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+}
+
+.card.type-variable .card-type-bar {
+  background: rgba(137, 87, 229, 0.85);
+  box-shadow: 0 0 10px rgba(137, 87, 229, 0.5);
+}
+
+.card.type-loop .card-type-bar {
+  background: rgba(245, 197, 66, 0.85);
+  box-shadow: 0 0 10px rgba(245, 197, 66, 0.5);
+}
+
 /* ── Per-Type Border Colors & Glows ── */
 .card.type-attack {
   border-color: rgba(254, 95, 85, 0.65);

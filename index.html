@@ -362,29 +362,41 @@
             <div class="space-y-4 text-[0.82rem] leading-[1.8] text-white/80">
                 <p>
                     <strong class="text-balatro-gold">1. RAM Energy:</strong>
-                    Each turn your RAM recharges. Playing cards costs RAM.
+                    Each turn you draw <strong>4 cards</strong> and your RAM recharges.
+                    Playing cards costs RAM.
                 </p>
                 <p>
                     <strong class="text-balatro-blue">2. Variable X:</strong>
-                    Set
-                    <code class="bg-white/10 px-1.5 py-0.5 rounded text-[0.75rem]">x</code>
-                    with cards like
-                    <code class="bg-white/10 px-1.5 py-0.5 rounded text-[0.75rem]">let x = 8</code>. Attack damage
-                    scales with x!
+                    Set the variable with
+                    <code class="bg-white/10 px-1.5 py-0.5 rounded text-[0.75rem]">let x = 8;</code> or double it
+                    with
+                    <code class="bg-white/10 px-1.5 py-0.5 rounded text-[0.75rem]">x *= 2;</code>. Boost x further
+                    with
+                    <code class="bg-white/10 px-1.5 py-0.5 rounded text-[0.75rem]">if (x &gt; 5)</code> — but only if
+                    x is above 5!
                 </p>
                 <p>
-                    <strong class="text-balatro-purple">3. For Loops:</strong>
-                    Use
-                    <code class="bg-white/10 px-1.5 py-0.5 rounded text-[0.75rem]">for(2x Loop)</code>
-                    to multiply your next attack damage!
+                    <strong class="text-balatro-red">3. Attack:</strong>
+                    <code class="bg-white/10 px-1.5 py-0.5 rounded text-[0.75rem]">ATTACK(x)</code> deals damage equal
+                    to x (default 4).
+                    <code class="bg-white/10 px-1.5 py-0.5 rounded text-[0.75rem]">PURGE()</code> converts your Block
+                    into damage.
                 </p>
                 <p>
-                    <strong class="text-balatro-green">4. Block &amp; Defense:</strong>
-                    Accumulate Block to shield your HP from enemy
-                    counter-attacks.
+                    <strong class="text-balatro-purple">4. Loops:</strong>
+                    Multiply your next attack:
+                    <code class="bg-white/10 px-1.5 py-0.5 rounded text-[0.75rem]">for(2x Loop)</code> doubles it,
+                    <code class="bg-white/10 px-1.5 py-0.5 rounded text-[0.75rem]">PARALLEL()</code> triples it!
                 </p>
                 <p>
-                    <strong class="text-balatro-orange">5. End Turn:</strong>
+                    <strong class="text-balatro-green">5. Defense:</strong>
+                    <code class="bg-white/10 px-1.5 py-0.5 rounded text-[0.75rem]">DEFENSE(8)</code> gains Block,
+                    <code class="bg-white/10 px-1.5 py-0.5 rounded text-[0.75rem]">REBOOT()</code> heals HP, and
+                    <code class="bg-white/10 px-1.5 py-0.5 rounded text-[0.75rem]">OVERCLOCK()</code> grants +2 max
+                    RAM.
+                </p>
+                <p>
+                    <strong class="text-balatro-orange">6. End Turn:</strong>
                     Click <strong>"EXECUTE TURN"</strong> to end your turn.
                     The enemy strikes back!
                 </p>

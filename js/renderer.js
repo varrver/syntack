@@ -74,15 +74,16 @@ function _ensureCardTemplate() {
   if (_cardTpl) return _cardTpl;
   _cardTpl = document.createElement("template");
   _cardTpl.innerHTML = `
-    <div class="card min-w-[130px] sm:min-w-[145px] w-[135px] sm:w-[150px] h-[175px] sm:h-[190px] p-2 sm:p-2.5 cursor-pointer shrink-0 flex flex-col justify-between relative border-0"
+    <div class="card min-w-[145px] sm:min-w-[160px] w-[150px] sm:w-[165px] h-[185px] sm:h-[200px] p-2 sm:p-2.5 cursor-pointer shrink-0 flex flex-col justify-between relative border-0"
          role="button" tabindex="0">
+      <span class="card-type-bar" aria-hidden="true"></span>
       <div class="flex justify-between items-center w-full z-10 px-0.5 pt-0.5">
         <span class="card-ram text-[0.52rem] sm:text-[0.56rem] bg-black/85 text-balatro-blue font-pixel font-bold px-1 py-0.5 rounded border border-balatro-blue/40 shadow-sm"></span>
         <span class="card-sticker"></span>
       </div>
       <div class="card-body-frame my-auto flex flex-col items-center justify-center px-1 z-10">
-        <div class="card-code text-[0.76rem] sm:text-[0.84rem] text-white font-bold font-mono text-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] leading-tight"></div>
-        <div class="card-desc text-[0.55rem] sm:text-[0.58rem] text-white/85 leading-tight text-center mt-1 font-sans"></div>
+        <div class="card-code text-[0.8rem] sm:text-[0.9rem] text-white font-bold font-mono text-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] leading-tight"></div>
+        <div class="card-desc text-[0.55rem] sm:text-[0.58rem] text-white/85 leading-tight text-center mt-1.5 font-sans"></div>
       </div>
       <div class="card-footer-type text-[0.48rem] font-pixel tracking-wider text-center uppercase text-white/60 z-10 pb-0.5"></div>
     </div>
