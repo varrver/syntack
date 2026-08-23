@@ -2028,15 +2028,6 @@ body::after {
   transform: translate3d(calc(var(--parallax-x, 0px) * 0.32), calc(var(--parallax-y, 0px) * 0.24), 0);
 }
 
-.parallax-overlay {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at 50% 40%, rgba(8, 10, 20, 0.08) 0%, rgba(8, 10, 20, 0.32) 100%),
-    linear-gradient(180deg, rgba(8, 10, 20, 0.15) 0%, transparent 50%, rgba(8, 10, 20, 0.3) 100%);
-  pointer-events: none;
-}
-
 @keyframes parallaxScroll {
   0% {
     background-position-x: 0vh;
