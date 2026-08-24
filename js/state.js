@@ -66,8 +66,8 @@ export let playerSprite = {
 export let enemySprite = {
   x: 620,
   y: 95,
-  width: 144,
-  height: 144,
+  width: 160,
+  height: 160,
   animState: "idle", // "idle" | "run" | "attack" | "hurt" | "death"
   frame: 0,
   frameTimer: 0,

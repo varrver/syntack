@@ -371,8 +371,8 @@ export function drawScene(dt = 0.016) {
     }
 
     const eImg = _loadImage(eAnimConfig.src);
-    const eDrawW = 120;
-    const eDrawH = 120;
+    const eDrawW = 160;
+    const eDrawH = 160;
     const eDrawX = enemySprite.x;
     const eDrawY = groundY - eDrawH + 10;
 
