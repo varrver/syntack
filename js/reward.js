@@ -105,8 +105,21 @@ export function showCardReward(continueFn) {
       audioEngine.playExecuteTurn();
       setDeck([...deck, card.id]);
       log(`[SYS] Compiled '${card.code}' into cache — ${deck.length} cards.`, "system");
-      hideCardReward();
-      continueFn();
+
+      // Pick feedback beat: lift the chosen card, dim the rest, then move on
+      options.querySelectorAll("button").forEach((b) => {
+        b.disabled = true;
+        b.style.pointerEvents = "none";
+        if (b !== btn) b.style.opacity = "0.2";
+      });
+      btn.style.transform = "translateY(-10px) scale(1.06)";
+      btn.style.outline = "3px solid rgba(52, 211, 153, 0.9)";
+      btn.style.outlineOffset = "2px";
+
+      setTimeout(() => {
+        hideCardReward();
+        continueFn();
+      }, 450);
     };
     options.appendChild(btn);
   });

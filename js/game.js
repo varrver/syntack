@@ -185,15 +185,18 @@ function playCard(index, cardEl) {
   audioEngine.playCard(card.type);
   log(`⟫ Execute: ${card.code}`, "player");
 
-  animateCardPlay(cardEl, () => {
-    setLastPlayRect(cardEl.getBoundingClientRect());
-    card.action(dealDamageToEnemy);
-    hand.splice(index, 1);
-    renderHand(playCard);
-    updateUI();
-    checkWinLoss();
-    setIsAnimating(false);
-  });
+  // Short beat between selection and execution so the pick reads clearly
+  setTimeout(() => {
+    animateCardPlay(cardEl, () => {
+      setLastPlayRect(cardEl.getBoundingClientRect());
+      card.action(dealDamageToEnemy);
+      hand.splice(index, 1);
+      renderHand(playCard);
+      updateUI();
+      checkWinLoss();
+      setIsAnimating(false);
+    });
+  }, 180);
 }
 
 function endTurnHandler() {
