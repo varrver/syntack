@@ -186,7 +186,7 @@ export function renderArchiveCards() {
 
 
 /* ── Canvas 2D Side-Scrolling Renderer ───────────────────────────── */
-import { world, playerSprite, enemySprite, projectiles, particles } from "./state.js";
+import { world, playerSprite, enemySprite, projectiles, particles, screenShake } from "./state.js";
 
 let _canvas = null;
 let _ctx = null;
@@ -197,6 +197,10 @@ let _groundTileImg = null;
 let _groundSubTileImg = null;
 let _bulletImg = null;
 let _muzzleFlashImg = null;
+
+const REDUCED_MOTION =
+  typeof matchMedia !== "undefined" &&
+  matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 // Sprite configurations
 const SPRITES = {
@@ -295,6 +299,13 @@ export function drawScene(dt = 0.016) {
 
   _ctx.setTransform(_viewScale, 0, 0, _viewScale, 0, 0);
   _ctx.clearRect(0, 0, w, h);
+
+  // Screen shake — decaying sinusoidal offset (skipped under reduced motion)
+  if (screenShake.t > 0 && !REDUCED_MOTION) {
+    screenShake.t = Math.max(0, screenShake.t - dt);
+    const k = (screenShake.t / screenShake.duration) * screenShake.intensity;
+    _ctx.translate(Math.sin(screenShake.t * 93) * k, Math.cos(screenShake.t * 71) * k);
+  }
 
   // 1. Draw Parallax Background
   const speeds = [0.1, 0.25, 0.4, 0.65, 1.0];
@@ -400,8 +411,42 @@ export function drawScene(dt = 0.016) {
     const eImg = _loadImage(eAnimConfig.src);
     const eDrawW = 160;
     const eDrawH = 160;
-    const eDrawX = enemySprite.x;
+    let eDrawX = enemySprite.x;
     const eDrawY = groundY - eDrawH + 10;
+
+    // Attack telegraph: pulsing red aura + windup lean while the enemy
+    // intends to attack and hasn't started its attack animation yet
+    if (
+      world.phase === "BATTLE" &&
+      enemy.intent === "attack" &&
+      enemy.hp > 0 &&
+      enemySprite.animState !== "attack"
+    ) {
+      if (REDUCED_MOTION) {
+        // Steady outline, no pulse or movement
+        _ctx.save();
+        _ctx.globalAlpha = 0.4;
+        _ctx.strokeStyle = "#ff3355";
+        _ctx.lineWidth = 4;
+        _ctx.beginPath();
+        _ctx.ellipse(eDrawX + eDrawW / 2, groundY - eDrawH / 2, eDrawW / 1.7, eDrawH / 1.7, 0, 0, Math.PI * 2);
+        _ctx.stroke();
+        _ctx.restore();
+      } else {
+        const pulse = (Math.sin(performance.now() / 1000 * 6) + 1) / 2; // 0..1
+        eDrawX -= 3 + pulse * 5; // windup lean away from player
+        _ctx.save();
+        _ctx.globalAlpha = 0.25 + pulse * 0.3;
+        _ctx.strokeStyle = "#ff3355";
+        _ctx.lineWidth = 4;
+        _ctx.shadowColor = "#ff3355";
+        _ctx.shadowBlur = 18;
+        _ctx.beginPath();
+        _ctx.ellipse(eDrawX + eDrawW / 2, groundY - eDrawH / 2, eDrawW / 1.7, eDrawH / 1.7, 0, 0, Math.PI * 2);
+        _ctx.stroke();
+        _ctx.restore();
+      }
+    }
 
     _ctx.save();
     if (enemySprite.opacity < 1) {

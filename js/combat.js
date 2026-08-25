@@ -1,4 +1,4 @@
-import { player, enemy, run, BOSS_NODE, isAnimating, gameOver, lastPlayRect, setGameOver, setIsAnimating, playerSprite, enemySprite, projectiles, particles } from "./state.js";
+import { player, enemy, run, BOSS_NODE, isAnimating, gameOver, lastPlayRect, setGameOver, setIsAnimating, playerSprite, enemySprite, projectiles, particles, screenShake } from "./state.js";
 import { ICONS } from "./icons.js";
 import { log, updateUI } from "./renderer.js";
 import { audioEngine } from "./audio.js";
@@ -12,6 +12,12 @@ import {
   animateEnemyAttack,
 } from "./motion.js";
 import { showEndOverlay, showRewardOverlay } from "./reward.js";
+
+function triggerShake(intensity = 6, duration = 0.28) {
+  screenShake.intensity = intensity;
+  screenShake.duration = duration;
+  screenShake.t = duration;
+}
 
 export function dealDamageToEnemy(amount) {
   const prevHp = enemy.hp;
@@ -33,6 +39,7 @@ export function dealDamageToEnemy(amount) {
       targetX: enemySprite.x + 25,
       onImpact: () => {
         enemySprite.animState = "hurt";
+        triggerShake(3 + Math.min(7, dealt * 0.4), 0.25);
         setTimeout(() => {
           if (enemySprite.animState === "hurt") enemySprite.animState = "idle";
         }, 350);
@@ -98,10 +105,13 @@ export function endTurn(drawHandFn) {
   const onImpact = () => {
     animateHitFlash(terminal, "red");
     if (actualDmg > 0) {
+      triggerShake(9 + Math.min(6, actualDmg * 0.3), 0.32);
       playerSprite.animState = "hurt";
       setTimeout(() => {
         if (playerSprite.animState === "hurt") playerSprite.animState = "idle";
       }, 350);
+    } else if (blocked > 0) {
+      triggerShake(4, 0.2);
     }
 
     if (blocked > 0) {

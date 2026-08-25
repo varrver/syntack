@@ -77,6 +77,9 @@ export let enemySprite = {
 export let projectiles = [];
 export let particles = [];
 
+// Canvas screen-shake state — mutated by combat.js, applied by renderer.js
+export const screenShake = { t: 0, duration: 0, intensity: 0 };
+
 export let hand = [];
 export let isAnimating = false;
 export let gameOver = false;
