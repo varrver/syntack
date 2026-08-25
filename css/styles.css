@@ -31,17 +31,17 @@
 
 /* ── Cyberpunk Design Tokens ── */
 :root {
-  /* Cyberpunk Void & Terminal Palette */
-  --felt-dark: #080a14;
-  --felt-medium: #0d1124;
-  --felt-light: #141933;
-  --felt-shine: #1c2347;
+  /* Cyberpunk Void & Terminal Palette (brightened midnight-navy) */
+  --felt-dark: #131731;
+  --felt-medium: #1b2142;
+  --felt-light: #262e5c;
+  --felt-shine: #34407a;
 
   /* Cyberpunk Holographic Ambient Tones */
   --swirl-1: #00f0ff;
   --swirl-2: #8957e5;
   --swirl-3: #fe5f55;
-  --swirl-4: #0d1124;
+  --swirl-4: #1b2142;
 
   /* Cyberpunk Neon Accents */
   --balatro-red: #fe5f55;
@@ -54,9 +54,9 @@
   --balatro-orange: #ff7b25;
 
   /* High-Tech Card & Surface Colors */
-  --card-bg: #0d1124;
-  --card-face: #141933;
-  --card-border: #2a3560;
+  --card-bg: #1b2142;
+  --card-face: #242b56;
+  --card-border: #3d4a85;
 
   /* RGB triplets for Tailwind bridge */
   --balatro-red-rgb: 254 95 85;
@@ -139,7 +139,7 @@ body::after {
    2. CYBERPUNK MAINFRAME CHASSIS (Main Arena & Screens)
    ──────────────────────────────────────────────────────── */
 .felt-table {
-  background: #0d1224;
+  background: #1e2549;
   border-width: 22px 14px 14px 14px;
   border-style: solid;
   border-color: transparent;
@@ -226,12 +226,12 @@ body::after {
    4. CHIP-STYLE SCORE DISPLAYS & HUD STAT CARDS
    ──────────────────────────────────────────────────────── */
 .chip-display {
-  background: rgba(13, 17, 36, 0.88);
+  background: rgba(27, 33, 66, 0.88);
   border: 1px solid rgba(0, 240, 255, 0.25);
   border-radius: 8px;
   box-shadow:
     inset 0 1px 3px rgba(0, 0, 0, 0.6),
-    0 4px 0 #080a14,
+    0 4px 0 #131731,
     0 8px 16px rgba(0, 0, 0, 0.5);
   position: relative;
   overflow: hidden;
@@ -1981,7 +1981,7 @@ body::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(8, 10, 24, 0.3);
+  background: rgba(19, 23, 49, 0.3);
 }
 
 /* Dim background when inside battle screen */

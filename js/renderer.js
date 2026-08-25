@@ -317,7 +317,7 @@ export function drawScene(dt = 0.016) {
       _ctx.drawImage(img, -offsetX, 0, w, h);
       _ctx.drawImage(img, w - offsetX, 0, w, h);
     } else {
-      _ctx.fillStyle = idx === 0 ? "#0a0c16" : "rgba(10, 20, 40, 0.15)";
+      _ctx.fillStyle = idx === 0 ? "#161b33" : "rgba(20, 32, 60, 0.15)";
       _ctx.fillRect(0, 0, w, h);
     }
   }
@@ -334,12 +334,12 @@ export function drawScene(dt = 0.016) {
     if (groundTileImg.complete && groundTileImg.naturalWidth > 0) {
       _ctx.drawImage(groundTileImg, x - tileOffsetX, groundY, scaledTile, scaledTile);
     } else {
-      _ctx.fillStyle = "#1b3c33";
+      _ctx.fillStyle = "#2a4f43";
       _ctx.fillRect(x - tileOffsetX, groundY, scaledTile, scaledTile);
     }
   }
   // Fill ground body
-  _ctx.fillStyle = "#0c1d18";
+  _ctx.fillStyle = "#17302a";
   _ctx.fillRect(0, groundY + scaledTile, w, h - (groundY + scaledTile));
 
   // Grid / scanline aesthetic on ground edge
