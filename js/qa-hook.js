@@ -1,5 +1,6 @@
-import { run, enemy, setGameOver, BOSS_NODE } from "./state.js";
+import { run, enemy, world, playerSprite, enemySprite, setGameOver, BOSS_NODE } from "./state.js";
 import { updateEnemyIntent } from "./combat.js";
+import { logicalWorldWidth } from "./renderer.js";
 
 const qaParams = new URLSearchParams(location.search);
 
@@ -17,6 +18,19 @@ if (
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
   Math.random = mulberry32(Number(qaSeedRaw) >>> 0);
+}
+
+// Freeze performance.now() in test mode so time-based canvas FX (e.g. the
+// attack-telegraph aura pulse) render at a fixed phase — golden images stay
+// deterministic. rAF timestamps are unaffected, so dt-driven animation still
+// runs normally.
+if (qaParams.get("test")) {
+  performance.now = () => 1234.5678;
+  // Live refs so harnesses can wait for a stable combat phase and a
+  // canonical sprite frame; renderer latches __qaHold itself when armed
+  window.__world = world;
+  window.__qa = { world, playerSprite, enemySprite };
+  window.__qaArm = true;
 }
 
 export function initQaHook(callbacks) {
@@ -60,6 +74,13 @@ export function initQaHook(callbacks) {
     enemy.intent = qaIntent;
     updateEnemyIntent();
   }
+
+  // Snap straight to battle stance — skipping the RUNNING walk-in keeps
+  // world.scrollX (background offset) identical across capture runs
+  enemySprite.x = logicalWorldWidth() - 200;
+  world.phase = "BATTLE";
+  playerSprite.animState = "idle";
+  enemySprite.animState = "idle";
 
   const qaOutcome = qaParams.get("outcome");
   if (qaOutcome === "reward") {

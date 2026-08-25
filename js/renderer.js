@@ -351,11 +351,14 @@ export function drawScene(dt = 0.016) {
   _ctx.stroke();
 
   // 3. Update & Draw Player Robot Sprite
-  playerSprite.frameTimer += dt;
+  const qaHold = typeof window !== "undefined" && window.__qaHold === true;
   const pAnimConfig = SPRITES.player[playerSprite.animState] || SPRITES.player.idle;
-  if (playerSprite.frameTimer >= 0.12) {
-    playerSprite.frameTimer = 0;
-    playerSprite.frame = (playerSprite.frame + 1) % pAnimConfig.frames;
+  if (!qaHold) {
+    playerSprite.frameTimer += dt;
+    if (playerSprite.frameTimer >= 0.12) {
+      playerSprite.frameTimer = 0;
+      playerSprite.frame = (playerSprite.frame + 1) % pAnimConfig.frames;
+    }
   }
 
   const pImg = _loadImage(pAnimConfig.src);
@@ -399,13 +402,15 @@ export function drawScene(dt = 0.016) {
 
   // 4. Update & Draw Enemy Sprite (Flipped horizontally to face player)
   if (enemy.hp > 0 || enemySprite.opacity > 0) {
-    enemySprite.frameTimer += dt;
     const eSpriteSet = (enemy.name === "INTRUSION WRAITH" ? SPRITES.enemy2 :
       enemy.name === "LOGIC BOMBER" ? SPRITES.enemy3 : SPRITES.enemy1);
     const eAnimConfig = eSpriteSet[enemySprite.animState] || eSpriteSet.idle;
-    if (enemySprite.frameTimer >= 0.12) {
-      enemySprite.frameTimer = 0;
-      enemySprite.frame = (enemySprite.frame + 1) % eAnimConfig.frames;
+    if (!qaHold) {
+      enemySprite.frameTimer += dt;
+      if (enemySprite.frameTimer >= 0.12) {
+        enemySprite.frameTimer = 0;
+        enemySprite.frame = (enemySprite.frame + 1) % eAnimConfig.frames;
+      }
     }
 
     const eImg = _loadImage(eAnimConfig.src);
@@ -515,6 +520,19 @@ export function drawScene(dt = 0.016) {
     _ctx.beginPath();
     _ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
     _ctx.fill();
+  }
+
+  // QA determinism: once battle phase is reached on a canonical sprite frame,
+  // latch the hold flag so subsequent ticks render an identical scene
+  if (
+    !qaHold &&
+    typeof window !== "undefined" &&
+    window.__qaArm === true &&
+    world.phase === "BATTLE" &&
+    playerSprite.frame === 0 &&
+    enemySprite.frame === 0
+  ) {
+    window.__qaHold = true;
   }
 }
 

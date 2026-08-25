@@ -33,11 +33,11 @@ const MANIFEST = 'manifest.json';
 const SHOTS = [
   { name: 'splash', width: 1280, height: 800, navigate: (u) => u },
   { name: 'home', width: 1280, height: 800, navigate: (u) => u, ready: `!!document.getElementById('btn-splash-start')`, click: '#btn-splash-start', wait: `getComputedStyle(document.getElementById('home-screen')).display === 'flex'` },
-  { name: 'arena-desktop', width: 1280, height: 800, hook: { test: 1, screen: 'arena', seed: 1 }, wait: `getComputedStyle(document.getElementById('game-screen')).display === 'flex'` },
-  { name: 'intents-attack', width: 1280, height: 800, hook: { test: 1, screen: 'arena', seed: 1, intent: 'attack' }, wait: `/ATTACK/.test((document.getElementById('enemy-intent')||{}).textContent||'')` },
+  { name: 'arena-desktop', width: 1280, height: 800, hook: { test: 1, screen: 'arena', seed: 1 }, wait: `window.__qaHold === true` },
+  { name: 'intents-attack', width: 1280, height: 800, hook: { test: 1, screen: 'arena', seed: 1, intent: 'attack' }, wait: `/ATTACK/.test((document.getElementById('enemy-intent')||{}).textContent||'') && window.__qaHold === true` },
   { name: 'endoverlay-victory', width: 1280, height: 800, hook: { test: 1, screen: 'arena', seed: 1, outcome: 'victory' }, wait: `getComputedStyle(document.getElementById('end-overlay')).display === 'flex'` },
-  { name: 'arena-mobile', width: 375, height: 667, hook: { test: 1, screen: 'arena', seed: 1 }, wait: `getComputedStyle(document.getElementById('game-screen')).display === 'flex'` },
-  { name: 'arena-landscape', width: 812, height: 375, hook: { test: 1, screen: 'arena', seed: 1 }, wait: `getComputedStyle(document.getElementById('game-screen')).display === 'flex'` },
+  { name: 'arena-mobile', width: 375, height: 667, hook: { test: 1, screen: 'arena', seed: 1 }, wait: `window.__qaHold === true` },
+  { name: 'arena-landscape', width: 812, height: 375, hook: { test: 1, screen: 'arena', seed: 1 }, wait: `window.__qaHold === true` },
 ];
 
 function parseArgs(argv) {
