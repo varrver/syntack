@@ -254,6 +254,11 @@
                         class="w-full h-[160px] sm:h-[260px] block cursor-crosshair"></canvas>
 
                     <!-- Battle intro cutscene overlay -->
+                    <button id="btn-begin-run"
+                        class="hidden absolute left-1/2 bottom-4 -translate-x-1/2 z-30 balatro-btn py-2.5 px-8 text-[0.8rem] border-balatro-red/40">
+                        ▶ INITIATE RUN
+                    </button>
+
                     <div id="battle-intro"
                         class="hidden absolute inset-0 z-30 flex-col items-center justify-center pointer-events-none"
                         aria-hidden="true">
@@ -351,24 +356,6 @@
     </div>
 
     <!-- ════════════════════ RULES MODAL ════════════════════ -->
-    <div id="start-confirm-modal" class="modal-overlay hidden" role="dialog" aria-modal="true"
-        aria-labelledby="start-confirm-title" aria-describedby="start-confirm-desc">
-        <div class="modal-content max-w-[340px] text-center">
-            <h2 id="start-confirm-title" class="font-display font-black text-[1.1rem] text-balatro-red mb-2">
-                ⚠ ENGAGE BATTLE?
-            </h2>
-            <p id="start-confirm-desc" class="text-[0.7rem] text-white/70 font-mono leading-relaxed mb-5">
-                Initiate battle sequence against the intrusion.<br>RAM resets and a new hand compiles.
-            </p>
-            <div class="flex gap-3 justify-center">
-                <button id="btn-cancel-start"
-                    class="balatro-btn py-2.5 px-6 text-[0.75rem]">ABORT</button>
-                <button id="btn-confirm-start"
-                    class="balatro-btn py-2.5 px-6 text-[0.75rem] border-balatro-red/40">ENGAGE</button>
-            </div>
-        </div>
-    </div>
-
     <div id="rules-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="rules-title">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">

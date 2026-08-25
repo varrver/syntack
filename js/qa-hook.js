@@ -75,13 +75,16 @@ export function initQaHook(callbacks) {
     updateEnemyIntent();
   }
 
-  // Snap straight to battle stance — skipping the RUNNING walk-in keeps
-  // world.scrollX (background offset) identical across capture runs
+  // Snap straight to battle stance — skipping the READY interlude and
+  // RUNNING walk-in keeps world.scrollX (background offset) identical
+  // across capture runs
   enemySprite.x = logicalWorldWidth() - 200;
   world.phase = "BATTLE";
   playerSprite.x = 80;
   playerSprite.animState = "idle";
   enemySprite.animState = "idle";
+  const beginPrompt = document.getElementById("btn-begin-run");
+  if (beginPrompt) beginPrompt.classList.add("hidden");
 
   const qaOutcome = qaParams.get("outcome");
   if (qaOutcome === "reward") {

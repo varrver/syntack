@@ -75,18 +75,15 @@ export function loadEnemy() {
   player.loopMult = 1;
   player.ram = player.maxRam;
 
-  // Setup positions for wave transition — enemy stands at the engage
-  // point, player runs in from offscreen left
+  // Battle-ready stance — both stand idle until the run is confirmed
   const engageX = logicalWorldWidth() - 200;
   enemySprite.x = engageX;
   enemySprite.animState = "idle";
   enemySprite.opacity = 1;
-  playerSprite.x = -110;
-  playerSprite.animState = "run";
-  runBattleIntro(run.node, def.name);
-  enemySprite.opacity = 1;
-  enemySprite.animState = "run";
-  setWorldPhase("RUNNING");
+  playerSprite.x = 80;
+  playerSprite.animState = "idle";
+  setWorldPhase("READY");
+  showBeginPrompt();
 
   run.bestNode = Math.max(run.bestNode, run.node);
   try {
@@ -117,6 +114,27 @@ export function loadEnemy() {
   log(`[SYS] Compile complete. Awaiting command.`, "info");
   updateEnemyIntent();
   updateUI();
+}
+
+export function beginBattleRun() {
+  if (world.phase !== "READY" || gameOver) return;
+  hideBeginPrompt();
+  audioEngine.playExecuteTurn();
+  setWorldPhase("RUNNING");
+  playerSprite.animState = "run";
+  runBattleIntro(run.node, enemy.name);
+}
+
+function showBeginPrompt() {
+  const btn = document.getElementById("btn-begin-run");
+  // No autofocus — focusing can scroll short viewports and would make QA
+  // captures nondeterministic; keyboard users reach it via Tab
+  if (btn) btn.classList.remove("hidden");
+}
+
+function hideBeginPrompt() {
+  const btn = document.getElementById("btn-begin-run");
+  if (btn) btn.classList.add("hidden");
 }
 
 
@@ -208,6 +226,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const endTurnBtn = document.getElementById("btn-end-turn");
   if (endTurnBtn) {
     endTurnBtn.addEventListener("click", endTurnHandler);
+  }
+
+  const beginRunBtn = document.getElementById("btn-begin-run");
+  if (beginRunBtn) {
+    beginRunBtn.addEventListener("click", beginBattleRun);
   }
 
   initQaHook({
