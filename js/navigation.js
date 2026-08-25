@@ -95,7 +95,11 @@ export function setupNavigation(initGameFn) {
       audioEngine.playExecuteTurn();
       parallaxActive = false;
       if (parallaxBg) parallaxBg.classList.add("in-game");
-      animateScreenTransition(homeScreen, gameScreen, initGameFn);
+      // Initialize battle state BEFORE the arena becomes visible — otherwise
+      // the canvas paints the stale/default enemy position for a frame,
+      // which reads as the enemy teleporting before its walk-in
+      initGameFn();
+      animateScreenTransition(homeScreen, gameScreen);
     };
   }
 
