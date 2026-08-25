@@ -54,10 +54,11 @@ export let world = {
   phase: "BATTLE", // "BATTLE" | "RUNNING" | "VICTORY"
   groundY: 210,
   // Camera offset: entities live in world coords, drawn at x - camX.
-  // Follows the player during RUNNING/VICTORY, frozen during BATTLE.
+  // Advances under a screen-pinned runner during RUNNING; follows the
+  // player during VICTORY; frozen during BATTLE.
   camX: 0,
-  // True while fighters glide from run-in spacing into battle framing
-  engaging: false,
+  // World distance left to cover in the current node's approach run
+  runRemaining: 0,
 };
 
 export let playerSprite = {
