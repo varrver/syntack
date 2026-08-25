@@ -83,8 +83,6 @@ export function initQaHook(callbacks) {
   playerSprite.x = 80;
   playerSprite.animState = "idle";
   enemySprite.animState = "idle";
-  const beginPrompt = document.getElementById("btn-begin-run");
-  if (beginPrompt) beginPrompt.classList.add("hidden");
 
   const qaOutcome = qaParams.get("outcome");
   if (qaOutcome === "reward") {
