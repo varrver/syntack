@@ -5,6 +5,7 @@ Cyberpunk browser deckbuilder card game. Vanilla JS (ES modules), no build step,
 ## Run
 
 ```sh
+node scripts/gen-version.mjs          # refresh splash build hash (auto-runs on commit via .git/hooks/post-commit)
 python3 -m http.server 8123          # serve from project root
 ```
 
