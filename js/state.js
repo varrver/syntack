@@ -43,6 +43,13 @@ export let run = {
   })(),
 };
 
+// Card ids the player owns — drawHand samples from this pool, card
+// rewards append to it. Grows across the run.
+export let deck = [];
+export function setDeck(next) {
+  deck = next;
+}
+
 export let world = {
   phase: "BATTLE", // "BATTLE" | "RUNNING" | "VICTORY"
   scrollX: 0,

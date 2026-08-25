@@ -160,3 +160,11 @@ export const CARD_TYPES = [
   },
 ];
 
+// Starting deck — 2× ATTACK, 2× DEFENSE(8), let x=8, if(x>5), REBOOT, for-loop.
+// Card rewards append ids here across the run.
+export const STARTER_DECK = [2, 2, 5, 5, 1, 3, 9, 4];
+
+export function getCardById(id) {
+  return CARD_TYPES.find((c) => c.id === id);
+}
+

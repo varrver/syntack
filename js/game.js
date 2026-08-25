@@ -5,11 +5,11 @@
  */
 
 import {
-  player, enemy, run, hand, gameOver, isAnimating, lastPlayRect,
+  player, enemy, run, hand, deck, setDeck, gameOver, isAnimating, lastPlayRect,
   setHand, setIsAnimating, setGameOver, setLastPlayRect,
   ENEMY_ROSTER, BOSS_NODE, world, playerSprite, enemySprite, setWorldPhase,
 } from "./state.js";
-import { CARD_TYPES } from "./cards.js";
+import { CARD_TYPES, STARTER_DECK, getCardById } from "./cards.js";
 import { audioEngine } from "./audio.js";
 import {
   animateCardPlay,
@@ -23,6 +23,7 @@ import {
   wireEndOverlay,
   wireRewardOverlay,
   showRewardOverlay,
+  showCardReward,
   showEndOverlay,
 } from "./reward.js";
 import { initQaHook } from "./qa-hook.js";
@@ -126,6 +127,7 @@ export function initGame() {
   player.varX = 0;
   player.loopMult = 1;
   run.node = 1;
+  setDeck([...STARTER_DECK]);
   setGameOver(false);
   loadEnemy();
   drawHand();
@@ -141,9 +143,11 @@ export function startNextNode() {
 }
 
 export function drawHand() {
+  // Sample from the run's deck — rewards grow it, so odds shift as you pick
+  const pool = deck.length ? deck : CARD_TYPES.map((c) => c.id);
   const newHand = [];
   for (let i = 0; i < 4; i++) {
-    newHand.push({ ...CARD_TYPES[Math.floor(Math.random() * CARD_TYPES.length)] });
+    newHand.push({ ...getCardById(pool[Math.floor(Math.random() * pool.length)]) });
   }
   setHand(newHand);
   renderHand(playCard);
@@ -200,7 +204,13 @@ document.addEventListener("DOMContentLoaded", () => {
   setupNavigation(initGame);
   setupAudioUI();
   wireEndOverlay(initGame);
-  wireRewardOverlay(startNextNode);
+  wireRewardOverlay(() => {
+    showCardReward(() => {
+      startNextNode();
+      const firstCard = document.querySelector("#hand-container .card");
+      if (firstCard) firstCard.focus();
+    });
+  });
 
   const endTurnBtn = document.getElementById("btn-end-turn");
   if (endTurnBtn) {
