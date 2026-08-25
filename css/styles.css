@@ -2057,3 +2057,65 @@ body::after {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ────────────────────────────────────────────────────────
+   29. BATTLE INTRO CUTSCENE — warning blink + node title card
+   Overlay lives over the arena viewport; JS drives the timeline
+   ──────────────────────────────────────────────────────── */
+.battle-intro-warning {
+  background: rgba(19, 23, 49, 0.88);
+  border-top: 1px solid var(--balatro-red);
+  border-bottom: 1px solid var(--balatro-red);
+  padding: 4px 14px;
+  box-shadow: 0 0 18px rgb(var(--balatro-red-rgb) / 0.35);
+}
+
+.battle-intro-active .battle-intro-warning {
+  animation: introWarningBlink 0.35s linear infinite;
+}
+
+@keyframes introWarningBlink {
+
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+.battle-intro-title {
+  opacity: 0;
+  transform: translateY(14px);
+  text-shadow: 0 0 12px rgb(var(--balatro-cyan-rgb) / 0.6),
+    0 2px 6px rgba(0, 0, 0, 0.9);
+}
+
+.battle-intro-active .battle-intro-title {
+  animation: introTitleIn 0.45s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+}
+
+@keyframes introTitleIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.92);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.battle-intro-active.battle-intro-exit {
+  animation: introFadeOut 0.4s ease forwards;
+}
+
+@keyframes introFadeOut {
+  to {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+}

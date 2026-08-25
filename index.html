@@ -253,6 +253,16 @@
                     <canvas id="game-canvas" width="820" height="260"
                         class="w-full h-[160px] sm:h-[260px] block cursor-crosshair"></canvas>
 
+                    <!-- Battle intro cutscene overlay -->
+                    <div id="battle-intro"
+                        class="hidden absolute inset-0 z-30 flex-col items-center justify-center pointer-events-none"
+                        aria-hidden="true">
+                        <div id="battle-intro-warning"
+                            class="battle-intro-warning font-pixel text-[0.55rem] sm:text-[0.7rem] tracking-[2px] sm:tracking-[3px] text-balatro-red uppercase"></div>
+                        <div id="battle-intro-title"
+                            class="battle-intro-title font-pixel text-[0.75rem] sm:text-[1rem] tracking-[2px] sm:tracking-[4px] text-white mt-2 uppercase"></div>
+                    </div>
+
                     <!-- Hidden compatibility sprite nodes for DOM queries/a11y -->
                     <div class="hidden" id="player-sprite" aria-hidden="true">
                         <div class="char-muzzle" id="player-muzzle"></div>

@@ -14,6 +14,7 @@ import { audioEngine } from "./audio.js";
 import {
   animateCardPlay,
   animateInsufficientRam,
+  runBattleIntro,
 } from "./motion.js";
 import { resetTerminal, log, renderHand, updateUI, updateEnemySprite, drawScene, initCanvasRenderer, logicalWorldWidth } from "./renderer.js";
 import { dealDamageToEnemy, endTurn, updateEnemyIntent, checkWinLoss } from "./combat.js";
@@ -76,6 +77,7 @@ export function loadEnemy() {
 
   // Setup enemy entry position for wave transition
   enemySprite.x = logicalWorldWidth() + 30;
+  runBattleIntro(run.node, def.name);
   enemySprite.opacity = 1;
   enemySprite.animState = "run";
   setWorldPhase("RUNNING");

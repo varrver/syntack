@@ -570,3 +570,29 @@ export function animateFloatDamage(text, type, left, top) {
   } catch (err) {}
   setTimeout(() => _releaseFloat(el), FLOAT_MS + 100);
 }
+
+/* Battle intro cutscene — warning blink + node/enemy title card.
+   Overlay auto-hides after ~2s; skipped entirely under reduced motion. */
+export function runBattleIntro(nodeNum, enemyName) {
+  const wrap = document.getElementById("battle-intro");
+  if (!wrap || REDUCED_MOTION) return;
+  const warn = document.getElementById("battle-intro-warning");
+  const title = document.getElementById("battle-intro-title");
+  if (!warn || !title) return;
+
+  warn.textContent = `⚠ INTRUSION DETECTED — NODE ${nodeNum}`;
+  title.textContent = `// ${enemyName}`;
+
+  clearTimeout(runBattleIntro._t1);
+  clearTimeout(runBattleIntro._t2);
+  wrap.classList.remove("hidden", "battle-intro-exit");
+  wrap.classList.add("flex", "battle-intro-active");
+
+  runBattleIntro._t1 = setTimeout(() => {
+    wrap.classList.add("battle-intro-exit");
+  }, 1600);
+  runBattleIntro._t2 = setTimeout(() => {
+    wrap.classList.add("hidden");
+    wrap.classList.remove("flex", "battle-intro-active", "battle-intro-exit");
+  }, 2050);
+}
