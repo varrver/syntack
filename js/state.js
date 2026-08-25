@@ -66,6 +66,9 @@ export let world = {
   camX: 0,
   // World distance left to cover in the current node's approach run
   runRemaining: 0,
+  // Approach scroll speed (px/s) — derived in loadEnemy from the node
+  // distance so every run-in lands in ~1.6s regardless of node depth
+  runSpeed: 0,
 };
 
 export let playerSprite = {

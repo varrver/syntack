@@ -12,7 +12,7 @@ import { animate, spring, stagger } from "../vendor/motion.esm.js";
    (still firing completion callbacks so game flow/state is unaffected).
    The golden-image suite runs with reduced-motion emulation, which keeps
    pixel captures deterministic. */
-const REDUCED_MOTION =
+export const REDUCED_MOTION =
   typeof matchMedia === "function" &&
   matchMedia("(prefers-reduced-motion: reduce)").matches;
 

@@ -17,6 +17,7 @@ import {
   animateInsufficientRam,
   runBattleIntro,
   animateScreenTransition,
+  REDUCED_MOTION,
 } from "./motion.js";
 import { resetTerminal, log, renderHand, updateUI, updateEnemySprite, drawScene, initCanvasRenderer, logicalWorldWidth } from "./renderer.js";
 import { dealDamageToEnemy, endTurn, updateEnemyIntent, checkWinLoss } from "./combat.js";
@@ -50,7 +51,11 @@ function gameLoop(timestamp) {
     // Treadmill approach — the player holds screen-left while the camera
     // pushes down the corridor. The enemy is anchored in the world, so
     // closing the distance reads as walking up to a standing foe.
-    const step = Math.min(250 * dt, world.runRemaining);
+    // Reduced motion skips the run entirely (arrives on the first frame).
+    const step = Math.min(
+      (REDUCED_MOTION ? Infinity : world.runSpeed) * dt,
+      world.runRemaining,
+    );
     world.camX += step;
     world.runRemaining -= step;
     playerSprite.x = world.camX + 80;
@@ -88,7 +93,11 @@ export function loadEnemy() {
 
   // Each node is an approach run: the player holds screen-left while the
   // camera covers the corridor; the enemy waits, anchored in the world.
-  world.runRemaining = 900 + run.node * 140;
+  // Distance grows slightly per node but speed scales with it, so every
+  // run-in lands in ~1.6s with the enemy on screen for most of it.
+  const approachDist = 300 + run.node * 60;
+  world.runRemaining = approachDist;
+  world.runSpeed = approachDist / 1.6;
   enemySprite.x = logicalWorldWidth() - 200 + world.runRemaining;
   enemySprite.dead = false;
   enemySprite.opacity = 1;
