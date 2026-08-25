@@ -16,6 +16,7 @@ import {
   animateCardPlay,
   animateInsufficientRam,
   runBattleIntro,
+  animateScreenTransition,
 } from "./motion.js";
 import { resetTerminal, log, renderHand, updateUI, updateEnemySprite, drawScene, initCanvasRenderer, logicalWorldWidth } from "./renderer.js";
 import { dealDamageToEnemy, endTurn, updateEnemyIntent, checkWinLoss } from "./combat.js";
@@ -130,7 +131,7 @@ export function loadEnemy() {
   updateUI();
 }
 
-export function initGame() {
+export function resetRun() {
   player.hp = 50;
   player.maxHp = 50;
   player.ram = 3;
@@ -142,9 +143,82 @@ export function initGame() {
   run.stats = freshStats();
   setDeck([...STARTER_DECK]);
   setGameOver(false);
+}
+
+/** Deploy into the current run.node — approach run starts immediately. */
+function deployNode() {
   loadEnemy();
   drawHand();
   updateUI();
+}
+
+/**
+ * Legacy one-shot start (QA hook, forced flows): reset and drop straight
+ * into node 1 without passing through the staging lobby.
+ */
+export function initGame() {
+  resetRun();
+  deployNode();
+}
+
+/**
+ * Lobby-aware start: reset the run and stage the lobby; the arena only
+ * deploys when the player hits BREACH NODE.
+ */
+export function startRun() {
+  resetRun();
+  enterLobby();
+}
+
+function setLobbyText(id, text) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = text;
+}
+
+function renderLobbyDeck() {
+  const wrap = document.getElementById("lobby-deck");
+  if (!wrap) return;
+  const counts = new Map();
+  deck.forEach((id) => counts.set(id, (counts.get(id) || 0) + 1));
+  wrap.replaceChildren();
+  [...counts.entries()].forEach(([id, count]) => {
+    const card = getCardById(id);
+    if (!card) return;
+    const chip = document.createElement("span");
+    chip.className = `lobby-deck-chip type-${card.type}`;
+    chip.textContent = count > 1 ? `${card.code} ×${count}` : card.code;
+    wrap.appendChild(chip);
+  });
+}
+
+/** Populate the staging lobby from live run state. */
+export function enterLobby() {
+  const def = ENEMY_ROSTER[run.node - 1] || ENEMY_ROSTER[0];
+  setLobbyText("lobby-node-label", `NEXT TARGET: NODE ${run.node}/${BOSS_NODE}`);
+  setLobbyText("lobby-enemy-line", `${def.name} · ${def.hp} HP · ATK ${def.attackDmg}`);
+  setLobbyText("lobby-vitals", `HP ${player.hp}/${player.maxHp} · RAM ${player.maxRam}`);
+  setLobbyText("lobby-stat-turns", String(run.stats.turns));
+  setLobbyText("lobby-stat-damage", String(run.stats.damageDealt));
+  setLobbyText("lobby-stat-cards", String(run.stats.cardsPlayed));
+  setLobbyText("lobby-stat-deck", String(deck.length));
+  setLobbyText("btn-breach-label", `BREACH NODE ${run.node}`);
+
+  const bestEl = document.getElementById("best-run-line-home");
+  if (bestEl)
+    bestEl.textContent = `BEST RUN: NODE ${run.bestNode}/${BOSS_NODE}`;
+
+  renderLobbyDeck();
+  // Focus BREACH once the lobby is actually on screen — during animated
+  // transitions the swap lands a few frames later, so retry briefly
+  (function focusBreach(attempt) {
+    const btn = document.getElementById("btn-breach-node");
+    if (!btn || attempt > 25) return;
+    if (btn.checkVisibility && btn.checkVisibility()) {
+      btn.focus();
+      return;
+    }
+    setTimeout(() => focusBreach(attempt + 1), 80);
+  })(0);
 }
 
 /**
@@ -169,12 +243,13 @@ export function runVictoryWalk(done) {
   }, 40);
 }
 
-export function startNextNode() {
-  run.node += 1;
-  setGameOver(false);
-  loadEnemy();
-  drawHand();
-  updateUI();
+/** Return to the staging lobby from the arena (RUN AGAIN / node cleared). */
+function backToLobby() {
+  enterLobby();
+  animateScreenTransition(
+    document.getElementById("game-screen"),
+    document.getElementById("lobby-screen"),
+  );
 }
 
 export function drawHand() {
@@ -240,18 +315,36 @@ document.addEventListener("DOMContentLoaded", () => {
   initCanvasRenderer();
   requestAnimationFrame(gameLoop);
 
-  setupNavigation(initGame);
+  setupNavigation(startRun);
   setupAudioUI();
-  wireEndOverlay(initGame);
+  wireEndOverlay(() => {
+    resetRun();
+    backToLobby();
+  });
   wireRewardOverlay(() => {
     showCardReward(() => {
       runVictoryWalk(() => {
-        startNextNode();
-        const firstCard = document.querySelector("#hand-container .card");
-        if (firstCard) firstCard.focus();
+        run.node += 1;
+        backToLobby();
       });
     });
   });
+
+  const breachBtn = document.getElementById("btn-breach-node");
+  if (breachBtn) {
+    breachBtn.onclick = () => {
+      audioEngine.playExecuteTurn();
+      deployNode();
+      animateScreenTransition(
+        document.getElementById("lobby-screen"),
+        document.getElementById("game-screen"),
+        () => {
+          const firstCard = document.querySelector("#hand-container .card");
+          if (firstCard) firstCard.focus();
+        },
+      );
+    };
+  }
 
   const endTurnBtn = document.getElementById("btn-end-turn");
   if (endTurnBtn) {
@@ -260,6 +353,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   initQaHook({
     initGame,
+    startRun,
     loadEnemy,
     showRewardOverlay,
     showEndOverlay,

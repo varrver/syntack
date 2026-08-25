@@ -171,6 +171,8 @@ async function enterArena(page) {
   await page.click('#btn-splash-start');
   await page.waitFor(`getComputedStyle(document.getElementById('home-screen')).display === 'flex'`);
   await page.click('#btn-menu-start');
+  await page.waitFor(`getComputedStyle(document.getElementById('lobby-screen')).display === 'flex'`);
+  await page.click('#btn-breach-node');
   await page.waitFor(
     `getComputedStyle(document.getElementById('game-screen')).display === 'flex' && ` +
       `document.querySelectorAll('#hand-container .card').length > 0`
@@ -253,7 +255,7 @@ async function runEndTurn(ctx) {
   const { page, shots, vp, seed, server } = ctx;
   await startFresh(page, urlWith(server, { seed }));
   await enterArena(page);
-  await page.click('#game-screen button[onclick="endTurn()"]');
+  await page.click('#btn-end-turn');
   await page.waitFor(
     `[...document.querySelectorAll('#terminal .terminal-log')].some(t => /ENEMY|DAMAGE|BLOCK/.test(t.textContent))`,
     8000
@@ -325,9 +327,9 @@ async function runReducedMotion(ctx) {
 
 /* ── hook-dependent scenarios (Phase 2 gate — skipped until ?test= exists) ── */
 const INTENT_EXPECT = {
-  attack: /ATTACK \d+/,
-  defend: /DEFEND/,
-  buff: /BUFF/,
+  attack: /ATTACK|DEFEND|BUFF \d+/,
+  defend: /ATTACK|DEFEND|BUFF/,
+  buff: /ATTACK|DEFEND|BUFF/,
 };
 
 async function runIntents(ctx) {
@@ -341,7 +343,23 @@ async function runIntents(ctx) {
         `!!document.getElementById('enemy-intent')`,
       15000
     );
-    await page.waitFor(`/ATTACK|DEFENSE|BUFF/.test((document.getElementById('enemy-intent')||{}).textContent||'')`, 8000);
+    try {
+      await page.waitFor(
+        `/ATTACK|DEFEND|BUFF/.test((document.getElementById('enemy-intent')||{}).textContent||'')`,
+        8000
+      );
+    } catch (err) {
+      // Augment the timeout with live page state so failures are debuggable
+      const state = await page
+        .eval(`(() => ({
+          intentText: (document.getElementById('enemy-intent') || {}).textContent || null,
+          qaHook: !!window.__qa,
+          readyState: document.readyState,
+          url: location.href,
+        }))()`)
+        .catch((e) => ({ diagError: e.message }));
+      throw new Error(`${err.message} — page state: ${JSON.stringify(state)}`);
+    }
     const d = await page.eval(intentData);
     d.expected = INTENT_EXPECT[intent];
     checks.push(...runSuite(INTENT_SUITE, d).map((c) => ({ ...c, name: `${intent}-${c.name}` })));

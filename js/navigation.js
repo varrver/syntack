@@ -42,12 +42,14 @@ export function setupNavigation(initGameFn) {
   const splashScreen = document.getElementById("splash-screen");
   const homeScreen = document.getElementById("home-screen");
   const gameScreen = document.getElementById("game-screen");
+  const lobbyScreen = document.getElementById("lobby-screen");
 
   const btnSplashStart = document.getElementById("btn-splash-start");
   const btnMenuStart = document.getElementById("btn-menu-start");
   const btnMenuArchive = document.getElementById("btn-menu-archive");
   const btnMenuRules = document.getElementById("btn-menu-rules");
   const btnGameHome = document.getElementById("btn-game-home");
+  const btnLobbyHome = document.getElementById("btn-lobby-home");
 
   const archiveModal = document.getElementById("archive-modal");
   const rulesModal = document.getElementById("rules-modal");
@@ -95,11 +97,19 @@ export function setupNavigation(initGameFn) {
       audioEngine.playExecuteTurn();
       parallaxActive = false;
       if (parallaxBg) parallaxBg.classList.add("in-game");
-      // Initialize battle state BEFORE the arena becomes visible — otherwise
-      // the canvas paints the stale/default enemy position for a frame,
-      // which reads as the enemy teleporting before its walk-in
+      // Prepare the run and stage the lobby — the arena deploys on BREACH
       initGameFn();
-      animateScreenTransition(homeScreen, gameScreen);
+      animateScreenTransition(homeScreen, lobbyScreen);
+    };
+  }
+
+  if (btnLobbyHome) {
+    btnLobbyHome.onclick = () => {
+      audioEngine.playHover();
+      parallaxActive = true;
+      requestAnimationFrame(updateParallax);
+      if (parallaxBg) parallaxBg.classList.remove("in-game");
+      animateScreenTransition(lobbyScreen, homeScreen);
     };
   }
 

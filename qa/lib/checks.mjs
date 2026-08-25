@@ -257,7 +257,7 @@ export const ARENA_SUITE = [
   },
   {
     name: 'A9-intent-box-icon-and-label',
-    check: (d) => d.intentSvg && /ATTACK|DEFENSE|BUFF/.test(d.intentText),
+    check: (d) => d.intentSvg && /ATTACK|DEFEND|BUFF/.test(d.intentText),
     detail: (d) => `svg=${d.intentSvg} text="${d.intentText}"`,
   },
   {
@@ -312,7 +312,7 @@ export const PLAY_CARD_SUITE = [
   },
   {
     name: 'P3-hand-reduced-by-one',
-    check: (d) => d.handCount === 4,
+    check: (d) => d.handCount === 3,
     detail: (d) => `cards=${d.handCount}`,
   },
 ];
@@ -320,7 +320,7 @@ export const PLAY_CARD_SUITE = [
 export const END_TURN_SUITE = [
   {
     name: 'E1-enemy-intent-updated',
-    check: (d) => /ATTACK|DEFENSE|BUFF/.test(d.intentText),
+    check: (d) => /ATTACK|DEFEND|BUFF/.test(d.intentText),
     detail: (d) => `intent="${d.intentText}"`,
   },
   {

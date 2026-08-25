@@ -169,6 +169,76 @@
             </div>
         </div>
 
+        <!-- ════════════════════ STAGING LOBBY ════════════════════ -->
+        <div id="lobby-screen"
+            class="hidden relative z-[10] flex flex-col items-center justify-center w-full min-h-screen text-center overflow-hidden p-8">
+            <!-- CRT phosphor-line texture (additive — never darkens) -->
+            <div class="absolute inset-0 pointer-events-none splash-scanlines" aria-hidden="true"></div>
+            <h1 class="sr-only">SYNTACK — Staging Lobby</h1>
+            <div class="mb-6 relative z-10">
+                <div class="text-[0.5rem] font-pixel text-balatro-cyan tracking-[5px] uppercase mb-2">
+                    STAGING AREA
+                </div>
+                <h2 class="font-display font-black text-[1.7rem] tracking-[4px] uppercase text-balatro-blue">
+                    PREPARE BREACH
+                </h2>
+                <p class="text-[0.55rem] font-pixel tracking-[1px] text-balatro-gold mt-4 uppercase"
+                    id="lobby-node-label">
+                    NEXT TARGET: NODE 1/4
+                </p>
+                <p class="text-[0.65rem] text-white/60 font-mono mt-1.5" id="lobby-enemy-line">
+                    FIREWALL DAEMON · 60 HP · ATK 8
+                </p>
+                <p class="text-[0.6rem] font-mono text-balatro-green/80 mt-2" id="lobby-vitals">
+                    HP 50/50 · RAM 3
+                </p>
+            </div>
+
+            <!-- Run summary — tallies accumulated across nodes so far -->
+            <div class="end-stats w-full max-w-[430px] relative z-10" aria-label="Run summary">
+                <div class="end-stat">
+                    <span class="end-stat-value" id="lobby-stat-turns">0</span>
+                    <span class="end-stat-label">Turns</span>
+                </div>
+                <div class="end-stat">
+                    <span class="end-stat-value" id="lobby-stat-damage">0</span>
+                    <span class="end-stat-label">Damage Dealt</span>
+                </div>
+                <div class="end-stat">
+                    <span class="end-stat-value" id="lobby-stat-cards">0</span>
+                    <span class="end-stat-label">Cards Played</span>
+                </div>
+                <div class="end-stat">
+                    <span class="end-stat-value" id="lobby-stat-deck">0</span>
+                    <span class="end-stat-label">Deck Size</span>
+                </div>
+            </div>
+
+            <!-- Deck loadout -->
+            <div class="mt-6 w-full max-w-[430px] relative z-10">
+                <div class="text-[0.45rem] font-pixel tracking-[2px] uppercase text-white/45 mb-2">
+                    CACHE LOADOUT
+                </div>
+                <div id="lobby-deck" class="flex flex-wrap justify-center gap-1.5"></div>
+            </div>
+
+            <button id="btn-breach-node" class="balatro-btn py-4 px-10 text-[1rem] mt-8 relative z-10">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                <span id="btn-breach-label">BREACH NODE 1</span>
+            </button>
+            <button id="btn-lobby-home" class="audio-control-btn mt-5 relative z-10" aria-label="Back to main menu">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="m12 19-7-7 7-7"></path>
+                    <path d="M19 12H5"></path>
+                </svg>
+                <span>MENU</span>
+            </button>
+        </div>
+
         <!-- ════════════════════ GAME ARENA ════════════════════ -->
         <div id="game-screen"
             class="hidden flex flex-col relative z-[10] w-full max-w-[880px] felt-table p-3.5 sm:p-5 m-2 sm:m-4">

@@ -33,6 +33,7 @@ const MANIFEST = 'manifest.json';
 const SHOTS = [
   { name: 'splash', width: 1280, height: 800, navigate: (u) => u },
   { name: 'home', width: 1280, height: 800, navigate: (u) => u, ready: `!!document.getElementById('btn-splash-start')`, click: '#btn-splash-start', wait: `getComputedStyle(document.getElementById('home-screen')).display === 'flex'` },
+  { name: 'lobby', width: 1280, height: 800, hook: { test: 1, screen: 'lobby', seed: 1 }, wait: `getComputedStyle(document.getElementById('lobby-screen')).display === 'flex'` },
   { name: 'arena-desktop', width: 1280, height: 800, hook: { test: 1, screen: 'arena', seed: 1 }, wait: `window.__qaHold === true` },
   { name: 'intents-attack', width: 1280, height: 800, hook: { test: 1, screen: 'arena', seed: 1, intent: 'attack' }, wait: `/ATTACK/.test((document.getElementById('enemy-intent')||{}).textContent||'') && window.__qaHold === true` },
   { name: 'endoverlay-victory', width: 1280, height: 800, hook: { test: 1, screen: 'arena', seed: 1, outcome: 'victory' }, wait: `getComputedStyle(document.getElementById('end-overlay')).display === 'flex'` },
@@ -74,15 +75,52 @@ async function captureShot(page, shot, server, verbose) {
   if (shot.click) await page.click(shot.click);
   if (shot.wait) await page.waitFor(shot.wait, 20000);
   // Wait for webfonts so text metrics are stable (deterministic golden frames).
-  // fonts.ready can hang on slow/cold networks, so race it against a generous cap.
+  // Explicitly force-load the display faces first: fonts.ready can resolve
+  // before Tailwind's runtime JIT applies the font-* utilities (i.e. before
+  // the @font-face requests even start), racing the capture with a mid-swap
+  // layout. Then race ready against a generous cap for slow/cold networks.
   await page
     .eval(
       `(async () => {
          if (!document.fonts) return;
-         await Promise.race([
-           document.fonts.ready,
-           new Promise((r) => setTimeout(r, 15000)),
-         ]);
+         const cap = (ms) => new Promise((r) => setTimeout(r, ms));
+         try {
+           await Promise.race([
+             Promise.all([
+               document.fonts.load('900 2rem Orbitron'),
+               document.fonts.load('0.55rem "Press Start 2P"'),
+             ]),
+             cap(15000),
+           ]);
+         } catch {}
+         await Promise.race([document.fonts.ready, cap(15000)]);
+       })()`,
+      { awaitPromise: true }
+    )
+    .catch(() => {});
+  // Layout quiescence: late font swaps and Tailwind's runtime JIT can mutate
+  // text metrics AFTER fonts.ready resolves (hidden screens lay out when
+  // revealed mid-load and don't always reflow on swap). Hold until no font
+  // face is still loading AND the key text layout hash is identical across
+  // two consecutive samples.
+  await page
+    .eval(
+      `(async () => {
+         const sel = 'h1, h2, .end-stat-value, .end-stat-label, .lobby-deck-chip';
+         const hash = () => [...document.querySelectorAll(sel)].map((el) => {
+           const r = el.getBoundingClientRect();
+           const cs = getComputedStyle(el);
+           return [el.tagName, Math.round(r.width * 10), Math.round(r.height * 10), cs.fontFamily, cs.letterSpacing].join(':');
+         }).join('|');
+         let prev = null;
+         for (let i = 0; i < 60; i++) {
+           const anyLoading = [...document.fonts].some((f) => f.status === 'loading');
+           const cur = anyLoading ? 'fonts-loading' : hash();
+           if (!anyLoading && cur !== '' && cur === prev) return true;
+           prev = cur;
+           await new Promise((r) => setTimeout(r, 100));
+         }
+         return false;
        })()`,
       { awaitPromise: true }
     )

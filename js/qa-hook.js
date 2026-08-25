@@ -34,11 +34,14 @@ if (qaParams.get("test")) {
 }
 
 export function initQaHook(callbacks) {
-  if (!qaParams.get("test") || qaParams.get("screen") !== "arena") return;
+  const qaScreen = qaParams.get("screen");
+  if (!qaParams.get("test") || (qaScreen !== "arena" && qaScreen !== "lobby"))
+    return;
 
   const splash = document.getElementById("splash-screen");
   const home = document.getElementById("home-screen");
   const game = document.getElementById("game-screen");
+  const lobby = document.getElementById("lobby-screen");
   const parallaxBg = document.getElementById("menu-parallax-bg");
   if (parallaxBg) parallaxBg.classList.add("in-game");
 
@@ -50,6 +53,21 @@ export function initQaHook(callbacks) {
     home.classList.add("hidden");
     home.classList.remove("flex");
   }
+
+  // Lobby capture: stage a fresh run and stop — no combat snap needed
+  if (qaScreen === "lobby") {
+    if (game) {
+      game.classList.add("hidden");
+      game.classList.remove("flex");
+    }
+    if (lobby) {
+      lobby.classList.remove("hidden");
+      lobby.classList.add("flex");
+    }
+    if (callbacks.startRun) callbacks.startRun();
+    return;
+  }
+
   if (game) {
     game.classList.remove("hidden");
     game.classList.add("flex");
