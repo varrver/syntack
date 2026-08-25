@@ -45,15 +45,13 @@ function gameLoop(timestamp) {
   lastTimestamp = timestamp;
 
   if (world.phase === "RUNNING") {
-    // Treadmill approach — player pinned at screen-left, corridor scrolls
-    // beneath them; the standing enemy holds screen-right until contact
-    playerSprite.animState = "run";
+    // Treadmill approach — the player holds screen-left while the camera
+    // pushes down the corridor. The enemy is anchored in the world, so
+    // closing the distance reads as walking up to a standing foe.
     const step = Math.min(250 * dt, world.runRemaining);
     world.camX += step;
     world.runRemaining -= step;
-    const w = logicalWorldWidth();
     playerSprite.x = world.camX + 80;
-    enemySprite.x = world.camX + (w - 200);
     if (world.runRemaining <= 0) {
       setWorldPhase("BATTLE");
       playerSprite.animState = "idle";
@@ -86,10 +84,10 @@ export function loadEnemy() {
   player.loopMult = 1;
   player.ram = player.maxRam;
 
-  // Each node is an approach run: player holds screen-left while the
-  // corridor scrolls, enemy stands at screen-right until contact.
+  // Each node is an approach run: the player holds screen-left while the
+  // camera covers the corridor; the enemy waits, anchored in the world.
   world.runRemaining = 900 + run.node * 140;
-  enemySprite.x = logicalWorldWidth() - 200;
+  enemySprite.x = logicalWorldWidth() - 200 + world.runRemaining;
   enemySprite.dead = false;
   enemySprite.opacity = 1;
   enemySprite.animState = "idle";
