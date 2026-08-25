@@ -30,6 +30,12 @@ export const ENEMY_ROSTER = [
 
 export const BOSS_NODE = ENEMY_ROSTER.length;
 
+// Per-run tallies shown on the end screen. Deck size isn't tracked here —
+// it reads live from `deck`.
+export function freshStats() {
+  return { turns: 0, damageDealt: 0, cardsPlayed: 0 };
+}
+
 export let run = {
   node: 1,
   bestNode: (() => {
@@ -41,6 +47,7 @@ export let run = {
       return 0;
     }
   })(),
+  stats: freshStats(),
 };
 
 // Card ids the player owns — drawHand samples from this pool, card

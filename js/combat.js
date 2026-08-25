@@ -23,6 +23,7 @@ export function dealDamageToEnemy(amount) {
   const prevHp = enemy.hp;
   enemy.hp = Math.max(0, enemy.hp - amount);
   const dealt = prevHp - enemy.hp;
+  if (dealt > 0) run.stats.damageDealt += dealt;
 
   const isCrit = amount >= 12;
   const enemyBox = document.getElementById("enemyBox");
@@ -84,6 +85,7 @@ export function endTurn(drawHandFn) {
   audioEngine.ensureContext();
   if (isAnimating || gameOver) return;
 
+  run.stats.turns += 1;
   audioEngine.playExecuteTurn();
   log(`[ENEMY] ${enemy.name} initiates COUNTER_ATTACK...`, "system");
 

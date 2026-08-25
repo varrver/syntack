@@ -5,7 +5,7 @@
  */
 
 import { player, run, deck, setDeck, gameOver, setGameOver } from "./state.js";
-import { CARD_TYPES } from "./cards.js";
+import { CARD_TYPES, STARTER_DECK } from "./cards.js";
 import { audioEngine } from "./audio.js";
 import { log } from "./renderer.js";
 import { focusFirstFocusable } from "./navigation.js";
@@ -27,6 +27,17 @@ export function showEndOverlay(isVictory, subText) {
   }
   if (chip) chip.textContent = isVictory ? "HACK COMPLETE" : "CONNECTION LOST";
   if (sub) sub.textContent = subText;
+
+  const statCells = [
+    ["stat-turns", run.stats.turns],
+    ["stat-damage", run.stats.damageDealt],
+    ["stat-cards", run.stats.cardsPlayed],
+    ["stat-deck", deck.length || STARTER_DECK.length],
+  ];
+  statCells.forEach(([id, value]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = String(value);
+  });
 
   const again = document.getElementById("btn-end-again");
   if (again) setTimeout(() => again.focus(), 50);

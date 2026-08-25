@@ -8,6 +8,7 @@ import {
   player, enemy, run, hand, deck, setDeck, gameOver, isAnimating, lastPlayRect,
   setHand, setIsAnimating, setGameOver, setLastPlayRect,
   ENEMY_ROSTER, BOSS_NODE, world, playerSprite, enemySprite, setWorldPhase,
+  freshStats,
 } from "./state.js";
 import { CARD_TYPES, STARTER_DECK, getCardById } from "./cards.js";
 import { audioEngine } from "./audio.js";
@@ -138,6 +139,7 @@ export function initGame() {
   player.varX = 0;
   player.loopMult = 1;
   run.node = 1;
+  run.stats = freshStats();
   setDeck([...STARTER_DECK]);
   setGameOver(false);
   loadEnemy();
@@ -201,6 +203,7 @@ function playCard(index, cardEl) {
 
   setIsAnimating(true);
   player.ram -= card.ram;
+  run.stats.cardsPlayed += 1;
   audioEngine.playCard(card.type);
   log(`⟫ Execute: ${card.code}`, "player");
 
