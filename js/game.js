@@ -15,7 +15,7 @@ import {
   animateCardPlay,
   animateInsufficientRam,
 } from "./motion.js";
-import { resetTerminal, log, renderHand, updateUI, updateEnemySprite, drawScene, initCanvasRenderer } from "./renderer.js";
+import { resetTerminal, log, renderHand, updateUI, updateEnemySprite, drawScene, initCanvasRenderer, logicalWorldWidth } from "./renderer.js";
 import { dealDamageToEnemy, endTurn, updateEnemyIntent, checkWinLoss } from "./combat.js";
 import { setupNavigation } from "./navigation.js";
 import {
@@ -46,8 +46,9 @@ function gameLoop(timestamp) {
     world.scrollX += world.scrollSpeed * dt;
     playerSprite.animState = "run";
 
-    if (enemySprite.x > 620) {
-      enemySprite.x = Math.max(620, enemySprite.x - 220 * dt);
+    const engageX = logicalWorldWidth() - 200;
+    if (enemySprite.x > engageX) {
+      enemySprite.x = Math.max(engageX, enemySprite.x - 220 * dt);
       enemySprite.animState = "run";
     } else {
       setWorldPhase("BATTLE");
@@ -74,7 +75,7 @@ export function loadEnemy() {
   player.ram = player.maxRam;
 
   // Setup enemy entry position for wave transition
-  enemySprite.x = 850;
+  enemySprite.x = logicalWorldWidth() + 30;
   enemySprite.opacity = 1;
   enemySprite.animState = "run";
   setWorldPhase("RUNNING");

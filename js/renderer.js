@@ -190,6 +190,7 @@ import { world, playerSprite, enemySprite, projectiles, particles } from "./stat
 
 let _canvas = null;
 let _ctx = null;
+let _viewScale = 1;
 const _images = {};
 const _bgImgs = [];
 let _groundTileImg = null;
@@ -247,6 +248,9 @@ export function initCanvasRenderer() {
   _ctx = _canvas.getContext("2d");
   _ctx.imageSmoothingEnabled = false;
 
+  resizeCanvas();
+  window.addEventListener("resize", resizeCanvas);
+
   // Preload and cache primary sprites
   SPRITES.bgNight.forEach(src => _bgImgs.push(_loadImage(src)));
   _groundTileImg = _loadImage(SPRITES.groundTile);
@@ -259,14 +263,37 @@ export function initCanvasRenderer() {
   Object.values(SPRITES.enemy3).forEach(s => _loadImage(s.src));
 }
 
+/* Resize canvas bitmap to its CSS box and derive the uniform view scale.
+   The logical world is always 820x260; height-fit scaling keeps sprite
+   proportions identical from desktop down to phones. */
+function resizeCanvas() {
+  if (!_canvas) return;
+  const cw = _canvas.clientWidth || 820;
+  const ch = _canvas.clientHeight || 260;
+  _canvas.width = cw;
+  _canvas.height = ch;
+  _viewScale = ch / 260;
+  if (_ctx) _ctx.imageSmoothingEnabled = false;
+}
+
+export function logicalWorldWidth() {
+  return Math.round((_canvas ? _canvas.width : 820) / _viewScale);
+}
+
 export function drawScene(dt = 0.016) {
   if (!_canvas) {
     initCanvasRenderer();
     if (!_canvas) return;
   }
-  const w = _canvas.width;
-  const h = _canvas.height;
+  // Canvas may have been display:none during init (clientWidth 0) or flipped
+  // across a sm: breakpoint — resync bitmap to CSS box only when they differ.
+  if (_canvas.clientWidth > 0 && (_canvas.width !== _canvas.clientWidth || _canvas.height !== _canvas.clientHeight)) {
+    resizeCanvas();
+  }
+  const w = Math.round(_canvas.width / _viewScale);
+  const h = 260;
 
+  _ctx.setTransform(_viewScale, 0, 0, _viewScale, 0, 0);
   _ctx.clearRect(0, 0, w, h);
 
   // 1. Draw Parallax Background
