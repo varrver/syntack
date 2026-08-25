@@ -1,4 +1,4 @@
-import { player, enemy, run, BOSS_NODE, isAnimating, gameOver, lastPlayRect, setGameOver, setIsAnimating, playerSprite, enemySprite, projectiles, particles, screenShake, world, setWorldPhase } from "./state.js";
+import { player, enemy, run, BOSS_NODE, isAnimating, gameOver, lastPlayRect, setGameOver, setIsAnimating, playerSprite, enemySprite, projectiles, particles, screenShake } from "./state.js";
 import { ICONS } from "./icons.js";
 import { log, updateUI } from "./renderer.js";
 import { audioEngine } from "./audio.js";
@@ -183,9 +183,8 @@ export function checkWinLoss() {
     setGameOver(true);
     enemySprite.animState = "death";
     enemySprite.dead = true;
-    // Victory run — player keeps going and passes the fallen enemy
-    setWorldPhase("VICTORY");
-    playerSprite.animState = "run";
+    // Corpse drops and rewards open right away — the victory walk past
+    // the body plays later, after selections, via runVictoryWalk()
     audioEngine.playVictory();
     animateBurst(enemyBox, "green");
     if (run.node >= BOSS_NODE) {
@@ -204,14 +203,14 @@ export function checkWinLoss() {
             true,
             "You breached the mainframe and deleted the Firewall Daemon.",
           );
-        }, 1500);
-      }, 300);
+        }, 500);
+      }, 250);
     } else {
       setTimeout(() => {
         log(`[NODE CLEARED] Node ${run.node}/${BOSS_NODE} secured.`, "info");
         animateFloatDamage("NODE CLEARED!", "buff", "40%", "35%");
-        setTimeout(() => showRewardOverlay(), 1400);
-      }, 300);
+        setTimeout(() => showRewardOverlay(), 450);
+      }, 250);
     }
   } else if (player.hp <= 0) {
     setGameOver(true);

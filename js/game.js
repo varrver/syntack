@@ -148,6 +148,28 @@ export function initGame() {
   updateUI();
 }
 
+/**
+ * Victory walk — after rewards are selected, the player runs past the
+ * fallen enemy while the camera follows, then hands off to the next node.
+ */
+export function runVictoryWalk(done) {
+  if (!enemySprite.dead || world.phase === "VICTORY") {
+    done();
+    return;
+  }
+  setWorldPhase("VICTORY");
+  playerSprite.animState = "run";
+  const t0 = Date.now();
+  const iv = setInterval(() => {
+    const passed = playerSprite.x > enemySprite.x + 140;
+    const timedOut = Date.now() - t0 > 2400;
+    if (passed || timedOut) {
+      clearInterval(iv);
+      done();
+    }
+  }, 40);
+}
+
 export function startNextNode() {
   run.node += 1;
   setGameOver(false);
@@ -223,9 +245,11 @@ document.addEventListener("DOMContentLoaded", () => {
   wireEndOverlay(initGame);
   wireRewardOverlay(() => {
     showCardReward(() => {
-      startNextNode();
-      const firstCard = document.querySelector("#hand-container .card");
-      if (firstCard) firstCard.focus();
+      runVictoryWalk(() => {
+        startNextNode();
+        const firstCard = document.querySelector("#hand-container .card");
+        if (firstCard) firstCard.focus();
+      });
     });
   });
 
