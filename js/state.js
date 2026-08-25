@@ -52,10 +52,10 @@ export function setDeck(next) {
 
 export let world = {
   phase: "BATTLE", // "BATTLE" | "RUNNING" | "VICTORY"
-  scrollX: 0,
-  targetScrollX: 0,
-  scrollSpeed: 180, // px per sec when running
   groundY: 210,
+  // Camera offset: entities live in world coords, drawn at x - camX.
+  // Follows the player during RUNNING/VICTORY, frozen during BATTLE.
+  camX: 0,
 };
 
 export let playerSprite = {
@@ -79,6 +79,7 @@ export let enemySprite = {
   frame: 0,
   frameTimer: 0,
   opacity: 1,
+  dead: false, // corpse stays on the field; player walks past it on win
 };
 
 export let projectiles = [];

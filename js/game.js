@@ -45,19 +45,31 @@ function gameLoop(timestamp) {
   lastTimestamp = timestamp;
 
   if (world.phase === "RUNNING") {
-    world.scrollX += world.scrollSpeed * dt;
     playerSprite.animState = "run";
+    playerSprite.x += 250 * dt;
 
-    // Enemy stands its ground at the engage point; the player runs in
-    if (playerSprite.x < 80) {
-      playerSprite.x = Math.min(80, playerSprite.x + 260 * dt);
-      enemySprite.animState = "idle";
-    } else {
+    // Centered player POV — camera tracks the runner, capped so the enemy
+    // stays fully on-screen as the battle closes in
+    const w = logicalWorldWidth();
+    const camMax = Math.max(0, enemySprite.x - (w - 210));
+    const camDesired = Math.max(0, playerSprite.x - (w / 2 - 60));
+    world.camX = Math.min(camMax, camDesired);
+
+    const enemyVisible = enemySprite.x - world.camX <= w - 170;
+    if ((playerSprite.x >= enemySprite.x - 300 && enemyVisible) || world.camX >= camMax - 0.5) {
       setWorldPhase("BATTLE");
       playerSprite.animState = "idle";
       enemySprite.animState = "idle";
       enemySprite.opacity = 1;
     }
+  }
+
+  if (world.phase === "VICTORY") {
+    // Walk through/past the fallen enemy while the camera keeps following
+    playerSprite.animState = "run";
+    playerSprite.x += 270 * dt;
+    const w = logicalWorldWidth();
+    world.camX = Math.max(world.camX, playerSprite.x - (w / 2 - 60));
   }
 
   drawScene(dt);
@@ -76,14 +88,16 @@ export function loadEnemy() {
   player.loopMult = 1;
   player.ram = player.maxRam;
 
-  // Setup positions for wave transition — enemy stands at the engage
-  // point, player runs in from offscreen left
-  const engageX = logicalWorldWidth() - 200;
-  enemySprite.x = engageX;
-  enemySprite.animState = "idle";
+  // Each node is a run segment: player starts at world 0, enemy stands
+  // further down the corridor. Camera starts at 0 and follows the run in.
+  enemySprite.x = 900 + run.node * 140;
+  enemySprite.dead = false;
   enemySprite.opacity = 1;
-  playerSprite.x = -110;
+  enemySprite.animState = "idle";
+  enemySprite.frame = 0;
+  playerSprite.x = 0;
   playerSprite.animState = "run";
+  world.camX = 0;
   setWorldPhase("RUNNING");
   runBattleIntro(run.node, def.name);
 

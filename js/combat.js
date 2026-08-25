@@ -1,4 +1,4 @@
-import { player, enemy, run, BOSS_NODE, isAnimating, gameOver, lastPlayRect, setGameOver, setIsAnimating, playerSprite, enemySprite, projectiles, particles, screenShake } from "./state.js";
+import { player, enemy, run, BOSS_NODE, isAnimating, gameOver, lastPlayRect, setGameOver, setIsAnimating, playerSprite, enemySprite, projectiles, particles, screenShake, world, setWorldPhase } from "./state.js";
 import { ICONS } from "./icons.js";
 import { log, updateUI } from "./renderer.js";
 import { audioEngine } from "./audio.js";
@@ -41,7 +41,7 @@ export function dealDamageToEnemy(amount) {
         enemySprite.animState = "hurt";
         triggerShake(3 + Math.min(7, dealt * 0.4), 0.25);
         setTimeout(() => {
-          if (enemySprite.animState === "hurt") enemySprite.animState = "idle";
+          if (enemySprite.animState === "hurt" && !enemySprite.dead) enemySprite.animState = "idle";
         }, 350);
 
         // Spawn spark particles on impact
@@ -182,6 +182,10 @@ export function checkWinLoss() {
   if (enemy.hp <= 0) {
     setGameOver(true);
     enemySprite.animState = "death";
+    enemySprite.dead = true;
+    // Victory run — player keeps going and passes the fallen enemy
+    setWorldPhase("VICTORY");
+    playerSprite.animState = "run";
     audioEngine.playVictory();
     animateBurst(enemyBox, "green");
     if (run.node >= BOSS_NODE) {
@@ -200,13 +204,13 @@ export function checkWinLoss() {
             true,
             "You breached the mainframe and deleted the Firewall Daemon.",
           );
-        }, 600);
+        }, 1500);
       }, 300);
     } else {
       setTimeout(() => {
         log(`[NODE CLEARED] Node ${run.node}/${BOSS_NODE} secured.`, "info");
         animateFloatDamage("NODE CLEARED!", "buff", "40%", "35%");
-        setTimeout(() => showRewardOverlay(), 600);
+        setTimeout(() => showRewardOverlay(), 1400);
       }, 300);
     }
   } else if (player.hp <= 0) {

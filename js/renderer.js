@@ -307,13 +307,13 @@ export function drawScene(dt = 0.016) {
     _ctx.translate(Math.sin(screenShake.t * 93) * k, Math.cos(screenShake.t * 71) * k);
   }
 
-  // 1. Draw Parallax Background
+  // 1. Draw Parallax Background (camera-driven)
   const speeds = [0.1, 0.25, 0.4, 0.65, 1.0];
   for (let idx = 0; idx < _bgImgs.length; idx++) {
     const img = _bgImgs[idx];
     if (img.complete && img.naturalWidth > 0) {
       const speed = speeds[idx] || 0.5;
-      const offsetX = (world.scrollX * speed) % w;
+      const offsetX = (world.camX * speed) % w;
       _ctx.drawImage(img, -offsetX, 0, w, h);
       _ctx.drawImage(img, w - offsetX, 0, w, h);
     } else {
@@ -328,7 +328,7 @@ export function drawScene(dt = 0.016) {
   const tileScale = 1.25; // 40px tiles
   const scaledTile = tileSize * tileScale;
   const groundY = world.groundY;
-  const tileOffsetX = (world.scrollX * 1.0) % scaledTile;
+  const tileOffsetX = (world.camX * 1.0) % scaledTile;
 
   for (let x = -scaledTile; x < w + scaledTile; x += scaledTile) {
     if (groundTileImg.complete && groundTileImg.naturalWidth > 0) {
@@ -364,7 +364,7 @@ export function drawScene(dt = 0.016) {
   const pImg = _loadImage(pAnimConfig.src);
   const pDrawW = 90;
   const pDrawH = 90;
-  const pDrawX = playerSprite.x;
+  const pDrawX = playerSprite.x - world.camX;
   const pDrawY = groundY - pDrawH + 10;
 
   if (pImg.complete && pImg.naturalWidth > 0) {
@@ -409,14 +409,18 @@ export function drawScene(dt = 0.016) {
       enemySprite.frameTimer += dt;
       if (enemySprite.frameTimer >= 0.12) {
         enemySprite.frameTimer = 0;
-        enemySprite.frame = (enemySprite.frame + 1) % eAnimConfig.frames;
+        const nextF = enemySprite.frame + 1;
+        // Corpse holds its final death frame instead of looping
+        enemySprite.frame = enemySprite.dead
+          ? Math.min(nextF, eAnimConfig.frames - 1)
+          : nextF % eAnimConfig.frames;
       }
     }
 
     const eImg = _loadImage(eAnimConfig.src);
     const eDrawW = 160;
     const eDrawH = 160;
-    let eDrawX = enemySprite.x;
+    let eDrawX = enemySprite.x - world.camX;
     const eDrawY = groundY - eDrawH + 10;
 
     // Attack telegraph: pulsing red aura + windup lean while the enemy
@@ -458,17 +462,32 @@ export function drawScene(dt = 0.016) {
       _ctx.globalAlpha = Math.max(0, enemySprite.opacity);
     }
 
-    // Mirror enemy horizontally to face left (toward player)
-    _ctx.translate(eDrawX + eDrawW / 2, 0);
-    _ctx.scale(-1, 1);
-    const localX = -eDrawW / 2;
-
-    if (eImg.complete && eImg.naturalWidth > 0) {
-      const frameX = (enemySprite.frame % eAnimConfig.frames) * eAnimConfig.width;
-      _ctx.drawImage(eImg, frameX, 0, eAnimConfig.width, eAnimConfig.height, localX, eDrawY, eDrawW, eDrawH);
+    if (enemySprite.dead) {
+      // Fallen corpse — rotated flat near the ground line, dimmed, so the
+      // player can run past it during the victory walk
+      _ctx.globalAlpha *= 0.55;
+      _ctx.translate(eDrawX + eDrawW / 2, groundY + 20);
+      _ctx.rotate(-Math.PI / 2);
+      if (eImg.complete && eImg.naturalWidth > 0) {
+        const frameX = (enemySprite.frame % eAnimConfig.frames) * eAnimConfig.width;
+        _ctx.drawImage(eImg, frameX, 0, eAnimConfig.width, eAnimConfig.height, -35, -75, 70, 150);
+      } else {
+        _ctx.fillStyle = "#fe5f55";
+        _ctx.fillRect(-35, -75, 70, 150);
+      }
     } else {
-      _ctx.fillStyle = "#fe5f55";
-      _ctx.fillRect(localX, eDrawY, eDrawW, eDrawH);
+      // Mirror enemy horizontally to face left (toward player)
+      _ctx.translate(eDrawX + eDrawW / 2, 0);
+      _ctx.scale(-1, 1);
+      const localX = -eDrawW / 2;
+
+      if (eImg.complete && eImg.naturalWidth > 0) {
+        const frameX = (enemySprite.frame % eAnimConfig.frames) * eAnimConfig.width;
+        _ctx.drawImage(eImg, frameX, 0, eAnimConfig.width, eAnimConfig.height, localX, eDrawY, eDrawW, eDrawH);
+      } else {
+        _ctx.fillStyle = "#fe5f55";
+        _ctx.fillRect(localX, eDrawY, eDrawW, eDrawH);
+      }
     }
     _ctx.restore();
   }
@@ -482,15 +501,15 @@ export function drawScene(dt = 0.016) {
 
     const bImg = _bulletImg;
     if (bImg.complete && bImg.naturalWidth > 0) {
-      _ctx.drawImage(bImg, proj.x, proj.y, 20, 10);
+      _ctx.drawImage(bImg, proj.x - world.camX, proj.y, 20, 10);
     } else {
       _ctx.fillStyle = "#f5c542";
-      _ctx.fillRect(proj.x, proj.y, 14, 6);
+      _ctx.fillRect(proj.x - world.camX, proj.y, 14, 6);
     }
 
     // Glow trail
     _ctx.fillStyle = "rgba(245, 197, 66, 0.4)";
-    _ctx.fillRect(proj.x - 12, proj.y + 2, 12, 4);
+    _ctx.fillRect(proj.x - 12 - world.camX, proj.y + 2, 12, 4);
 
     // Collision check with target
     if (proj.vx > 0 && proj.x >= proj.targetX) {
@@ -518,7 +537,7 @@ export function drawScene(dt = 0.016) {
     const alpha = p.life / p.maxLife;
     _ctx.fillStyle = `rgba(${p.r},${p.g},${p.b},${alpha})`;
     _ctx.beginPath();
-    _ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+    _ctx.arc(p.x - world.camX, p.y, p.radius, 0, Math.PI * 2);
     _ctx.fill();
   }
 
