@@ -80,6 +80,7 @@ export function initQaHook(callbacks) {
   enemySprite.x = logicalWorldWidth() - 200;
   world.phase = "BATTLE";
   world.camX = 0;
+  world.engaging = false;
   enemySprite.dead = false;
   playerSprite.x = 80;
   playerSprite.animState = "idle";

@@ -31,6 +31,9 @@ import { setupAudioUI } from "./audio-ui.js";
 
 let lastTimestamp = 0;
 let _gameScreenEl = null;
+const _REDUCED_MOTION =
+  typeof matchMedia !== "undefined" &&
+  matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 function gameLoop(timestamp) {
   requestAnimationFrame(gameLoop);
@@ -45,22 +48,47 @@ function gameLoop(timestamp) {
   lastTimestamp = timestamp;
 
   if (world.phase === "RUNNING") {
-    playerSprite.animState = "run";
-    playerSprite.x += 250 * dt;
-
-    // Centered player POV — camera tracks the runner, capped so the enemy
-    // stays fully on-screen as the battle closes in
     const w = logicalWorldWidth();
-    const camMax = Math.max(0, enemySprite.x - (w - 210));
-    const camDesired = Math.max(0, playerSprite.x - (w / 2 - 60));
-    world.camX = Math.min(camMax, camDesired);
 
-    const enemyVisible = enemySprite.x - world.camX <= w - 170;
-    if ((playerSprite.x >= enemySprite.x - 300 && enemyVisible) || world.camX >= camMax - 0.5) {
-      setWorldPhase("BATTLE");
-      playerSprite.animState = "idle";
-      enemySprite.animState = "idle";
-      enemySprite.opacity = 1;
+    if (!world.engaging) {
+      // Run-in — centered player POV, camera capped so the enemy stays
+      // fully on-screen as the fight closes in
+      playerSprite.animState = "run";
+      playerSprite.x += 250 * dt;
+      const camMax = Math.max(0, enemySprite.x - (w - 210));
+      const camDesired = Math.max(0, playerSprite.x - (w / 2 - 60));
+      world.camX = Math.min(camMax, camDesired);
+
+      const enemyVisible = enemySprite.x - world.camX <= w - 170;
+      if ((playerSprite.x >= enemySprite.x - 300 && enemyVisible) || world.camX >= camMax - 0.5) {
+        world.engaging = true;
+      }
+    } else {
+      // Engage slide — both fighters glide into the classic battle
+      // framing: player back at screen-left, enemy at screen-right
+      const pTarget = world.camX + 80;
+      const eTarget = world.camX + (w - 200);
+      if (_REDUCED_MOTION) {
+        playerSprite.x = pTarget;
+        enemySprite.x = eTarget;
+      } else {
+        const k = Math.min(1, dt * 9);
+        playerSprite.animState = "run";
+        playerSprite.x += (pTarget - playerSprite.x) * k;
+        enemySprite.x += (eTarget - enemySprite.x) * k;
+      }
+      if (
+        Math.abs(playerSprite.x - pTarget) < 1 &&
+        Math.abs(enemySprite.x - eTarget) < 1
+      ) {
+        playerSprite.x = pTarget;
+        enemySprite.x = eTarget;
+        world.engaging = false;
+        setWorldPhase("BATTLE");
+        playerSprite.animState = "idle";
+        enemySprite.animState = "idle";
+        enemySprite.opacity = 1;
+      }
     }
   }
 
@@ -98,6 +126,7 @@ export function loadEnemy() {
   playerSprite.x = 0;
   playerSprite.animState = "run";
   world.camX = 0;
+  world.engaging = false;
   setWorldPhase("RUNNING");
   runBattleIntro(run.node, def.name);
 

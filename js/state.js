@@ -56,6 +56,8 @@ export let world = {
   // Camera offset: entities live in world coords, drawn at x - camX.
   // Follows the player during RUNNING/VICTORY, frozen during BATTLE.
   camX: 0,
+  // True while fighters glide from run-in spacing into battle framing
+  engaging: false,
 };
 
 export let playerSprite = {
