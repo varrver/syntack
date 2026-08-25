@@ -79,6 +79,7 @@ export function initQaHook(callbacks) {
   // world.scrollX (background offset) identical across capture runs
   enemySprite.x = logicalWorldWidth() - 200;
   world.phase = "BATTLE";
+  playerSprite.x = 80;
   playerSprite.animState = "idle";
   enemySprite.animState = "idle";
 

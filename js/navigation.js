@@ -51,10 +51,13 @@ export function setupNavigation(initGameFn) {
 
   const archiveModal = document.getElementById("archive-modal");
   const rulesModal = document.getElementById("rules-modal");
+  const startConfirmModal = document.getElementById("start-confirm-modal");
   const endOverlay = document.getElementById("end-overlay");
   const rewardOverlay = document.getElementById("reward-overlay");
   const btnCloseArchive = document.getElementById("btn-close-archive");
   const btnCloseRules = document.getElementById("btn-close-rules");
+  const btnCancelStart = document.getElementById("btn-cancel-start");
+  const btnConfirmStart = document.getElementById("btn-confirm-start");
 
   const parallaxBg = document.getElementById("menu-parallax-bg");
 
@@ -92,14 +95,36 @@ export function setupNavigation(initGameFn) {
   if (btnMenuStart) {
     btnMenuStart.onclick = () => {
       audioEngine.ensureContext();
-      audioEngine.playExecuteTurn();
-      parallaxActive = false;
-      if (parallaxBg) parallaxBg.classList.add("in-game");
-      // Initialize battle state BEFORE the arena becomes visible — otherwise
-      // the canvas paints the stale/default enemy position for a frame,
-      // which reads as the enemy teleporting before its walk-in
-      initGameFn();
-      animateScreenTransition(homeScreen, gameScreen);
+      audioEngine.playHover();
+      lastFocusedEl = document.activeElement;
+      animateModalOpen(startConfirmModal);
+      focusFirstFocusable(startConfirmModal);
+    };
+  }
+
+  function startBattle() {
+    audioEngine.playExecuteTurn();
+    parallaxActive = false;
+    if (parallaxBg) parallaxBg.classList.add("in-game");
+    // Initialize battle state BEFORE the arena becomes visible — otherwise
+    // the canvas paints the stale/default enemy position for a frame,
+    // which reads as the enemy teleporting before its walk-in
+    initGameFn();
+    animateScreenTransition(homeScreen, gameScreen);
+  }
+
+  if (btnCancelStart) {
+    btnCancelStart.onclick = () => {
+      audioEngine.playHover();
+      animateModalClose(startConfirmModal);
+      if (lastFocusedEl) lastFocusedEl.focus();
+    };
+  }
+
+  if (btnConfirmStart) {
+    btnConfirmStart.onclick = () => {
+      animateModalClose(startConfirmModal);
+      startBattle();
     };
   }
 
@@ -150,7 +175,7 @@ export function setupNavigation(initGameFn) {
     if (e.key !== "Escape" && e.key !== "Tab") return;
 
     if (e.key === "Escape") {
-      [archiveModal, rulesModal].forEach((modal) => {
+      [archiveModal, rulesModal, startConfirmModal].forEach((modal) => {
         if (modal && !modal.classList.contains("hidden")) {
           animateModalClose(modal);
           if (lastFocusedEl) lastFocusedEl.focus();
@@ -159,7 +184,7 @@ export function setupNavigation(initGameFn) {
     }
 
     if (e.key === "Tab") {
-      const open = [archiveModal, rulesModal, endOverlay, rewardOverlay].find(
+      const open = [archiveModal, rulesModal, startConfirmModal, endOverlay, rewardOverlay].find(
         (m) => m && !m.classList.contains("hidden"),
       );
       if (open) trapFocus(open, e);

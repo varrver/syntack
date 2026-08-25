@@ -47,10 +47,10 @@ function gameLoop(timestamp) {
     world.scrollX += world.scrollSpeed * dt;
     playerSprite.animState = "run";
 
-    const engageX = logicalWorldWidth() - 200;
-    if (enemySprite.x > engageX) {
-      enemySprite.x = Math.max(engageX, enemySprite.x - 220 * dt);
-      enemySprite.animState = "run";
+    // Enemy stands its ground at the engage point; the player runs in
+    if (playerSprite.x < 80) {
+      playerSprite.x = Math.min(80, playerSprite.x + 260 * dt);
+      enemySprite.animState = "idle";
     } else {
       setWorldPhase("BATTLE");
       playerSprite.animState = "idle";
@@ -75,8 +75,14 @@ export function loadEnemy() {
   player.loopMult = 1;
   player.ram = player.maxRam;
 
-  // Setup enemy entry position for wave transition
-  enemySprite.x = logicalWorldWidth() + 30;
+  // Setup positions for wave transition — enemy stands at the engage
+  // point, player runs in from offscreen left
+  const engageX = logicalWorldWidth() - 200;
+  enemySprite.x = engageX;
+  enemySprite.animState = "idle";
+  enemySprite.opacity = 1;
+  playerSprite.x = -110;
+  playerSprite.animState = "run";
   runBattleIntro(run.node, def.name);
   enemySprite.opacity = 1;
   enemySprite.animState = "run";
