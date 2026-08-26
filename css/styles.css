@@ -969,6 +969,80 @@ body::after {
   }
 }
 
+/* ── Home menu title: heavier glitch variant ──────────────
+   Interleaved keyframes (same as .glitch) so both animations
+   share timing without cross-interference. The title itself
+   gets skew-tear bursts; pseudo-elements carry the RGB split
+   and intensify their jitter during those same windows. */
+.glitch-menu::before {
+  color: var(--balatro-blue);
+  animation: glitchChannel 6s steps(2, jump-none) infinite;
+}
+
+.glitch-menu::after {
+  color: var(--balatro-green);
+  animation: glitchChannel 5s steps(2, jump-none) infinite;
+}
+
+@keyframes glitchChannel {
+  0%, 88%, 100% { transform: translate(0); opacity: 0; }
+  89% { opacity: 0.75; }
+  91% { transform: translate(-6px, 2px); opacity: 0.75; }
+  93% { transform: translate(5px, -2px); opacity: 0.75; }
+  95% { transform: translate(-3px, 1px); opacity: 0.55; }
+}
+
+/* Horizontal skew-tear on the title itself during bursts */
+.glitch-menu {
+  animation: glitchSkew 4.6s steps(3, step-end) infinite;
+}
+
+@keyframes glitchSkew {
+  0%, 82%, 100% { transform: skewX(0deg); }
+  83% { transform: skewX(-3deg) translateX(-2px); }
+  86% { transform: skewX(2.5deg) translateX(3px); }
+}
+
+/* Glow intensifies during burst windows (same timing as skew) */
+.glitch-menu {
+  text-shadow:
+    0 0 16px rgb(var(--balatro-gold-rgb) / 0.4),
+    3px 3px 0 #000;
+  animation: glitchSkew 4.6s steps(3, step-end) infinite,
+             glitchGlow 4.6s steps(3, step-end) infinite;
+}
+
+@keyframes glitchGlow {
+  0%, 82%, 100% {
+    text-shadow:
+      0 0 16px rgb(var(--balatro-gold-rgb) / 0.4),
+      3px 3px 0 #000;
+  }
+  83%, 86% {
+    text-shadow:
+      0 0 28px rgb(var(--balatro-gold-rgb) / 0.7),
+      0 0 60px rgb(var(--balatro-red-rgb) / 0.3),
+      -2px 0 0 var(--balatro-blue),
+      2px 0 0 var(--balatro-green),
+      3px 3px 0 #000;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glitch-menu {
+    animation: none;
+  }
+  .glitch-menu::before,
+  .glitch-menu::after {
+    animation: glitchFlicker 4s steps(1) infinite;
+  }
+}
+
+@keyframes glitchFlicker {
+  0%, 88%, 100% { opacity: 0; transform: none; }
+  90%           { opacity: 0.4; }
+}
+
 /* ────────────────────────────────────────────────────────
    16. HUD CORNER BRACKETS (enemy panel only — the terminal
    is a scroll container, so pseudo-element brackets there
