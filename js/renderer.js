@@ -270,7 +270,7 @@ export function initCanvasRenderer() {
 /* Resize canvas bitmap to its CSS box and derive the uniform view scale.
    The logical world is always 820x260; height-fit scaling keeps sprite
    proportions identical from desktop down to phones. */
-function resizeCanvas() {
+export function resizeCanvas() {
   if (!_canvas) return;
   const cw = _canvas.clientWidth || 820;
   const ch = _canvas.clientHeight || 260;
@@ -421,6 +421,14 @@ export function drawScene(dt = 0.016) {
     const eDrawW = 160;
     const eDrawH = 160;
     let eDrawX = enemySprite.x - world.camX;
+    // Keep the enemy fully on-screen during battle even if the canvas
+    // resized after loadEnemy() computed its world position (e.g. the
+    // game screen was still hidden with a stale 820-wide fallback).
+    if (world.phase === "BATTLE") {
+      const minX = 80;
+      const maxX = w - eDrawW - 80;
+      eDrawX = Math.max(minX, Math.min(eDrawX, maxX));
+    }
     const eDrawY = groundY - eDrawH + 10;
 
     // Attack telegraph: pulsing red aura + windup lean while the enemy

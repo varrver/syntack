@@ -19,7 +19,7 @@ import {
   animateScreenTransition,
   REDUCED_MOTION,
 } from "./motion.js";
-import { resetTerminal, log, renderHand, updateUI, updateEnemySprite, drawScene, initCanvasRenderer, logicalWorldWidth } from "./renderer.js";
+import { resetTerminal, log, renderHand, updateUI, updateEnemySprite, drawScene, initCanvasRenderer, logicalWorldWidth, resizeCanvas } from "./renderer.js";
 import { dealDamageToEnemy, endTurn, updateEnemyIntent, checkWinLoss } from "./combat.js";
 import { setupNavigation } from "./navigation.js";
 import {
@@ -156,6 +156,10 @@ export function resetRun() {
 
 /** Deploy into the current run.node — approach run starts immediately. */
 function deployNode() {
+  // Sync the canvas bitmap to the live CSS box before computing any
+  // positions — the game screen may still carry the stale 820×260
+  // fallback dimensions from when it was display:none.
+  resizeCanvas();
   loadEnemy();
   drawHand();
   updateUI();
