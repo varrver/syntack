@@ -91,16 +91,13 @@ export function loadEnemy() {
   player.loopMult = 1;
   player.ram = player.maxRam;
 
-  // Each node is an approach run: the player holds screen-left while the
-  // camera covers the corridor; the enemy waits, anchored in the world.
-  // Distance grows slightly per node but speed scales with it, so every
-  // run-in lands in ~1.6s with the enemy on screen for most of it.
-  const approachDist = 300 + run.node * 60;
+  // The enemy starts off-screen right; the player runs toward it and
+  // stops 240 units away.  Position is relative to the player start
+  // (world x=80) so it's correct regardless of canvas dimensions.
+  enemySprite.x = 80 + 400;
+  const approachDist = 400 - 240;
   world.runRemaining = approachDist;
   world.runSpeed = approachDist / 1.6;
-  // Player holds at world x=80; enemy stands 360 units ahead — a fixed
-  // position that the camera pans toward during the approach run.
-  enemySprite.x = 80 + 360;
   enemySprite.dead = false;
   enemySprite.opacity = 1;
   enemySprite.animState = "idle";
