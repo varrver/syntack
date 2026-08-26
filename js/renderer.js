@@ -420,21 +420,11 @@ export function drawScene(dt = 0.016) {
     const eImg = _loadImage(eAnimConfig.src);
     const eDrawW = 160;
     const eDrawH = 160;
-    // Anchor the enemy to a fixed screen-right offset from the player.
-    // During RUNNING the player is pinned at screen-left (camX + 80), so
-    // the enemy sits at screen-right and enters the frame naturally as the
-    // camera pans.  If the canvas resized since loadEnemy() set the world
-    // position the anchor keeps the draw position correct without a jump.
-    const playerScreenX = playerSprite.x - world.camX;
-    let eDrawX = playerScreenX + w * 0.58;
-    // On the first BATTLE frame, snap enemySprite.x so that projectile
-    // targets and other gameplay code agree with the draw position.
-    if (world.phase === "BATTLE" && !enemySprite._battleAnchored) {
-      enemySprite.x = eDrawX + world.camX;
-      enemySprite._battleAnchored = true;
-    }
+    // The enemy is anchored at a fixed world position — standing still
+    // while the player approaches.  On narrow viewports where the logical
+    // world is smaller than the enemy's world X, clamp so it's visible.
+    let eDrawX = enemySprite.x - world.camX;
     if (world.phase === "BATTLE") {
-      eDrawX = enemySprite.x - world.camX;
       const minX = 80;
       const maxX = w - eDrawW - 80;
       eDrawX = Math.max(minX, Math.min(eDrawX, maxX));

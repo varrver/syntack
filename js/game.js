@@ -98,12 +98,13 @@ export function loadEnemy() {
   const approachDist = 300 + run.node * 60;
   world.runRemaining = approachDist;
   world.runSpeed = approachDist / 1.6;
-  enemySprite.x = logicalWorldWidth() - 200 + world.runRemaining;
+  // Player holds at world x=80; enemy stands 360 units ahead — a fixed
+  // position that the camera pans toward during the approach run.
+  enemySprite.x = 80 + 360;
   enemySprite.dead = false;
   enemySprite.opacity = 1;
   enemySprite.animState = "idle";
   enemySprite.frame = 0;
-  enemySprite._battleAnchored = false;
   playerSprite.x = 80;
   playerSprite.animState = "run";
   world.camX = 0;
