@@ -405,7 +405,7 @@ export function drawScene(dt = 0.016) {
     const eSpriteSet = (enemy.name === "INTRUSION WRAITH" ? SPRITES.enemy2 :
       enemy.name === "LOGIC BOMBER" ? SPRITES.enemy3 : SPRITES.enemy1);
     const eAnimConfig = eSpriteSet[enemySprite.animState] || eSpriteSet.idle;
-    if (!qaHold) {
+    if (!qaHold && world.phase !== "RUNNING") {
       enemySprite.frameTimer += dt;
       if (enemySprite.frameTimer >= 0.12) {
         enemySprite.frameTimer = 0;
