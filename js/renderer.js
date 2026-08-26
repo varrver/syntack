@@ -420,23 +420,26 @@ export function drawScene(dt = 0.016) {
     const eImg = _loadImage(eAnimConfig.src);
     const eDrawW = 160;
     const eDrawH = 160;
-    let eDrawX = enemySprite.x - world.camX;
-    // Keep the enemy fully on-screen during battle even if the canvas
-    // resized after loadEnemy() computed its world position (e.g. the
-    // game screen was still hidden with a stale 820-wide fallback).
+    // Anchor the enemy to a fixed screen-right offset from the player.
+    // During RUNNING the player is pinned at screen-left (camX + 80), so
+    // the enemy sits at screen-right and enters the frame naturally as the
+    // camera pans.  If the canvas resized since loadEnemy() set the world
+    // position the anchor keeps the draw position correct without a jump.
+    const playerScreenX = playerSprite.x - world.camX;
+    let eDrawX = playerScreenX + w * 0.58;
+    // On the first BATTLE frame, snap enemySprite.x so that projectile
+    // targets and other gameplay code agree with the draw position.
+    if (world.phase === "BATTLE" && !enemySprite._battleAnchored) {
+      enemySprite.x = eDrawX + world.camX;
+      enemySprite._battleAnchored = true;
+    }
     if (world.phase === "BATTLE") {
+      eDrawX = enemySprite.x - world.camX;
       const minX = 80;
       const maxX = w - eDrawW - 80;
       eDrawX = Math.max(minX, Math.min(eDrawX, maxX));
     }
     const eDrawY = groundY - eDrawH + 10;
-
-    // Approach fade — enemy fades in as it enters the visible area
-    // during the RUNNING phase so it doesn't pop into view
-    const approachFade =
-      world.phase === "RUNNING"
-        ? Math.min(1, Math.max(0, eDrawX / (w * 0.2)))
-        : 1;
 
     // Attack telegraph: pulsing red aura + windup lean while the enemy
     // intends to attack and hasn't started its attack animation yet
@@ -449,7 +452,7 @@ export function drawScene(dt = 0.016) {
       if (REDUCED_MOTION) {
         // Steady outline, no pulse or movement
         _ctx.save();
-        _ctx.globalAlpha = 0.4 * approachFade;
+        _ctx.globalAlpha = 0.4;
         _ctx.strokeStyle = "#ff3355";
         _ctx.lineWidth = 4;
         _ctx.beginPath();
@@ -460,7 +463,7 @@ export function drawScene(dt = 0.016) {
         const pulse = (Math.sin(performance.now() / 1000 * 6) + 1) / 2; // 0..1
         eDrawX -= 3 + pulse * 5; // windup lean away from player
         _ctx.save();
-        _ctx.globalAlpha = (0.25 + pulse * 0.3) * approachFade;
+        _ctx.globalAlpha = 0.25 + pulse * 0.3;
         _ctx.strokeStyle = "#ff3355";
         _ctx.lineWidth = 4;
         _ctx.shadowColor = "#ff3355";
@@ -473,8 +476,8 @@ export function drawScene(dt = 0.016) {
     }
 
     _ctx.save();
-    if (enemySprite.opacity < 1 || approachFade < 1) {
-      _ctx.globalAlpha = Math.max(0, enemySprite.opacity) * approachFade;
+    if (enemySprite.opacity < 1) {
+      _ctx.globalAlpha = Math.max(0, enemySprite.opacity);
     }
 
     if (enemySprite.dead) {

@@ -103,6 +103,7 @@ export function loadEnemy() {
   enemySprite.opacity = 1;
   enemySprite.animState = "idle";
   enemySprite.frame = 0;
+  enemySprite._battleAnchored = false;
   playerSprite.x = 80;
   playerSprite.animState = "run";
   world.camX = 0;
