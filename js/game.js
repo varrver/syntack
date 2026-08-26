@@ -91,11 +91,11 @@ export function loadEnemy() {
   player.loopMult = 1;
   player.ram = player.maxRam;
 
-  // The enemy starts off-screen right; the player runs toward it and
-  // stops 240 units away.  Position is relative to the player start
-  // (world x=80) so it's correct regardless of canvas dimensions.
-  enemySprite.x = 80 + 400;
-  const approachDist = 400 - 240;
+  // Enemy stands far right in the world.  Camera pans 600 units and
+  // stops, leaving the enemy at screen position ~900 (right third on
+  // 1280px desktop).  On narrow viewports the clamp keeps it visible.
+  enemySprite.x = 1500;
+  const approachDist = 600;
   world.runRemaining = approachDist;
   world.runSpeed = approachDist / 1.6;
   enemySprite.dead = false;
