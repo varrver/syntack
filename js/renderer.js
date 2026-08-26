@@ -421,10 +421,10 @@ export function drawScene(dt = 0.016) {
     const eDrawW = 160;
     const eDrawH = 160;
     // The enemy is anchored at a fixed world position — standing still
-    // while the player approaches.  Clamp so it's always on-screen
-    // regardless of viewport width or canvas resize timing.
+    // while the player approaches.  Clamp only during BATTLE so the
+    // enemy can start off-screen and enter naturally during RUNNING.
     let eDrawX = enemySprite.x - world.camX;
-    {
+    if (world.phase === "BATTLE") {
       const minX = 80;
       const maxX = w - eDrawW - 80;
       eDrawX = Math.max(minX, Math.min(eDrawX, maxX));
