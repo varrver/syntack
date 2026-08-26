@@ -431,6 +431,13 @@ export function drawScene(dt = 0.016) {
     }
     const eDrawY = groundY - eDrawH + 10;
 
+    // Approach fade — enemy fades in as it enters the visible area
+    // during the RUNNING phase so it doesn't pop into view
+    const approachFade =
+      world.phase === "RUNNING"
+        ? Math.min(1, Math.max(0, eDrawX / (w * 0.2)))
+        : 1;
+
     // Attack telegraph: pulsing red aura + windup lean while the enemy
     // intends to attack and hasn't started its attack animation yet
     if (
@@ -442,7 +449,7 @@ export function drawScene(dt = 0.016) {
       if (REDUCED_MOTION) {
         // Steady outline, no pulse or movement
         _ctx.save();
-        _ctx.globalAlpha = 0.4;
+        _ctx.globalAlpha = 0.4 * approachFade;
         _ctx.strokeStyle = "#ff3355";
         _ctx.lineWidth = 4;
         _ctx.beginPath();
@@ -453,7 +460,7 @@ export function drawScene(dt = 0.016) {
         const pulse = (Math.sin(performance.now() / 1000 * 6) + 1) / 2; // 0..1
         eDrawX -= 3 + pulse * 5; // windup lean away from player
         _ctx.save();
-        _ctx.globalAlpha = 0.25 + pulse * 0.3;
+        _ctx.globalAlpha = (0.25 + pulse * 0.3) * approachFade;
         _ctx.strokeStyle = "#ff3355";
         _ctx.lineWidth = 4;
         _ctx.shadowColor = "#ff3355";
@@ -466,8 +473,8 @@ export function drawScene(dt = 0.016) {
     }
 
     _ctx.save();
-    if (enemySprite.opacity < 1) {
-      _ctx.globalAlpha = Math.max(0, enemySprite.opacity);
+    if (enemySprite.opacity < 1 || approachFade < 1) {
+      _ctx.globalAlpha = Math.max(0, enemySprite.opacity) * approachFade;
     }
 
     if (enemySprite.dead) {
