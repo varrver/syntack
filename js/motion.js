@@ -571,28 +571,40 @@ export function animateFloatDamage(text, type, left, top) {
   setTimeout(() => _releaseFloat(el), FLOAT_MS + 100);
 }
 
-/* Battle intro cutscene — warning blink + node/enemy title card.
-   Overlay auto-hides after ~2s; skipped entirely under reduced motion. */
+/* Battle intro cutscene — VS cinematic split-screen.
+   Overlay auto-hides after ~2.8s; skipped entirely under reduced motion. */
 export function runBattleIntro(nodeNum, enemyName) {
   const wrap = document.getElementById("battle-intro");
   if (!wrap || REDUCED_MOTION) return;
-  const warn = document.getElementById("battle-intro-warning");
-  const title = document.getElementById("battle-intro-title");
+
+  const warn       = document.getElementById("battle-intro-warning");
+  const title      = document.getElementById("battle-intro-title");
+  const enemySub   = document.getElementById("battle-intro-enemy-sub");
+  const playerName = document.getElementById("battle-intro-player-name");
+  const playerLbl  = document.getElementById("battle-intro-player-label");
+  const playerSub  = document.getElementById("battle-intro-player-sub");
   if (!warn || !title) return;
 
-  warn.textContent = `⚠ INTRUSION DETECTED — NODE ${nodeNum}`;
-  title.textContent = `// ${enemyName}`;
+  // Populate text content
+  if (warn)       warn.textContent       = `⚠ NODE ${nodeNum} — INTRUSION DETECTED`;
+  if (title)      title.textContent      = enemyName;
+  if (enemySub)   enemySub.textContent   = "// THREAT LEVEL: CRITICAL";
+  if (playerName) playerName.textContent = "NETRUNNER";
+  if (playerLbl)  playerLbl.textContent  = "PLAYER 01";
+  if (playerSub)  playerSub.textContent  = "// GHOST PROTOCOL ACTIVE";
 
   clearTimeout(runBattleIntro._t1);
   clearTimeout(runBattleIntro._t2);
+
   wrap.classList.remove("hidden", "battle-intro-exit");
   wrap.classList.add("flex", "battle-intro-active");
 
+  // Exit: start fade at 2.3s, fully hidden by 2.75s
   runBattleIntro._t1 = setTimeout(() => {
     wrap.classList.add("battle-intro-exit");
-  }, 1600);
+  }, 2300);
   runBattleIntro._t2 = setTimeout(() => {
     wrap.classList.add("hidden");
     wrap.classList.remove("flex", "battle-intro-active", "battle-intro-exit");
-  }, 2050);
+  }, 2750);
 }

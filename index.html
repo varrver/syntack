@@ -324,14 +324,52 @@
                     <canvas id="game-canvas" width="820" height="260"
                         class="w-full h-[160px] sm:h-[260px] block cursor-crosshair"></canvas>
 
-                    <!-- Battle intro cutscene overlay -->
+                    <!-- Battle intro cutscene overlay — VS cinematic screen -->
                     <div id="battle-intro"
-                        class="hidden absolute inset-0 z-30 flex-col items-center justify-center pointer-events-none"
+                        class="hidden absolute inset-0 z-30 items-center justify-center pointer-events-none overflow-hidden"
                         aria-hidden="true">
-                        <div id="battle-intro-warning"
-                            class="battle-intro-warning font-pixel text-[0.55rem] sm:text-[0.7rem] tracking-[2px] sm:tracking-[3px] text-balatro-red uppercase"></div>
-                        <div id="battle-intro-title"
-                            class="battle-intro-title font-pixel text-[0.75rem] sm:text-[1rem] tracking-[2px] sm:tracking-[4px] text-white mt-2 uppercase"></div>
+
+                        <!-- Left panel: player -->
+                        <div class="battle-intro-panel battle-intro-panel-left absolute inset-y-0 left-0 w-1/2 flex flex-col items-start justify-end pb-4 pl-3 sm:pl-5">
+                            <div class="battle-intro-scanline absolute inset-0 pointer-events-none"></div>
+                            <div id="battle-intro-player-label"
+                                class="battle-intro-player-label font-pixel text-[0.4rem] sm:text-[0.5rem] tracking-[2px] text-balatro-cyan uppercase mb-1 opacity-0">
+                                PLAYER 01
+                            </div>
+                            <div id="battle-intro-player-name"
+                                class="battle-intro-player-name font-pixel text-[0.7rem] sm:text-[1.05rem] tracking-[3px] sm:tracking-[5px] text-white uppercase opacity-0">
+                                NETRUNNER
+                            </div>
+                            <div id="battle-intro-player-sub"
+                                class="battle-intro-player-sub font-pixel text-[0.35rem] sm:text-[0.45rem] tracking-[2px] text-balatro-cyan/70 uppercase mt-1 opacity-0">
+                                // GHOST PROTOCOL ACTIVE
+                            </div>
+                        </div>
+
+                        <!-- VS badge -->
+                        <div id="battle-intro-vs"
+                            class="battle-intro-vs relative z-10 flex items-center justify-center opacity-0">
+                            <div class="battle-intro-vs-ring"></div>
+                            <span class="font-pixel text-[0.9rem] sm:text-[1.4rem] tracking-[4px] text-white relative z-10">VS</span>
+                        </div>
+
+                        <!-- Right panel: enemy -->
+                        <div class="battle-intro-panel battle-intro-panel-right absolute inset-y-0 right-0 w-1/2 flex flex-col items-end justify-end pb-4 pr-3 sm:pr-5">
+                            <div class="battle-intro-scanline absolute inset-0 pointer-events-none"></div>
+                            <div id="battle-intro-warning"
+                                class="battle-intro-warning font-pixel text-[0.4rem] sm:text-[0.5rem] tracking-[2px] sm:tracking-[3px] text-balatro-red uppercase mb-1 text-right opacity-0">
+                            </div>
+                            <div id="battle-intro-title"
+                                class="battle-intro-title font-pixel text-[0.7rem] sm:text-[1.05rem] tracking-[3px] sm:tracking-[5px] text-white uppercase text-right opacity-0">
+                            </div>
+                            <div id="battle-intro-enemy-sub"
+                                class="battle-intro-enemy-sub font-pixel text-[0.35rem] sm:text-[0.45rem] tracking-[2px] text-balatro-red/70 uppercase mt-1 text-right opacity-0">
+                                // THREAT LEVEL: CRITICAL
+                            </div>
+                        </div>
+
+                        <!-- Center divider slash -->
+                        <div class="battle-intro-divider absolute inset-y-0 left-1/2 -translate-x-1/2 w-[3px] opacity-0" id="battle-intro-divider"></div>
                     </div>
 
                     <!-- Hidden compatibility sprite nodes for DOM queries/a11y -->

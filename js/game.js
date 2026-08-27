@@ -62,7 +62,11 @@ function gameLoop(timestamp) {
     if (world.runRemaining <= 0) {
       setWorldPhase("BATTLE");
       playerSprite.animState = "idle";
+      playerSprite.frame = 0;
+      playerSprite.frameTimer = 0;
       enemySprite.animState = "idle";
+      enemySprite.frame = 0;
+      enemySprite.frameTimer = 0;
       enemySprite.opacity = 1;
     }
   }
@@ -91,11 +95,15 @@ export function loadEnemy() {
   player.loopMult = 1;
   player.ram = player.maxRam;
 
-  // Enemy stands far right in the world.  Camera pans 600 units and
-  // stops, leaving the enemy at screen position ~900 (right third on
-  // 1280px desktop).  On narrow viewports the clamp keeps it visible.
-  enemySprite.x = 1500;
+  // Enemy stands in the world so that after the camera pans 600 units
+  // during the approach run, the enemy lands smoothly at its battle stance
+  // position with 100% linear, continuous motion (zero magnet snap).
+  const w = logicalWorldWidth();
   const approachDist = 600;
+  const eDrawW = 160;
+  const rightMargin = w < 600 ? 40 : 80;
+  const targetBattleX = Math.max(80, w - eDrawW - rightMargin);
+  enemySprite.x = approachDist + targetBattleX;
   world.runRemaining = approachDist;
   world.runSpeed = approachDist / 1.6;
   enemySprite.dead = false;

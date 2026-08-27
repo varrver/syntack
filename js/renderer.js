@@ -234,8 +234,9 @@ const SPRITES = {
     hurt: { src: "assets/sprite/enemy/2/Hurt.png", frames: 2, width: 96, height: 96 },
     death: { src: "assets/sprite/enemy/2/Death.png", frames: 6, width: 96, height: 96 },
   },
-  bullet: "assets/sprite/attack/5.png",
-  muzzleFlash: "assets/sprite/attack/6_1.png",
+  bullet: "assets/sprite/effect/5.png",
+  muzzleFlash: "assets/sprite/effect/6_1.png",
+  smoke: { src: "assets/sprite/effect/Smoke1.png", frames: 6, width: 96, height: 96 },
 };
 
 function _loadImage(src) {
@@ -245,6 +246,8 @@ function _loadImage(src) {
   _images[src] = img;
   return img;
 }
+
+let _smokeImg = null;
 
 export function initCanvasRenderer() {
   _canvas = document.getElementById("game-canvas");
@@ -261,6 +264,7 @@ export function initCanvasRenderer() {
   _groundSubTileImg = _loadImage(SPRITES.groundSubTile);
   _bulletImg = _loadImage(SPRITES.bullet);
   _muzzleFlashImg = _loadImage(SPRITES.muzzleFlash);
+  _smokeImg = _loadImage(SPRITES.smoke.src);
   Object.values(SPRITES.player).forEach(s => _loadImage(s.src));
   Object.values(SPRITES.enemy1).forEach(s => _loadImage(s.src));
   Object.values(SPRITES.enemy2).forEach(s => _loadImage(s.src));
@@ -272,8 +276,12 @@ export function initCanvasRenderer() {
    proportions identical from desktop down to phones. */
 export function resizeCanvas() {
   if (!_canvas) return;
-  const cw = _canvas.clientWidth || 820;
-  const ch = _canvas.clientHeight || 260;
+  const parentW = _canvas.parentElement ? _canvas.parentElement.clientWidth : 0;
+  const winW = typeof window !== "undefined" ? window.innerWidth : 820;
+  const cw = _canvas.clientWidth || parentW || Math.min(820, Math.max(300, winW - 32));
+  const isMobile = winW < 640;
+  const targetH = isMobile ? 160 : 260;
+  const ch = _canvas.clientHeight || targetH;
   _canvas.width = cw;
   _canvas.height = ch;
   _viewScale = ch / 260;
@@ -375,29 +383,141 @@ export function drawScene(dt = 0.016) {
     _ctx.fillRect(pDrawX, pDrawY, pDrawW, pDrawH);
   }
 
-  // Draw Shield Glow Effect
-  if (playerSprite.shieldTimer > 0) {
-    playerSprite.shieldTimer -= dt;
+  // Player Block Smoke Effect (active whenever player has block)
+  if (player.block > 0) {
+    if (_smokeImg && _smokeImg.complete && _smokeImg.naturalWidth > 0 && !REDUCED_MOTION) {
+      const frameIdx = Math.floor((performance.now() / 100) % 6);
+      const smokeSize = 105;
+      const smokeX = pDrawX - 16;
+      const smokeY = groundY - smokeSize + 10;
+      _ctx.save();
+      _ctx.globalAlpha = 0.65;
+      _ctx.drawImage(
+        _smokeImg,
+        frameIdx * 96,
+        0,
+        96,
+        96,
+        smokeX,
+        smokeY,
+        smokeSize,
+        smokeSize
+      );
+      _ctx.restore();
+    }
+  }
+
+  // Enemy Attack Impact Burst on player
+  if (enemySprite.attackFlashTimer > 0) {
+    enemySprite.attackFlashTimer -= dt;
+    const maxDur = 0.45;
+    const progress = 1 - (enemySprite.attackFlashTimer / maxDur);
+    const alpha = Math.max(0, 1 - progress * 1.8);
+    const impactX = pDrawX + pDrawW * 0.35;
+    const impactY = pDrawY + pDrawH * 0.45;
+    const isBlocked = player.block > 0;
+    const impactColor = isBlocked ? "#00f0ff" : "#ff2244";
+    const impactGlow = isBlocked ? "#00ffff" : "#ff0033";
+
     _ctx.save();
-    _ctx.strokeStyle = "rgba(137, 87, 229, 0.85)";
-    _ctx.lineWidth = 4;
-    _ctx.shadowColor = "#8957e5";
-    _ctx.shadowBlur = 12;
+
+    if (!REDUCED_MOTION) {
+      // Expanding shockwave ring
+      const ringRadius = 18 + progress * 50;
+      _ctx.globalAlpha = alpha * 0.7;
+      _ctx.strokeStyle = impactColor;
+      _ctx.lineWidth = 3 - progress * 2;
+      _ctx.shadowColor = impactGlow;
+      _ctx.shadowBlur = 20;
+      _ctx.beginPath();
+      _ctx.arc(impactX, impactY, ringRadius, 0, Math.PI * 2);
+      _ctx.stroke();
+
+      // Second outer ring (delayed)
+      if (progress > 0.2) {
+        const ring2Radius = 10 + (progress - 0.2) * 60;
+        _ctx.globalAlpha = alpha * 0.4;
+        _ctx.lineWidth = 1.5;
+        _ctx.beginPath();
+        _ctx.arc(impactX, impactY, ring2Radius, 0, Math.PI * 2);
+        _ctx.stroke();
+      }
+
+      // Slash streaks radiating outward
+      _ctx.globalAlpha = alpha * 0.85;
+      _ctx.lineWidth = 2.5;
+      _ctx.shadowBlur = 14;
+      const slashAngles = isBlocked
+        ? [0, Math.PI * 0.5, Math.PI, Math.PI * 1.5]          // cross (blocked)
+        : [-0.4, 0.1, 0.55, Math.PI - 0.3, Math.PI + 0.15];   // diagonal slashes (hit)
+      const slashLen = 14 + progress * 38;
+      for (const angle of slashAngles) {
+        const sx = impactX + Math.cos(angle) * 8;
+        const sy = impactY + Math.sin(angle) * 8;
+        _ctx.beginPath();
+        _ctx.moveTo(sx, sy);
+        _ctx.lineTo(
+          impactX + Math.cos(angle) * slashLen,
+          impactY + Math.sin(angle) * slashLen
+        );
+        _ctx.strokeStyle = impactColor;
+        _ctx.stroke();
+      }
+    }
+
+    // Hot white core burst
+    _ctx.globalAlpha = alpha * 0.9;
+    _ctx.shadowColor = "#ffffff";
+    _ctx.shadowBlur = 18;
+    _ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
     _ctx.beginPath();
-    _ctx.ellipse(pDrawX + pDrawW / 2, pDrawY + pDrawH / 2, pDrawW / 1.8, pDrawH / 1.8, 0, 0, Math.PI * 2);
-    _ctx.stroke();
+    const coreRadius = Math.max(1, (1 - progress) * 12);
+    _ctx.arc(impactX, impactY, coreRadius, 0, Math.PI * 2);
+    _ctx.fill();
+
     _ctx.restore();
   }
 
-  // Muzzle Flash
+  // Muzzle Flash — layered neon burst
   if (playerSprite.muzzleFlashTimer > 0) {
     playerSprite.muzzleFlashTimer -= dt;
+    const flashProgress = 1 - (playerSprite.muzzleFlashTimer / 0.3);
+    const muzzleX = pDrawX + pDrawW - 2;
+    const muzzleY = pDrawY + pDrawH / 2 - 10;
     const mImg = _muzzleFlashImg;
-    const muzzleX = pDrawX + pDrawW - 10;
-    const muzzleY = pDrawY + pDrawH / 2 - 12;
+    _ctx.save();
+    const flashAlpha = Math.max(0, 1 - flashProgress * 2.5);
+    _ctx.globalAlpha = flashAlpha;
+    // Outer glow ring
+    _ctx.shadowColor = "#00f0ff";
+    _ctx.shadowBlur = 24;
+    _ctx.fillStyle = "rgba(0, 200, 255, 0.35)";
+    _ctx.beginPath();
+    _ctx.ellipse(muzzleX, muzzleY, 28, 18, 0, 0, Math.PI * 2);
+    _ctx.fill();
+    // Inner hot core flash
+    _ctx.shadowBlur = 12;
+    _ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+    _ctx.beginPath();
+    _ctx.ellipse(muzzleX, muzzleY, 10, 7, 0, 0, Math.PI * 2);
+    _ctx.fill();
+    // Sprite flash overlay
     if (mImg.complete && mImg.naturalWidth > 0) {
-      _ctx.drawImage(mImg, muzzleX, muzzleY, 24, 24);
+      _ctx.globalAlpha = flashAlpha * 0.85;
+      _ctx.drawImage(mImg, muzzleX - 20, muzzleY - 20, 40, 40);
     }
+    // Star cross streaks
+    if (!REDUCED_MOTION) {
+      _ctx.globalAlpha = flashAlpha * 0.7;
+      _ctx.strokeStyle = "#00f0ff";
+      _ctx.lineWidth = 2;
+      _ctx.shadowBlur = 8;
+      _ctx.beginPath();
+      _ctx.moveTo(muzzleX - 34, muzzleY); _ctx.lineTo(muzzleX + 34, muzzleY);
+      _ctx.moveTo(muzzleX, muzzleY - 20); _ctx.lineTo(muzzleX, muzzleY + 20);
+      _ctx.stroke();
+    }
+    _ctx.restore();
   }
 
   // 4. Update & Draw Enemy Sprite (Flipped horizontally to face player)
@@ -421,48 +541,39 @@ export function drawScene(dt = 0.016) {
     const eDrawW = 160;
     const eDrawH = 160;
     // The enemy is anchored at a fixed world position — standing still
-    // while the player approaches.  Clamp only during BATTLE so the
-    // enemy can start off-screen and enter naturally during RUNNING.
+    // while the player approaches.
     let eDrawX = enemySprite.x - world.camX;
-    if (world.phase === "BATTLE") {
-      const minX = 80;
-      const maxX = w - eDrawW - 80;
-      eDrawX = Math.max(minX, Math.min(eDrawX, maxX));
-    }
     const eDrawY = groundY - eDrawH + 10;
 
-    // Attack telegraph: pulsing red aura + windup lean while the enemy
-    // intends to attack and hasn't started its attack animation yet
+    // Upgraded Enemy Intent Ground Circle Effect
     if (
       world.phase === "BATTLE" &&
-      enemy.intent === "attack" &&
       enemy.hp > 0 &&
-      enemySprite.animState !== "attack"
+      enemySprite.animState !== "death"
     ) {
-      if (REDUCED_MOTION) {
-        // Steady outline, no pulse or movement
-        _ctx.save();
-        _ctx.globalAlpha = 0.4;
-        _ctx.strokeStyle = "#ff3355";
-        _ctx.lineWidth = 4;
-        _ctx.beginPath();
-        _ctx.ellipse(eDrawX + eDrawW / 2, groundY - eDrawH / 2, eDrawW / 1.7, eDrawH / 1.7, 0, 0, Math.PI * 2);
-        _ctx.stroke();
-        _ctx.restore();
-      } else {
-        const pulse = (Math.sin(performance.now() / 1000 * 6) + 1) / 2; // 0..1
-        eDrawX -= 3 + pulse * 5; // windup lean away from player
-        _ctx.save();
-        _ctx.globalAlpha = 0.25 + pulse * 0.3;
-        _ctx.strokeStyle = "#ff3355";
-        _ctx.lineWidth = 4;
-        _ctx.shadowColor = "#ff3355";
-        _ctx.shadowBlur = 18;
-        _ctx.beginPath();
-        _ctx.ellipse(eDrawX + eDrawW / 2, groundY - eDrawH / 2, eDrawW / 1.7, eDrawH / 1.7, 0, 0, Math.PI * 2);
-        _ctx.stroke();
-        _ctx.restore();
-      }
+      const eCenterX = eDrawX + eDrawW / 2;
+      const pulse = REDUCED_MOTION ? 0.5 : (Math.sin(performance.now() / 1000 * 6) + 1) / 2;
+      const isAttack = enemy.intent === "attack";
+      const themeColor = isAttack ? "#ff3355" : enemy.intent === "defend" ? "#00f0ff" : "#ffcc00";
+
+      // Tactical Ground Circle under enemy feet
+      _ctx.save();
+      _ctx.globalAlpha = 0.35 + pulse * 0.25;
+      _ctx.strokeStyle = themeColor;
+      _ctx.lineWidth = 3;
+      _ctx.shadowColor = themeColor;
+      _ctx.shadowBlur = 16;
+      _ctx.beginPath();
+      _ctx.ellipse(eCenterX, groundY - 6, eDrawW / 2.2, 18, 0, 0, Math.PI * 2);
+      _ctx.stroke();
+
+      // Inner tactical tick marks
+      _ctx.strokeStyle = "rgba(255, 255, 255, 0.6)";
+      _ctx.lineWidth = 2;
+      _ctx.beginPath();
+      _ctx.arc(eCenterX, groundY - 6, eDrawW / 2.8, 0, Math.PI * 2);
+      _ctx.stroke();
+      _ctx.restore();
     }
 
     _ctx.save();
@@ -501,23 +612,71 @@ export function drawScene(dt = 0.016) {
   }
 
 
-  // 5. Draw Projectiles
+  // 5. Draw Projectiles — neon plasma bolt
   for (let i = projectiles.length - 1; i >= 0; i--) {
     const proj = projectiles[i];
     proj.x += proj.vx * dt;
     proj.y += proj.vy * dt;
 
-    const bImg = _bulletImg;
-    if (bImg.complete && bImg.naturalWidth > 0) {
-      _ctx.drawImage(bImg, proj.x - world.camX, proj.y, 20, 10);
-    } else {
-      _ctx.fillStyle = "#f5c542";
-      _ctx.fillRect(proj.x - world.camX, proj.y, 14, 6);
+    const screenX = proj.x - world.camX;
+    const screenY = proj.y;
+    const isRight = proj.vx > 0;
+
+    _ctx.save();
+    if (!REDUCED_MOTION) {
+      // Long outer glow trail
+      const trailLen = 60;
+      const trailGrad = _ctx.createLinearGradient(
+        screenX + (isRight ? -trailLen : trailLen), screenY,
+        screenX, screenY
+      );
+      trailGrad.addColorStop(0, "rgba(0, 200, 255, 0)");
+      trailGrad.addColorStop(0.5, "rgba(0, 220, 255, 0.18)");
+      trailGrad.addColorStop(1, "rgba(0, 240, 255, 0.55)");
+      _ctx.fillStyle = trailGrad;
+      _ctx.fillRect(
+        screenX + (isRight ? -trailLen : 4), screenY - 5,
+        trailLen, 10
+      );
+
+      // Medium bright core trail
+      const coreTrailLen = 28;
+      const coreGrad = _ctx.createLinearGradient(
+        screenX + (isRight ? -coreTrailLen : coreTrailLen), screenY,
+        screenX, screenY
+      );
+      coreGrad.addColorStop(0, "rgba(255, 255, 255, 0)");
+      coreGrad.addColorStop(1, "rgba(255, 255, 255, 0.75)");
+      _ctx.fillStyle = coreGrad;
+      _ctx.fillRect(
+        screenX + (isRight ? -coreTrailLen : 4), screenY - 3,
+        coreTrailLen, 6
+      );
     }
 
-    // Glow trail
-    _ctx.fillStyle = "rgba(245, 197, 66, 0.4)";
-    _ctx.fillRect(proj.x - 12 - world.camX, proj.y + 2, 12, 4);
+    // Outer glow bolt body
+    _ctx.shadowColor = "#00f0ff";
+    _ctx.shadowBlur = 14;
+    _ctx.fillStyle = "rgba(0, 220, 255, 0.7)";
+    _ctx.beginPath();
+    _ctx.ellipse(screenX + (isRight ? 4 : -4), screenY, 14, 5, 0, 0, Math.PI * 2);
+    _ctx.fill();
+
+    // Hot white core
+    _ctx.shadowBlur = 6;
+    _ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
+    _ctx.beginPath();
+    _ctx.ellipse(screenX + (isRight ? 6 : -6), screenY, 7, 3, 0, 0, Math.PI * 2);
+    _ctx.fill();
+
+    // Leading edge lens flare dot
+    _ctx.shadowBlur = 10;
+    _ctx.fillStyle = "rgba(200, 255, 255, 1)";
+    _ctx.beginPath();
+    _ctx.arc(screenX + (isRight ? 16 : -16), screenY, 3, 0, Math.PI * 2);
+    _ctx.fill();
+
+    _ctx.restore();
 
     // Collision check with target
     if (proj.vx > 0 && proj.x >= proj.targetX) {

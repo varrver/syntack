@@ -93,6 +93,7 @@ export let enemySprite = {
   frameTimer: 0,
   opacity: 1,
   dead: false, // corpse stays on the field; player walks past it on win
+  attackFlashTimer: 0, // drives the attack burst effect on impact
 };
 
 export let projectiles = [];

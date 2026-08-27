@@ -106,6 +106,8 @@ export function endTurn(drawHandFn) {
 
   const onImpact = () => {
     animateHitFlash(terminal, "red");
+    // Trigger canvas attack burst effect
+    enemySprite.attackFlashTimer = actualDmg > 0 ? 0.45 : 0.25;
     if (actualDmg > 0) {
       triggerShake(9 + Math.min(6, actualDmg * 0.3), 0.32);
       playerSprite.animState = "hurt";
