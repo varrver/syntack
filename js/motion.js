@@ -7,6 +7,7 @@
 // the previous CDN import was a hard module-graph dependency: if jsdelivr was
 // unreachable, motion.js (and therefore game.js) failed to load entirely (K2).
 import { animate, spring, stagger } from "../vendor/motion.esm.js";
+import { audioEngine } from "./audio.js";
 
 /* Battle FX honor prefers-reduced-motion: visual-only, so we skip them
    (still firing completion callbacks so game flow/state is unaffected).
@@ -609,52 +610,52 @@ export function runBattleIntro(nodeNum, enemyName) {
   }, 2750);
 }
 
-/* Full Victory Cutscene — typewriter monologue "YES! I WIN!" */
+/* Full Victory Cutscene — video window modal with spring & exit transitions */
 export function runVictoryCutscene(onComplete) {
   const cutscene = document.getElementById("victory-cutscene");
-  const monologueEl = document.getElementById("victory-monologue-text");
+  const videoEl = document.getElementById("victory-video");
   const skipBtn = document.getElementById("btn-skip-cutscene");
-  if (!cutscene || !monologueEl) {
+  if (!cutscene || !videoEl) {
     if (onComplete) onComplete();
     return;
   }
 
-  const fullText = "YES! I WIN! System mainframe breached. Every node under full control. Cyber core deleted!";
-  monologueEl.textContent = "";
-
-  cutscene.classList.remove("hidden");
+  cutscene.classList.remove("hidden", "exiting");
   cutscene.classList.add("flex");
 
-  let charIdx = 0;
+  // Spring transition pop-in on next frame
+  requestAnimationFrame(() => {
+    cutscene.classList.add("active");
+  });
+
+  audioEngine.stopMusic(500); // fade out BGM so video audio plays clearly
+  videoEl.currentTime = 0;
+  videoEl.volume = audioEngine.isMuted ? 0 : audioEngine.volume;
+  videoEl.play().catch(() => {});
+
   let finished = false;
-  let typeTimer = null;
 
   const done = () => {
     if (finished) return;
     finished = true;
-    if (typeTimer) clearInterval(typeTimer);
-    cutscene.classList.add("hidden");
-    cutscene.classList.remove("flex");
-    if (onComplete) onComplete();
+
+    // Exit transition
+    cutscene.classList.remove("active");
+    cutscene.classList.add("exiting");
+
+    setTimeout(() => {
+      videoEl.pause();
+      cutscene.classList.add("hidden");
+      cutscene.classList.remove("flex", "exiting");
+      if (onComplete) onComplete();
+    }, 380);
   };
 
-  if (skipBtn) {
-    skipBtn.onclick = done;
-  }
+  if (skipBtn) skipBtn.onclick = done;
+  videoEl.onclick = done;
+  videoEl.onended = done;
 
   if (REDUCED_MOTION) {
-    monologueEl.textContent = fullText;
-    setTimeout(done, 1500);
-    return;
+    setTimeout(done, 2000);
   }
-
-  typeTimer = setInterval(() => {
-    if (charIdx < fullText.length) {
-      monologueEl.textContent += fullText.charAt(charIdx);
-      charIdx++;
-    } else {
-      clearInterval(typeTimer);
-      setTimeout(done, 2000);
-    }
-  }, 35);
 }
