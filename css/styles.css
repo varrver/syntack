@@ -2397,3 +2397,112 @@ body::after {
     transform: none;
   }
 }
+
+/* ────────────────────────────────────────────────────────
+   30. PARALLAX SCROLLING BACKGROUND (Menu & Screens)
+   5-layer continuous scrolling background with mouse parallax
+   ──────────────────────────────────────────────────────── */
+.menu-parallax-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+  background: #090c17;
+  transform: translate3d(var(--parallax-x, 0px), var(--parallax-y, 0px), 0);
+  transition: opacity 0.5s ease, filter 0.5s ease;
+}
+
+.menu-parallax-bg.in-game {
+  opacity: 0.15;
+  filter: blur(4px);
+}
+
+.parallax-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  background-repeat: repeat-x;
+  background-size: auto 100%;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  will-change: transform;
+}
+
+.parallax-layer.layer-1 {
+  background-image: url('../assets/image/background/1.png');
+  animation: parallaxScroll 80s linear infinite;
+  opacity: 0.95;
+}
+
+.parallax-layer.layer-2 {
+  background-image: url('../assets/image/background/2.png');
+  animation: parallaxScroll 60s linear infinite;
+  opacity: 0.9;
+}
+
+.parallax-layer.layer-3 {
+  background-image: url('../assets/image/background/3.png');
+  animation: parallaxScroll 40s linear infinite;
+  opacity: 0.85;
+}
+
+.parallax-layer.layer-4 {
+  background-image: url('../assets/image/background/4.png');
+  animation: parallaxScroll 25s linear infinite;
+  opacity: 0.8;
+}
+
+.parallax-layer.layer-5 {
+  background-image: url('../assets/image/background/5.png');
+  animation: parallaxScroll 15s linear infinite;
+  opacity: 0.75;
+}
+
+@keyframes parallaxScroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .parallax-layer {
+    animation: none !important;
+  }
+}
+
+/* ────────────────────────────────────────────────────────
+   31. VICTORY PLAYER HAPPY SPRITE ANIMATION
+   6-frame pixel animation for victory celebration cutscene & overlay
+   ──────────────────────────────────────────────────────── */
+.end-overlay-player-anim {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  margin: 0 auto;
+}
+
+.player-happy-sprite {
+  width: 96px;
+  height: 96px;
+  background-image: url('../assets/sprite/player/Happy.png');
+  background-size: 576px 96px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  filter: drop-shadow(0 0 14px rgb(var(--balatro-gold-rgb) / 0.7));
+  animation: playerHappyCycle 0.7s steps(6) infinite;
+}
+
+@keyframes playerHappyCycle {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: -576px 0;
+  }
+}

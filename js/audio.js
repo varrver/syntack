@@ -50,6 +50,7 @@ class CyberAudioEngine {
         this.ctx.currentTime,
       );
     }
+    this._syncMusicVolume();
     return this.isMuted;
   }
 
@@ -60,6 +61,7 @@ class CyberAudioEngine {
     if (this.masterGain && !this.isMuted) {
       this.masterGain.gain.setValueAtTime(this.volume, this.ctx.currentTime);
     }
+    this._syncMusicVolume();
   }
 
   // --- PROCEDURAL SFX GENERATORS ---
@@ -326,6 +328,84 @@ class CyberAudioEngine {
     gain.connect(this.sfxGain);
     osc.start(now);
     osc.stop(now + 0.6);
+  }
+
+  // --- MUSIC THEME MANAGEMENT ---
+
+  _createTrack(src) {
+    const audio = new Audio(src);
+    audio.loop = true;
+    audio.preload = "auto";
+    return audio;
+  }
+
+  _fadeTrack(track, fromVol, toVol, durationMs, onDone) {
+    const steps = 30;
+    const stepMs = durationMs / steps;
+    const delta = (toVol - fromVol) / steps;
+    let step = 0;
+    const iv = setInterval(() => {
+      step++;
+      track.volume = Math.max(0, Math.min(1, fromVol + delta * step));
+      if (step >= steps) {
+        clearInterval(iv);
+        track.volume = toVol;
+        if (onDone) onDone();
+      }
+    }, stepMs);
+    return iv;
+  }
+
+  _playMusic(src, fadeInMs = 1200) {
+    const targetVol = this.isMuted ? 0 : Math.min(this.volume * 0.55, 0.55);
+
+    // Same track already playing — do nothing
+    if (this._musicEl && this._musicSrc === src && !this._musicEl.paused) return;
+
+    const oldTrack = this._musicEl;
+
+    // Preload & start new track at 0 volume
+    const newTrack = this._createTrack(src);
+    newTrack.volume = 0;
+    newTrack.play().catch(() => {});
+    this._musicEl = newTrack;
+    this._musicSrc = src;
+
+    // Fade new track in
+    this._fadeTrack(newTrack, 0, targetVol, fadeInMs, null);
+
+    // Crossfade old track out simultaneously
+    if (oldTrack && !oldTrack.paused) {
+      this._fadeTrack(oldTrack, oldTrack.volume, 0, fadeInMs, () => {
+        oldTrack.pause();
+        oldTrack.src = "";
+      });
+    }
+  }
+
+  playMainTheme() {
+    this._playMusic("assets/audio/Main_theme_night_city_loopable.mp3", 1400);
+  }
+
+  playBattleTheme() {
+    this._playMusic("assets/audio/Battle_theme_loopable.mp3", 900);
+  }
+
+  stopMusic(fadeOutMs = 900) {
+    if (!this._musicEl || this._musicEl.paused) return;
+    const track = this._musicEl;
+    this._musicEl = null;
+    this._musicSrc = null;
+    this._fadeTrack(track, track.volume, 0, fadeOutMs, () => {
+      track.pause();
+      track.src = "";
+    });
+  }
+
+  // Keep music volume in sync when master volume / mute changes
+  _syncMusicVolume() {
+    if (!this._musicEl || this._musicEl.paused) return;
+    this._musicEl.volume = this.isMuted ? 0 : Math.min(this.volume * 0.55, 0.55);
   }
 }
 

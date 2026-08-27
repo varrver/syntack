@@ -90,6 +90,8 @@ export function loadEnemy() {
   enemy.intent = "attack";
   enemy.name = def.name;
 
+  setGameOver(false);
+  setIsAnimating(false);
   player.block = 0;
   player.varX = 0;
   player.loopMult = 1;
@@ -251,7 +253,7 @@ export function runVictoryWalk(done) {
     return;
   }
   setWorldPhase("VICTORY");
-  playerSprite.animState = "run";
+  playerSprite.animState = "happy";
   const t0 = Date.now();
   const iv = setInterval(() => {
     const passed = playerSprite.x > enemySprite.x + 140;
@@ -265,6 +267,7 @@ export function runVictoryWalk(done) {
 
 /** Return to the staging lobby from the arena (RUN AGAIN / node cleared). */
 function backToLobby() {
+  audioEngine.playMainTheme();
   enterLobby();
   animateScreenTransition(
     document.getElementById("game-screen"),
@@ -285,6 +288,10 @@ export function drawHand() {
 
 function playCard(index, cardEl) {
   audioEngine.ensureContext();
+  if (world.phase === "RUNNING") {
+    setWorldPhase("BATTLE");
+    playerSprite.animState = "idle";
+  }
   if (isAnimating || gameOver) return;
   const card = hand[index];
   if (!card) return;
@@ -317,6 +324,10 @@ function playCard(index, cardEl) {
 }
 
 function endTurnHandler() {
+  if (world.phase === "RUNNING") {
+    setWorldPhase("BATTLE");
+    playerSprite.animState = "idle";
+  }
   endTurn(drawHand);
 }
 
@@ -354,6 +365,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (breachBtn) {
     breachBtn.onclick = () => {
       audioEngine.playExecuteTurn();
+      audioEngine.playBattleTheme();
       deployNode();
       animateScreenTransition(
         document.getElementById("lobby-screen"),

@@ -608,3 +608,53 @@ export function runBattleIntro(nodeNum, enemyName) {
     wrap.classList.remove("flex", "battle-intro-active", "battle-intro-exit");
   }, 2750);
 }
+
+/* Full Victory Cutscene — typewriter monologue "YES! I WIN!" */
+export function runVictoryCutscene(onComplete) {
+  const cutscene = document.getElementById("victory-cutscene");
+  const monologueEl = document.getElementById("victory-monologue-text");
+  const skipBtn = document.getElementById("btn-skip-cutscene");
+  if (!cutscene || !monologueEl) {
+    if (onComplete) onComplete();
+    return;
+  }
+
+  const fullText = "YES! I WIN! System mainframe breached. Every node under full control. Cyber core deleted!";
+  monologueEl.textContent = "";
+
+  cutscene.classList.remove("hidden");
+  cutscene.classList.add("flex");
+
+  let charIdx = 0;
+  let finished = false;
+  let typeTimer = null;
+
+  const done = () => {
+    if (finished) return;
+    finished = true;
+    if (typeTimer) clearInterval(typeTimer);
+    cutscene.classList.add("hidden");
+    cutscene.classList.remove("flex");
+    if (onComplete) onComplete();
+  };
+
+  if (skipBtn) {
+    skipBtn.onclick = done;
+  }
+
+  if (REDUCED_MOTION) {
+    monologueEl.textContent = fullText;
+    setTimeout(done, 1500);
+    return;
+  }
+
+  typeTimer = setInterval(() => {
+    if (charIdx < fullText.length) {
+      monologueEl.textContent += fullText.charAt(charIdx);
+      charIdx++;
+    } else {
+      clearInterval(typeTimer);
+      setTimeout(done, 2000);
+    }
+  }, 35);
+}

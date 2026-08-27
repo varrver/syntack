@@ -10,6 +10,7 @@ import {
   animateBurst,
   animateEnemyTelegraph,
   animateEnemyAttack,
+  runVictoryCutscene,
 } from "./motion.js";
 import { showEndOverlay, showRewardOverlay } from "./reward.js";
 
@@ -203,10 +204,12 @@ export function checkWinLoss() {
         log("[VICTORY] Mainframe hacked! You win!", "info");
         animateFloatDamage("VICTORY!", "buff", "40%", "35%");
         setTimeout(() => {
-          showEndOverlay(
-            true,
-            "You breached the mainframe and deleted the Firewall Daemon.",
-          );
+          runVictoryCutscene(() => {
+            showEndOverlay(
+              true,
+              "You breached the mainframe and deleted the Firewall Daemon.",
+            );
+          });
         }, 500);
       }, 250);
     } else {

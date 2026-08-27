@@ -87,6 +87,7 @@ export function setupNavigation(initGameFn) {
     btnSplashStart.onclick = () => {
       audioEngine.ensureContext();
       audioEngine.playHover();
+      audioEngine.playMainTheme();
       animateScreenTransition(splashScreen, homeScreen);
     };
   }
@@ -106,6 +107,7 @@ export function setupNavigation(initGameFn) {
   if (btnLobbyHome) {
     btnLobbyHome.onclick = () => {
       audioEngine.playHover();
+      audioEngine.playMainTheme();
       parallaxActive = true;
       requestAnimationFrame(updateParallax);
       if (parallaxBg) parallaxBg.classList.remove("in-game");
@@ -116,6 +118,7 @@ export function setupNavigation(initGameFn) {
   if (btnGameHome) {
     btnGameHome.onclick = () => {
       audioEngine.playHover();
+      audioEngine.playMainTheme();
       parallaxActive = true;
       requestAnimationFrame(updateParallax);
       if (parallaxBg) parallaxBg.classList.remove("in-game");

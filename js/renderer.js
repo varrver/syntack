@@ -204,14 +204,15 @@ const REDUCED_MOTION =
 
 // Sprite configurations
 const SPRITES = {
-  bgNight: [1, 2, 3, 4, 5].map(n => `assets/sprite/lib/2 Background/Night/${n}.png`),
+  bgNight: [1, 2, 3, 4, 5].map(n => `assets/image/background/${n}.png`),
   groundTile: "assets/sprite/lib/1 Tiles/Tile_02.png",
   groundSubTile: "assets/sprite/lib/1 Tiles/Tile_05.png",
   player: {
     idle: { src: "assets/sprite/player/Idle1.png", frames: 4, width: 48, height: 48 },
     run: { src: "assets/sprite/player/Run1.png", frames: 6, width: 48, height: 48 },
     walk: { src: "assets/sprite/player/Walk1.png", frames: 6, width: 48, height: 48 },
-    hurt: { src: "assets/sprite/player/Idle2.png", frames: 4, width: 48, height: 48 },
+    hurt: { src: "assets/sprite/player/Cyborg_hurt.png", frames: 2, width: 48, height: 48 },
+    happy: { src: "assets/sprite/player/Happy.png", frames: 6, width: 48, height: 48 },
   },
   enemy1: { // FIREWALL DAEMON
     idle: { src: "assets/sprite/enemy/0/Idle.png", frames: 4, width: 96, height: 96 },
