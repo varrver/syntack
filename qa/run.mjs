@@ -240,8 +240,14 @@ async function runArena(ctx) {
 
 async function runPlayCard(ctx) {
   const { page, shots, vp, seed, server } = ctx;
-  await startFresh(page, urlWith(server, { seed }));
-  await enterArena(page);
+  // screen=arena snaps straight to BATTLE — cards are inert during the
+  // RUNNING approach (see playCard guard), so skip the walk-in
+  await startFresh(page, urlWith(server, { seed, test: 1, screen: 'arena' }));
+  await page.waitFor(
+    `getComputedStyle(document.getElementById('game-screen')).display === 'flex' && ` +
+      `document.querySelectorAll('#hand-container .card').length > 0`,
+    15000
+  );
   const before = await page.eval(`document.querySelectorAll('#hand-container .card').length`);
   await page.click('#hand-container .card');
   await page.waitFor(`document.querySelectorAll('#hand-container .card').length === ${before - 1}`, 8000);
@@ -253,8 +259,14 @@ async function runPlayCard(ctx) {
 
 async function runEndTurn(ctx) {
   const { page, shots, vp, seed, server } = ctx;
-  await startFresh(page, urlWith(server, { seed }));
-  await enterArena(page);
+  // screen=arena snaps straight to BATTLE — end-turn is inert during the
+  // RUNNING approach (see endTurnHandler guard), so skip the walk-in
+  await startFresh(page, urlWith(server, { seed, test: 1, screen: 'arena' }));
+  await page.waitFor(
+    `getComputedStyle(document.getElementById('game-screen')).display === 'flex' && ` +
+      `document.querySelectorAll('#hand-container .card').length > 0`,
+    15000
+  );
   await page.click('#btn-end-turn');
   await page.waitFor(
     `[...document.querySelectorAll('#terminal .terminal-log')].some(t => /ENEMY|DAMAGE|BLOCK/.test(t.textContent))`,
