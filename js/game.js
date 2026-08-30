@@ -8,7 +8,7 @@ import {
   player, enemy, run, hand, deck, setDeck, gameOver, isAnimating, lastPlayRect,
   setHand, setIsAnimating, setGameOver, setLastPlayRect,
   ENEMY_ROSTER, BOSS_NODE, world, playerSprite, enemySprite, setWorldPhase,
-  freshStats,
+  freshStats, projectiles, particles, screenShake,
 } from "./state.js";
 import { CARD_TYPES, STARTER_DECK, getCardById } from "./cards.js";
 import { audioEngine } from "./audio.js";
@@ -19,7 +19,7 @@ import {
   animateScreenTransition,
   REDUCED_MOTION,
 } from "./motion.js";
-import { resetTerminal, log, renderHand, updateUI, updateEnemySprite, drawScene, initCanvasRenderer, logicalWorldWidth, resizeCanvas } from "./renderer.js";
+import { resetTerminal, log, renderHand, updateUI, drawScene, initCanvasRenderer, logicalWorldWidth, resizeCanvas } from "./renderer.js";
 import { dealDamageToEnemy, endTurn, updateEnemyIntent, checkWinLoss } from "./combat.js";
 import { setupNavigation } from "./navigation.js";
 import {
@@ -34,9 +34,28 @@ import { setupAudioUI } from "./audio-ui.js";
 
 let lastTimestamp = 0;
 let _gameScreenEl = null;
+let _animFrameId = null;
+let _loopRunning = false;
+
+export function startGameLoop() {
+  if (_loopRunning) return;
+  _loopRunning = true;
+  lastTimestamp = performance.now();
+  _animFrameId = requestAnimationFrame(gameLoop);
+}
+
+export function stopGameLoop() {
+  _loopRunning = false;
+  if (_animFrameId) {
+    cancelAnimationFrame(_animFrameId);
+    _animFrameId = null;
+  }
+}
 
 function gameLoop(timestamp) {
-  requestAnimationFrame(gameLoop);
+  if (!_loopRunning) return;
+
+  _animFrameId = requestAnimationFrame(gameLoop);
 
   if (!_gameScreenEl) _gameScreenEl = document.getElementById("game-screen");
   if (!_gameScreenEl || _gameScreenEl.classList.contains("hidden")) {
@@ -125,7 +144,6 @@ export function loadEnemy() {
 
   const nameEl = document.getElementById("enemy-name");
   if (nameEl) nameEl.textContent = def.name;
-  updateEnemySprite(def.name);
   const nodeEl = document.getElementById("node-indicator");
   if (nodeEl) nodeEl.textContent = `NODE ${run.node}/${BOSS_NODE}`;
   const bestEl = document.getElementById("best-run-line");
@@ -161,6 +179,24 @@ export function resetRun() {
   run.stats = freshStats();
   setDeck([...STARTER_DECK]);
   setGameOver(false);
+  setIsAnimating(false);
+  setLastPlayRect(null);
+  setHand([]);
+  projectiles.length = 0;
+  particles.length = 0;
+  screenShake.t = 0;
+  screenShake.duration = 0;
+  screenShake.intensity = 0;
+  setWorldPhase("BATTLE");
+
+  playerSprite.animState = "idle";
+  playerSprite.shieldTimer = 0;
+  playerSprite.muzzleFlashTimer = 0;
+
+  enemySprite.dead = false;
+  enemySprite.opacity = 1;
+  enemySprite.animState = "idle";
+  enemySprite.attackFlashTimer = 0;
 }
 
 /** Deploy into the current run.node — approach run starts immediately. */
@@ -172,6 +208,7 @@ function deployNode() {
   loadEnemy();
   drawHand();
   updateUI();
+  startGameLoop();
 }
 
 /**
@@ -267,6 +304,7 @@ export function runVictoryWalk(done) {
 
 /** Return to the staging lobby from the arena (RUN AGAIN / node cleared). */
 function backToLobby() {
+  stopGameLoop();
   audioEngine.playMainTheme();
   enterLobby();
   animateScreenTransition(
@@ -288,11 +326,7 @@ export function drawHand() {
 
 function playCard(index, cardEl) {
   audioEngine.ensureContext();
-  if (world.phase === "RUNNING") {
-    setWorldPhase("BATTLE");
-    playerSprite.animState = "idle";
-  }
-  if (isAnimating || gameOver) return;
+  if (world.phase === "RUNNING" || isAnimating || gameOver) return;
   const card = hand[index];
   if (!card) return;
 
@@ -324,10 +358,7 @@ function playCard(index, cardEl) {
 }
 
 function endTurnHandler() {
-  if (world.phase === "RUNNING") {
-    setWorldPhase("BATTLE");
-    playerSprite.animState = "idle";
-  }
+  if (world.phase === "RUNNING" || isAnimating || gameOver) return;
   endTurn(drawHand);
 }
 
@@ -344,7 +375,6 @@ async function applyBuildLabel() {
 
 document.addEventListener("DOMContentLoaded", () => {
   initCanvasRenderer();
-  requestAnimationFrame(gameLoop);
 
   setupNavigation(startRun);
   setupAudioUI();

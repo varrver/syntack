@@ -247,7 +247,7 @@ export function animateInsufficientRam(cardEl) {
 const SHAKE_MS = 300; // enemy hit shake
 const LUNGE_MS = 460; // enemy lunge (impact at ~42% of it)
 const RECOIL_MS = 220; // player hand recoil
-const BOLT_MS = 340; // attack bolt flight
+
 
 const IMPACT_AT_MS = Math.round(LUNGE_MS * 0.42); // lunge apex ≈ 195ms
 const TELEGRAPH_MS = 280; // enemy windup glow before the lunge
@@ -378,87 +378,7 @@ export function animateHandRecoil() {
   }, RECOIL_MS + FX_MARGIN);
 }
 
-/* Energy bolt / Bullet: launches from player sprite (or played card)
-   and flies onto the enemy panel with gun shoot & recoil animation.
-   `onImpact` fires the instant it lands (shake + flash + sound in game.js). */
-export function animateAttackBolt(fromRect, targetEl, opts = {}) {
-  const playerSprite = document.getElementById("player-sprite");
-  if (playerSprite) {
-    playerSprite.classList.remove("shooting");
-    // trigger reflow to restart animation if fired rapidly
-    void playerSprite.offsetWidth;
-    playerSprite.classList.add("shooting");
-    setTimeout(() => playerSprite.classList.remove("shooting"), 320);
-  }
 
-  const container = document.getElementById("floatDmgContainer");
-  if (!container || !targetEl) {
-    if (opts.onImpact) opts.onImpact();
-    return;
-  }
-  if (REDUCED_MOTION) {
-    if (opts.onImpact) opts.onImpact();
-    return;
-  }
-
-  const t = targetEl.getBoundingClientRect();
-  if (!t.width || !t.height) {
-    if (opts.onImpact) opts.onImpact();
-    return;
-  }
-
-  let sx, sy;
-  const p = playerSprite ? playerSprite.getBoundingClientRect() : null;
-  if (p && p.width) {
-    sx = p.left + p.width - 10;
-    sy = p.top + p.height / 2;
-  } else if (fromRect && fromRect.width) {
-    sx = fromRect.left + fromRect.width / 2;
-    sy = fromRect.top + fromRect.height / 2;
-  } else {
-    const hand = document.getElementById("hand-container");
-    const b =
-      (hand && hand.getBoundingClientRect()) ||
-      container.getBoundingClientRect();
-    sx = b.left + b.width / 2;
-    sy = b.top + b.height / 2;
-  }
-  const tx = t.left + t.width / 2;
-  const ty = t.top + t.height / 2;
-  const dx = tx - sx;
-  const dy = ty - sy;
-
-  const el = document.createElement("div");
-  el.className = "fx-bullet";
-  el.setAttribute("aria-hidden", "true");
-  el.style.left = sx + "px";
-  el.style.top = sy + "px";
-  container.appendChild(el);
-
-  try {
-    animate(
-      el,
-      {
-        x: [0, dx * 0.5, dx],
-        y: [0, dy * 0.5, dy],
-        scale: [1, 1.3, 0.4],
-        opacity: [1, 1, 0.6],
-      },
-      {
-        duration: BOLT_MS / 1000,
-        times: [0, 0.5, 1],
-        easing: spring({ stiffness: 350, damping: 25 }),
-      },
-    );
-  } catch (err) {
-    el.classList.add("fx-bolt-fallback");
-  }
-
-  setTimeout(() => {
-    el.remove();
-    if (opts.onImpact) opts.onImpact();
-  }, BOLT_MS + FX_MARGIN);
-}
 
 const FX_COLORS = {
   blue: "0,157,220",
@@ -478,6 +398,7 @@ export function animateHitFlash(targetEl, color = "white") {
   const flash = document.createElement("div");
   flash.className = "fx-flash";
   flash.setAttribute("aria-hidden", "true");
+  flash.style.position = "absolute";
   flash.style.left = b.left + "px";
   flash.style.top = b.top + "px";
   flash.style.width = b.width + "px";
@@ -487,6 +408,7 @@ export function animateHitFlash(targetEl, color = "white") {
   const ring = document.createElement("div");
   ring.className = "fx-ring";
   ring.setAttribute("aria-hidden", "true");
+  ring.style.position = "absolute";
   ring.style.left = b.left + b.width / 2 + "px";
   ring.style.top = b.top + b.height / 2 + "px";
   ring.style.setProperty("--fx-color", `rgb(${rgb})`);

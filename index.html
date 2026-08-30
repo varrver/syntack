@@ -287,7 +287,7 @@
             <div class="relative z-10 hud-stats mb-5">
                 <div class="chip-display hud-stat">
                     <span class="hud-stat-label">HP</span>
-                    <span class="hud-stat-value text-balatro-green" id="player-hp">
+                    <span class="hud-stat-value text-balatro-green" id="player-hp" aria-live="polite" aria-atomic="true">
                         50/50
                     </span>
                     <div class="hud-bar">
@@ -296,7 +296,7 @@
                 </div>
                 <div class="chip-display hud-stat">
                     <span class="hud-stat-label">RAM</span>
-                    <span class="hud-stat-value text-balatro-blue" id="player-ram">
+                    <span class="hud-stat-value text-balatro-blue" id="player-ram" aria-live="polite" aria-atomic="true">
                         3/3
                     </span>
                     <div class="hud-bar">
@@ -305,13 +305,13 @@
                 </div>
                 <div class="chip-display hud-stat">
                     <span class="hud-stat-label">VAR X</span>
-                    <span class="hud-stat-value text-balatro-gold" id="var-x">
+                    <span class="hud-stat-value text-balatro-gold" id="var-x" aria-live="polite" aria-atomic="true">
                         0
                     </span>
                 </div>
                 <div class="chip-display hud-stat">
                     <span class="hud-stat-label">BLOCK</span>
-                    <span class="hud-stat-value text-balatro-purple" id="player-block">
+                    <span class="hud-stat-value text-balatro-purple" id="player-block" aria-live="polite" aria-atomic="true">
                         0
                     </span>
                 </div>
@@ -322,6 +322,7 @@
                 <!-- Side-Scrolling Auto-Runner Arena Viewport -->
                 <div class="arena-viewport-container mb-4 relative">
                     <canvas id="game-canvas" width="820" height="260"
+                        role="img" aria-label="Cyberpunk auto-runner combat arena viewport displaying player and enemy combatants"
                         class="w-full h-[160px] sm:h-[260px] block cursor-crosshair"></canvas>
 
                     <!-- Battle intro cutscene overlay — VS cinematic screen -->
@@ -372,21 +373,16 @@
                         <div class="battle-intro-divider absolute inset-y-0 left-1/2 -translate-x-1/2 w-[3px] opacity-0" id="battle-intro-divider"></div>
                     </div>
 
-                    <!-- Hidden compatibility sprite nodes for DOM queries/a11y -->
-                    <div class="hidden" id="player-sprite" aria-hidden="true">
-                        <div class="char-muzzle" id="player-muzzle"></div>
-                    </div>
-                    <div class="hidden" id="enemy-sprite" aria-hidden="true"></div>
 
                     <!-- Floating Enemy HUD Badge (Over Enemy Canvas Position) -->
-                    <div class="absolute top-2 right-2 sm:top-3 sm:right-4 z-20 flex flex-col items-end pointer-events-none" id="enemyBox">
+                    <div class="enemy-panel absolute top-2 right-2 sm:top-3 sm:right-4 z-20 flex flex-col items-end pointer-events-none" id="enemyBox">
                         <div class="font-pixel text-[0.5rem] sm:text-[0.6rem] tracking-[1.5px] text-balatro-red bg-black/80 px-2 py-0.5 rounded-t border border-balatro-red/30 border-b-0"
                             id="enemy-name">
                             FIREWALL DAEMON
                         </div>
                         <div class="flex items-center gap-2 bg-black/80 px-2 py-1 rounded-b border border-balatro-red/30 border-t-0">
                             <div class="enemy-hp font-display font-black text-[0.9rem] sm:text-[1.1rem] leading-none text-balatro-red tabular-nums"
-                                id="enemy-hp">
+                                id="enemy-hp" aria-live="polite" aria-atomic="true">
                                 60/60
                             </div>
                             <div class="hud-bar w-[80px] sm:w-[120px] bg-black/60 border border-white/10">
@@ -394,7 +390,7 @@
                             </div>
                         </div>
                         <div class="intent-box text-[0.45rem] sm:text-[0.5rem] px-2 py-0.5 rounded tracking-[1px] uppercase inline-flex items-center justify-center gap-1 mt-0.5 border border-balatro-red/20 bg-black/75 text-balatro-red/80"
-                            id="enemy-intent">
+                            id="enemy-intent" aria-live="polite">
                             <span class="intent-icon" aria-hidden="true"><svg class="w-3 h-3" viewBox="0 0 24 24"
                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                     stroke-linejoin="round">
@@ -592,7 +588,7 @@
             <div class="relative flex-1 w-full h-full bg-black overflow-hidden">
                 <video id="victory-video" class="w-full h-full object-cover cursor-pointer"
                     src="assets/video/Cyberpunk%20Edgerunners%20Ending%20Final%20Scene%20Lucy%20Alone%20on%20the%20Moon.mp4"
-                    playsinline preload="auto"></video>
+                    playsinline preload="none"></video>
             </div>
         </div>
     </div>

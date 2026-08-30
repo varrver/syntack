@@ -60,28 +60,7 @@ export function setupNavigation(initGameFn) {
 
   const parallaxBg = document.getElementById("menu-parallax-bg");
 
-  let parallaxActive = true;
-  let mouseX = 0;
-  let mouseY = 0;
-  let targetX = 0;
-  let targetY = 0;
 
-  function updateParallax() {
-    if (!parallaxActive || !parallaxBg) return;
-    mouseX += (targetX - mouseX) * 0.06;
-    mouseY += (targetY - mouseY) * 0.06;
-    parallaxBg.style.setProperty("--parallax-x", `${mouseX.toFixed(2)}px`);
-    parallaxBg.style.setProperty("--parallax-y", `${mouseY.toFixed(2)}px`);
-    requestAnimationFrame(updateParallax);
-  }
-
-  if (parallaxBg) {
-    window.addEventListener("mousemove", (e) => {
-      targetX = (e.clientX / window.innerWidth - 0.5) * 50;
-      targetY = (e.clientY / window.innerHeight - 0.5) * 30;
-    });
-    updateParallax();
-  }
 
   if (btnSplashStart) {
     btnSplashStart.onclick = () => {
@@ -96,7 +75,6 @@ export function setupNavigation(initGameFn) {
     btnMenuStart.onclick = () => {
       audioEngine.ensureContext();
       audioEngine.playExecuteTurn();
-      parallaxActive = false;
       if (parallaxBg) parallaxBg.classList.add("in-game");
       // Prepare the run and stage the lobby — the arena deploys on BREACH
       initGameFn();
@@ -108,8 +86,6 @@ export function setupNavigation(initGameFn) {
     btnLobbyHome.onclick = () => {
       audioEngine.playHover();
       audioEngine.playMainTheme();
-      parallaxActive = true;
-      requestAnimationFrame(updateParallax);
       if (parallaxBg) parallaxBg.classList.remove("in-game");
       animateScreenTransition(lobbyScreen, homeScreen);
     };
@@ -119,8 +95,6 @@ export function setupNavigation(initGameFn) {
     btnGameHome.onclick = () => {
       audioEngine.playHover();
       audioEngine.playMainTheme();
-      parallaxActive = true;
-      requestAnimationFrame(updateParallax);
       if (parallaxBg) parallaxBg.classList.remove("in-game");
       animateScreenTransition(gameScreen, homeScreen);
     };

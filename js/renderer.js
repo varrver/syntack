@@ -11,24 +11,7 @@ import { animateHandStagger } from "./motion.js";
 let _termEl = null;
 let _cursorEl = null;
 
-/* ── Enemy sprite mapping ────────────────────────────────────────── */
-const _ENEMY_SPRITE_CLASS = {
-  "FIREWALL DAEMON": "sprite-daemon",
-  "INTRUSION WRAITH": "sprite-wraith",
-  "LOGIC BOMBER": "sprite-bomber",
-  "MAINFRAME CORE": "sprite-core",
-};
-let _lastSpriteClass = "";
 
-export function updateEnemySprite(enemyName) {
-  const el = document.getElementById("enemy-sprite");
-  if (!el) return;
-  const cls = _ENEMY_SPRITE_CLASS[enemyName] || "sprite-daemon";
-  if (cls === _lastSpriteClass) return;
-  el.classList.remove("sprite-daemon", "sprite-wraith", "sprite-bomber", "sprite-core");
-  el.classList.add(cls);
-  _lastSpriteClass = cls;
-}
 
 export function resetTerminal() {
   _termEl = document.getElementById("terminal");
@@ -40,8 +23,18 @@ export function resetTerminal() {
   _termEl.appendChild(_cursorEl);
 }
 
+const MAX_LOG_NODES = 50;
+
 export function log(msg, type) {
   if (!_termEl) return;
+
+  const existingLogs = _termEl.querySelectorAll(".terminal-log");
+  if (existingLogs.length >= MAX_LOG_NODES) {
+    const toRemove = existingLogs.length - MAX_LOG_NODES + 1;
+    for (let i = 0; i < toRemove; i++) {
+      existingLogs[i].remove();
+    }
+  }
 
   const line = document.createElement("div");
   let colorClass = "text-balatro-green";
@@ -128,6 +121,9 @@ export function renderHand(playCardFn) {
   _playCardFn = playCardFn;
   _attachHandDelegation(container);
 
+  const activeCard = document.activeElement ? document.activeElement.closest(".card") : null;
+  const focusedIndex = activeCard && container.contains(activeCard) ? parseInt(activeCard.dataset.index, 10) : -1;
+
   container.replaceChildren();
 
   const tpl = _ensureCardTemplate();
@@ -156,6 +152,12 @@ export function renderHand(playCardFn) {
 
   container.appendChild(fragment);
   animateHandStagger(container);
+
+  if (focusedIndex >= 0 && hand.length > 0) {
+    const targetIdx = Math.min(focusedIndex, hand.length - 1);
+    const targetCard = container.querySelector(`.card[data-index="${targetIdx}"]`);
+    if (targetCard) targetCard.focus();
+  }
 }
 
 
@@ -205,8 +207,8 @@ const REDUCED_MOTION =
 // Sprite configurations
 const SPRITES = {
   bgNight: [1, 2, 3, 4, 5].map(n => `assets/image/background/${n}.png`),
-  groundTile: "assets/sprite/lib/1 Tiles/Tile_02.png",
-  groundSubTile: "assets/sprite/lib/1 Tiles/Tile_05.png",
+  groundTile: "assets/lib/1 Tiles/Tile_02.png",
+  groundSubTile: "assets/lib/1 Tiles/Tile_05.png",
   player: {
     idle: { src: "assets/sprite/player/Idle1.png", frames: 4, width: 48, height: 48 },
     run: { src: "assets/sprite/player/Run1.png", frames: 6, width: 48, height: 48 },

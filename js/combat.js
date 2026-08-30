@@ -40,7 +40,9 @@ export function dealDamageToEnemy(amount) {
       vy: 0,
       targetX: enemySprite.x + 25,
       onImpact: () => {
-        enemySprite.animState = "hurt";
+        if (!enemySprite.dead) {
+          enemySprite.animState = "hurt";
+        }
         triggerShake(3 + Math.min(7, dealt * 0.4), 0.25);
         setTimeout(() => {
           if (enemySprite.animState === "hurt" && !enemySprite.dead) enemySprite.animState = "idle";
@@ -88,56 +90,79 @@ export function endTurn(drawHandFn) {
 
   run.stats.turns += 1;
   audioEngine.playExecuteTurn();
-  log(`[ENEMY] ${enemy.name} initiates COUNTER_ATTACK...`, "system");
-
-  let actualDmg = enemy.attackDmg - player.block;
-  let blocked = Math.min(player.block, enemy.attackDmg);
-  if (actualDmg < 0) actualDmg = 0;
-
-  player.block = Math.max(0, player.block - enemy.attackDmg);
-  player.hp = Math.max(0, player.hp - actualDmg);
-
-  if (blocked > 0) audioEngine.playBlock();
-  if (actualDmg > 0) audioEngine.playDamageTaken();
 
   const enemyBox = document.getElementById("enemyBox");
   const terminal = document.getElementById("terminal");
-  
-  enemySprite.animState = "attack";
-
-  const onImpact = () => {
-    animateHitFlash(terminal, "red");
-    // Trigger canvas attack burst effect
-    enemySprite.attackFlashTimer = actualDmg > 0 ? 0.45 : 0.25;
-    if (actualDmg > 0) {
-      triggerShake(9 + Math.min(6, actualDmg * 0.3), 0.32);
-      playerSprite.animState = "hurt";
-      setTimeout(() => {
-        if (playerSprite.animState === "hurt") playerSprite.animState = "idle";
-      }, 350);
-    } else if (blocked > 0) {
-      triggerShake(4, 0.2);
-    }
-
-    if (blocked > 0) {
-      log(`[BLOCK] Deflected ${blocked} damage!`, "info");
-      animateFloatDamage(`BLOCKED ${blocked}`, "block", "25%", "45%");
-    }
-    if (actualDmg > 0) {
-      log(`[DAMAGE] System took ${actualDmg} damage!`, "system");
-      animateFloatDamage(`-${actualDmg}`, "player", "35%", "55%");
-    } else if (blocked >= enemy.attackDmg) {
-      log("[BLOCK] Damage fully negated!", "info");
-    }
-  };
+  const currentIntent = enemy.intent || "attack";
 
   setIsAnimating(true);
-  animateEnemyTelegraph(enemyBox, () => {
-    animateEnemyAttack(enemyBox, onImpact, () => {
-      enemySprite.animState = "idle";
-      setIsAnimating(false);
+
+  if (currentIntent === "attack") {
+    log(`[ENEMY] ${enemy.name} initiates COUNTER_ATTACK...`, "system");
+
+    let actualDmg = enemy.attackDmg - player.block;
+    let blocked = Math.min(player.block, enemy.attackDmg);
+    if (actualDmg < 0) actualDmg = 0;
+
+    player.block = Math.max(0, player.block - enemy.attackDmg);
+    player.hp = Math.max(0, player.hp - actualDmg);
+
+    if (blocked > 0) audioEngine.playBlock();
+    if (actualDmg > 0) audioEngine.playDamageTaken();
+
+    enemySprite.animState = "attack";
+
+    const onImpact = () => {
+      animateHitFlash(terminal, "red");
+      // Trigger canvas attack burst effect
+      enemySprite.attackFlashTimer = actualDmg > 0 ? 0.45 : 0.25;
+      if (actualDmg > 0) {
+        triggerShake(9 + Math.min(6, actualDmg * 0.3), 0.32);
+        playerSprite.animState = "hurt";
+        setTimeout(() => {
+          if (playerSprite.animState === "hurt") playerSprite.animState = "idle";
+        }, 350);
+      } else if (blocked > 0) {
+        triggerShake(4, 0.2);
+      }
+
+      if (blocked > 0) {
+        log(`[BLOCK] Deflected ${blocked} damage!`, "info");
+        animateFloatDamage(`BLOCKED ${blocked}`, "block", "25%", "45%");
+      }
+      if (actualDmg > 0) {
+        log(`[DAMAGE] System took ${actualDmg} damage!`, "system");
+        animateFloatDamage(`-${actualDmg}`, "player", "35%", "55%");
+      } else if (blocked >= enemy.attackDmg) {
+        log("[BLOCK] Damage fully negated!", "info");
+      }
+    };
+
+    animateEnemyTelegraph(enemyBox, () => {
+      animateEnemyAttack(enemyBox, onImpact, () => {
+        enemySprite.animState = "idle";
+        finishEnemyTurn(drawHandFn);
+      });
     });
-  });
+  } else if (currentIntent === "defend") {
+    log(`[ENEMY] ${enemy.name} engages DEFENSE MATRIX (+4 HP)...`, "warning");
+    const healVal = 4;
+    enemy.hp = Math.min(enemy.maxHp, enemy.hp + healVal);
+    animateFloatDamage(`+${healVal} HP`, "enemy", "65%", "45%");
+    animateHitFlash(enemyBox, "green");
+    audioEngine.playBlock();
+    setTimeout(() => finishEnemyTurn(drawHandFn), 500);
+  } else if (currentIntent === "buff") {
+    log(`[ENEMY] ${enemy.name} executes OVERCLOCK (+3 ATK)...`, "warning");
+    enemy.attackDmg += 3;
+    animateFloatDamage("+3 ATK", "enemy", "65%", "45%");
+    animateHitFlash(enemyBox, "blue");
+    setTimeout(() => finishEnemyTurn(drawHandFn), 500);
+  }
+}
+
+function finishEnemyTurn(drawHandFn) {
+  setIsAnimating(false);
 
   const intents = ["attack", "attack", "attack", "defend", "buff"];
   enemy.intent = intents[Math.floor(Math.random() * intents.length)];
@@ -167,15 +192,11 @@ export function updateEnemyIntent() {
       intentEl.className = `${INTENT_BASE} border border-balatro-blue/20 text-balatro-blue/80`;
       if (icon) icon.innerHTML = ICONS.shield;
       if (text) text.textContent = "DEFEND +4";
-      enemy.hp = Math.min(enemy.maxHp, enemy.hp + 4);
-      log("[ENEMY] Defense Matrix: +4 HP", "warning");
       break;
     case "buff":
       intentEl.className = `${INTENT_BASE} border border-balatro-purple/20 text-balatro-purple/80`;
       if (icon) icon.innerHTML = ICONS.trend;
       if (text) text.textContent = "BUFF +3";
-      enemy.attackDmg += 3;
-      log("[ENEMY] Attack buffed! DMG ↑", "warning");
       break;
   }
 }
