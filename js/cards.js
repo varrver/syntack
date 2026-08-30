@@ -97,10 +97,10 @@ export const CARD_TYPES = [
     id: 7,
     ram: 2,
     code: "OVERCLOCK()",
-    desc: "Gain +2 RAM (max 5)",
+    desc: "Gain +2 RAM (max 7)",
     type: "defense",
     action: () => {
-      let gained = Math.min(2, 5 - player.maxRam);
+      let gained = Math.min(2, 7 - player.maxRam);
       if (gained > 0) {
         player.maxRam += gained;
         player.ram = player.maxRam;
