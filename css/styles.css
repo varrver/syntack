@@ -911,11 +911,32 @@ body::after {
 }
 
 @keyframes glitchChannel {
-  0%, 88%, 100% { transform: translate(0); opacity: 0; }
-  89% { opacity: 0.75; }
-  91% { transform: translate(-6px, 2px); opacity: 0.75; }
-  93% { transform: translate(5px, -2px); opacity: 0.75; }
-  95% { transform: translate(-3px, 1px); opacity: 0.55; }
+
+  0%,
+  88%,
+  100% {
+    transform: translate(0);
+    opacity: 0;
+  }
+
+  89% {
+    opacity: 0.75;
+  }
+
+  91% {
+    transform: translate(-6px, 2px);
+    opacity: 0.75;
+  }
+
+  93% {
+    transform: translate(5px, -2px);
+    opacity: 0.75;
+  }
+
+  95% {
+    transform: translate(-3px, 1px);
+    opacity: 0.55;
+  }
 }
 
 /* Horizontal skew-tear on the title itself during bursts */
@@ -924,9 +945,20 @@ body::after {
 }
 
 @keyframes glitchSkew {
-  0%, 82%, 100% { transform: skewX(0deg); }
-  83% { transform: skewX(-3deg) translateX(-2px); }
-  86% { transform: skewX(2.5deg) translateX(3px); }
+
+  0%,
+  82%,
+  100% {
+    transform: skewX(0deg);
+  }
+
+  83% {
+    transform: skewX(-3deg) translateX(-2px);
+  }
+
+  86% {
+    transform: skewX(2.5deg) translateX(3px);
+  }
 }
 
 /* Glow intensifies during burst windows (same timing as skew) */
@@ -935,16 +967,21 @@ body::after {
     0 0 16px rgb(var(--balatro-gold-rgb) / 0.4),
     3px 3px 0 #000;
   animation: glitchSkew 4.6s steps(3, step-end) infinite,
-             glitchGlow 4.6s steps(3, step-end) infinite;
+    glitchGlow 4.6s steps(3, step-end) infinite;
 }
 
 @keyframes glitchGlow {
-  0%, 82%, 100% {
+
+  0%,
+  82%,
+  100% {
     text-shadow:
       0 0 16px rgb(var(--balatro-gold-rgb) / 0.4),
       3px 3px 0 #000;
   }
-  83%, 86% {
+
+  83%,
+  86% {
     text-shadow:
       0 0 28px rgb(var(--balatro-gold-rgb) / 0.7),
       0 0 60px rgb(var(--balatro-red-rgb) / 0.3),
@@ -958,6 +995,7 @@ body::after {
   .glitch-menu {
     animation: none;
   }
+
   .glitch-menu::before,
   .glitch-menu::after {
     animation: glitchFlicker 4s steps(1) infinite;
@@ -965,8 +1003,17 @@ body::after {
 }
 
 @keyframes glitchFlicker {
-  0%, 88%, 100% { opacity: 0; transform: none; }
-  90%           { opacity: 0.4; }
+
+  0%,
+  88%,
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+
+  90% {
+    opacity: 0.4;
+  }
 }
 
 /* ────────────────────────────────────────────────────────
@@ -1403,13 +1450,11 @@ body::after {
 /* CRT phosphor-line texture — additive light lines only (5% alpha),
    so the overlay adds grain without darkening the scene */
 .splash-scanlines {
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(148, 190, 255, 0.05) 2px,
-    rgba(148, 190, 255, 0.05) 3px
-  );
+  background: repeating-linear-gradient(0deg,
+      transparent,
+      transparent 2px,
+      rgba(148, 190, 255, 0.05) 2px,
+      rgba(148, 190, 255, 0.05) 3px);
   z-index: 1;
 }
 
@@ -1430,11 +1475,14 @@ body::after {
 }
 
 @keyframes splashPulse {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow:
       0 0 8px rgb(var(--balatro-cyan-rgb) / 0.3),
       0 0 20px rgb(var(--balatro-cyan-rgb) / 0.1);
   }
+
   50% {
     box-shadow:
       0 0 16px rgb(var(--balatro-cyan-rgb) / 0.5),
@@ -1538,6 +1586,7 @@ body::after {
   .hud-stats {
     gap: 4px;
   }
+
   .hud-stat {
     min-width: 0;
     flex: 1 1 0;
@@ -1690,8 +1739,8 @@ body::after {
 
 .parallax-layer {
   position: absolute;
-  /* Overscan past the viewport edges — mouse-parallax translate (max ~±8px)
-     must never pull a layer away from an edge and expose a gap */
+  /* Overscan past the viewport edges so continuous horizontal scroll
+     never pulls a layer away from an edge and expose a gap */
   inset: -12px;
   background-repeat: repeat-x;
   background-position: 0 bottom;
@@ -1754,48 +1803,40 @@ body::after {
 
 /* Left panel: player — dark cyan tint */
 .battle-intro-panel-left {
-  background: linear-gradient(
-    110deg,
-    rgba(0, 20, 40, 0.97) 0%,
-    rgba(0, 30, 55, 0.92) 60%,
-    rgba(0, 45, 70, 0.6) 100%
-  );
+  background: linear-gradient(110deg,
+      rgba(0, 20, 40, 0.97) 0%,
+      rgba(0, 30, 55, 0.92) 60%,
+      rgba(0, 45, 70, 0.6) 100%);
   border-right: 1px solid rgb(var(--balatro-cyan-rgb) / 0.25);
 }
 
 /* Right panel: enemy — dark red tint */
 .battle-intro-panel-right {
-  background: linear-gradient(
-    -110deg,
-    rgba(40, 8, 10, 0.97) 0%,
-    rgba(55, 12, 14, 0.92) 60%,
-    rgba(70, 15, 18, 0.6) 100%
-  );
+  background: linear-gradient(-110deg,
+      rgba(40, 8, 10, 0.97) 0%,
+      rgba(55, 12, 14, 0.92) 60%,
+      rgba(70, 15, 18, 0.6) 100%);
   border-left: 1px solid rgb(var(--balatro-red-rgb) / 0.25);
 }
 
 /* Scanline texture over each panel */
 .battle-intro-scanline {
-  background-image: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0, 0, 0, 0.18) 2px,
-    rgba(0, 0, 0, 0.18) 4px
-  );
+  background-image: repeating-linear-gradient(0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.18) 2px,
+      rgba(0, 0, 0, 0.18) 4px);
   pointer-events: none;
 }
 
 /* Center vertical divider */
 .battle-intro-divider {
-  background: linear-gradient(
-    180deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.6) 20%,
-    rgba(255, 255, 255, 0.9) 50%,
-    rgba(255, 255, 255, 0.6) 80%,
-    transparent 100%
-  );
+  background: linear-gradient(180deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.6) 20%,
+      rgba(255, 255, 255, 0.9) 50%,
+      rgba(255, 255, 255, 0.6) 80%,
+      transparent 100%);
   box-shadow: 0 0 12px 2px rgba(255, 255, 255, 0.35);
 }
 
@@ -1844,35 +1885,81 @@ body::after {
 }
 
 @keyframes introWarningBlink {
-  0%, 100% { opacity: 0.3; }
-  50%       { opacity: 1; }
+
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+
+  50% {
+    opacity: 1;
+  }
 }
 
 /* Slide-in animations */
 @keyframes introPanelLeftIn {
-  from { transform: translateX(-100%); opacity: 0; }
-  to   { transform: translateX(0);     opacity: 1; }
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 @keyframes introPanelRightIn {
-  from { transform: translateX(100%); opacity: 0; }
-  to   { transform: translateX(0);    opacity: 1; }
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 @keyframes introDividerIn {
-  from { opacity: 0; transform: translateX(-50%) scaleY(0); }
-  to   { opacity: 1; transform: translateX(-50%) scaleY(1); }
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scaleY(0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%) scaleY(1);
+  }
 }
 
 @keyframes introVsBadgeIn {
-  0%   { opacity: 0; transform: scale(0.3) rotate(-20deg); }
-  70%  { opacity: 1; transform: scale(1.15) rotate(4deg); }
-  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+  0% {
+    opacity: 0;
+    transform: scale(0.3) rotate(-20deg);
+  }
+
+  70% {
+    opacity: 1;
+    transform: scale(1.15) rotate(4deg);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
 }
 
 @keyframes introTextFadeUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Active state wires each element in sequence */
@@ -1922,10 +2009,14 @@ body::after {
 }
 
 @keyframes introFadeOut {
-  to { opacity: 0; transform: scale(1.03); }
+  to {
+    opacity: 0;
+    transform: scale(1.03);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .battle-intro-active .battle-intro-panel-left,
   .battle-intro-active .battle-intro-panel-right,
   .battle-intro-active #battle-intro-divider,
@@ -1944,7 +2035,7 @@ body::after {
 
 /* ────────────────────────────────────────────────────────
    30. PARALLAX SCROLLING BACKGROUND (Menu & Screens)
-   5-layer continuous scrolling background with mouse parallax
+   5-layer continuous horizontal scrolling background
    ──────────────────────────────────────────────────────── */
 .menu-parallax-bg {
   position: fixed;
@@ -2008,6 +2099,7 @@ body::after {
   0% {
     transform: translateX(0);
   }
+
   100% {
     transform: translateX(-50%);
   }
@@ -2053,6 +2145,7 @@ body::after {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   #victory-cutscene,
   .victory-video-window {
     transition: none !important;
